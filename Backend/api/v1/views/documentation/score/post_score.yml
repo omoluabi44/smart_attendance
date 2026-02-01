@@ -1,0 +1,64 @@
+Create a new score
+---
+tags:
+  - Scores
+security:
+  - bearerAuth: []
+summary: Create a new score for a user in a course
+description: Creates a new score entry for a user in a specific course. Requires valid user ID and course ID for the associated enrollment.
+
+parameters:
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing score details
+    schema:
+      type: object
+      required:
+        - courseID
+        - userID
+        - score
+      properties:
+        courseID:
+          type: string
+          description: ID of the course for which the score is recorded
+        userID:
+          type: string
+          description: ID of the user who received the score
+        score:
+          type: number
+          format: float
+          description: The score the user received for the course
+
+responses:
+  201:
+    description: Score created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the score record
+        courseID:
+          type: string
+          description: ID of the course
+        userID:
+          type: string
+          description: ID of the user
+        score:
+          type: number
+          format: float
+          description: The score recorded for the user in the course
+        enrollmentID:
+          type: string
+          description: Enrollment ID linking the user and the course
+        created_at:
+          type: string
+          description: Time when the score record was created
+        updated_at:
+          type: string
+          description: Time when the score record was last updated
+  400:
+    description: Bad Request (e.g., missing fields or not a JSON)
+  404:
+    description: Enrollment not found

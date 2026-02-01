@@ -1,0 +1,47 @@
+tags:
+  - Courses
+summary: Update a course
+description: Updates the details of an existing course.
+
+parameters:
+  - in: path
+    name: course_id
+    required: true
+    schema:
+      type: string
+    description: ID of the course to update
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          courseID:
+            type: string
+          courseName:
+            type: string
+
+responses:
+  200:
+    description: Course updated successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+            courseID:
+              type: string
+            courseName:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+  400:
+    description: Not a JSON
+  404:
+    description: Course not found

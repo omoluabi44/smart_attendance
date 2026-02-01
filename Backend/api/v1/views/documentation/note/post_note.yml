@@ -1,0 +1,58 @@
+Create a new note for a specific outline
+---
+tags:
+  - Notes
+security:
+  - bearerAuth: []
+summary: Create a new note for a specific outline by its ID
+description: This endpoint allows users to create a new note for a specific outline by providing the content and other required data. It requires a valid JWT and the outline ID.
+
+parameters:
+  - in: path
+    name: outline_id
+    required: true
+    type: string
+    description: UUID of the outline where the note will be created
+
+requestBody:
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          content:
+            type: string
+            description: The content of the note
+          orderID:
+            type: integer
+            description: The order of the note in the list of notes
+        required:
+          - content
+          - orderID
+
+responses:
+  201:
+    description: Note created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the note
+        content:
+          type: string
+          description: The content of the note
+        orderID:
+          type: integer
+          description: The order of the note in the list of notes
+        outlineID:
+          type: string
+          description: The ID of the outline this note belongs to
+        created_at:
+          type: string
+          description: Time when the note was created
+        updated_at:
+          type: string
+          description: Time when the note was last updated
+  400:
+    description: Missing required fields in the request body (content or orderID)

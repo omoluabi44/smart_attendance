@@ -1,0 +1,41 @@
+Retrieve all outlines for a specific course
+---
+tags:
+  - Courses
+security:
+  - bearerAuth: []
+summary: Retrieve the list of all outlines for a specific course
+description: Retrieves the outlines associated with a given course. Requires JWT authentication to access.
+
+parameters:
+  - in: path
+    name: course_id
+    required: true
+    type: string
+    description: UUID of the course to retrieve outlines for
+
+responses:
+  200:
+    description: Successfully retrieved the outlines for the course
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: UUID of the outline
+          topic:
+            type: string
+            description: Topic covered in the outline
+          courseID:
+            type: string
+            description: ID of the course that the outline belongs to
+          created_at:
+            type: string
+            description: Time when the outline was created
+          updated_at:
+            type: string
+            description: Time when the outline was last updated
+  404:
+    description: Course not found or course has no outlines

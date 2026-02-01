@@ -1,0 +1,9 @@
+.env.prod
+alembic
+certbot
+.env
+.env.prod
+node_modules
+attendance
+.next
+

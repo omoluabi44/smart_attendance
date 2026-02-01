@@ -1,0 +1,40 @@
+tags:
+  - Flashcards
+security:
+  - bearerAuth: []
+summary: Get flashcards for a specific user and course
+description: This endpoint retrieves a list of all flashcards for a specific user and course. Requires a valid JWT.
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    type: string
+    description: The ID of the user
+  - in: path
+    name: course_id
+    required: true
+    type: string
+    description: The ID of the course
+
+responses:
+  200:
+    description: A list of flashcards for the specified user and course
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The flashcard ID
+              question:
+                type: string
+                description: The flashcard question
+              answer:
+                type: string
+                description: The flashcard answer
+  404:
+    description: Enrollment or flashcards not found

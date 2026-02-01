@@ -1,0 +1,36 @@
+tags:
+  - Assignment
+summary: Create a new assignment
+description: Creates a new assignment for a course.
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - courseID
+          - title
+          - due_date
+        properties:
+          courseID:
+            type: string
+            description: The ID of the course
+          title:
+            type: string
+            description: Title of the assignment
+          due_date:
+            type: string
+            format: date
+            description: Due date (format YYYY-MM-DD)
+
+responses:
+  201:
+    description: Assignment created successfully
+    content:
+      application/json:
+        schema:
+          type: object
+  400:
+    description: Bad request (missing fields or invalid date format)

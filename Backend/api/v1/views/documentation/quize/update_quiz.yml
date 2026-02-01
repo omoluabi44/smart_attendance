@@ -1,0 +1,82 @@
+Update an existing quiz
+---
+tags:
+  - Quizzes
+security:
+  - bearerAuth: []
+summary: Update an existing quiz
+description: Updates the details of an existing quiz. Only certain fields can be updated. Requires valid quiz ID and JSON payload with updated fields.
+
+parameters:
+  - in: path
+    name: quize_id
+    required: true
+    type: string
+    description: UUID of the quiz to update
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing updated quiz details
+    schema:
+      type: object
+      properties:
+        courseID:
+          type: string
+          description: Updated ID of the course the quiz belongs to
+        university_code:
+          type: string
+          description: Updated university code for the university offering the course
+        questionText:
+          type: string
+          description: Updated question text for the quiz
+        correct_answer:
+          type: string
+          description: Updated correct answer
+        incorrect_answers:
+          type: array
+          items:
+            type: string
+          description: Updated list of incorrect answers
+        explanation:
+          type: string
+          description: Updated explanation for the correct answer
+
+responses:
+  200:
+    description: Quiz updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the quiz
+        courseID:
+          type: string
+          description: ID of the course to which the quiz belongs
+        university_code:
+          type: string
+          description: University code
+        questionText:
+          type: string
+          description: The question text for the quiz
+        correct_answer:
+          type: string
+          description: The correct answer
+        incorrect_answers:
+          type: array
+          items:
+            type: string
+          description: List of incorrect answers
+        explanation:
+          type: string
+          description: Explanation for the correct answer
+        created_at:
+          type: string
+          description: Time when the quiz was created
+        updated_at:
+          type: string
+          description: Time when the quiz was last updated
+  400:
+    description: Bad Request (e.g., missing required fields or not a JSON)
+  404:
+    description: Quiz not found

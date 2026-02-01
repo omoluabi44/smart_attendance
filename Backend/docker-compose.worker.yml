@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  worker:
+    build: .
+    container_name: coursepass_worker
+    restart: always
+    # Optimized for high concurrency on t2.micro
+    command: celery -A api.v1.celery.celery worker --loglevel=info -P eventlet -c 50 --without-gossip --without-mingle
+    env_file: .env.prod
+    

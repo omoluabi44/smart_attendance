@@ -1,0 +1,78 @@
+Create a university for a user
+---
+tags:
+  - University
+security:
+  - bearerAuth: []
+summary: Create and associate a university with a user
+description: Creates a new university entry and links it to an existing user based on user ID. Requires JWT authentication.
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    type: string
+    description: UUID of the user to associate with the new university
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing university details
+    schema:
+      type: object
+      required:
+        - university
+        - College
+        - department
+        - level
+        - university_code
+      properties:
+        university:
+          type: string
+          description: Name of the university
+        College:
+          type: string
+          description: Name of the college
+        department:
+          type: string
+          description: Name of the department
+        level:
+          type: string
+          description: User's academic level
+        university_code:
+          type: string
+          description: Code identifying the university
+
+responses:
+  201:
+    description: University created and linked successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the created university
+        university:
+          type: string
+          description: Name of the university
+        College:
+          type: string
+          description: Name of the college
+        department:
+          type: string
+          description: Name of the department
+        level:
+          type: string
+          description: Academic level
+        university_code:
+          type: string
+          description: University code
+        created_at:
+          type: string
+          description: Creation timestamp
+        updated_at:
+          type: string
+          description: Last updated timestamp
+  400:
+    description: Invalid request (e.g., not a JSON or missing fields)
+  404:
+    description: User not found

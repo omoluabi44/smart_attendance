@@ -1,0 +1,55 @@
+Login a user
+---
+tags:
+  - Authentication
+security:
+  - bearerAuth: []
+summary: Login an existing user
+description: Authenticates a user using username and password. Returns JWT access and refresh tokens upon successful login. Account must be verified before login is allowed.
+
+consumes:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing user login credentials
+    schema:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        password:
+          type: string
+          description: Password of the user
+
+responses:
+  200:
+    description: User logged in successfully
+    schema:
+      type: object
+      properties:
+        Message:
+          type: string
+          description: Confirmation message
+        tokens:
+          type: object
+          properties:
+            access:
+              type: string
+              description: JWT access token
+            refresh:
+              type: string
+              description: JWT refresh token
+  400:
+    description: Bad Request (e.g., missing fields, not JSON)
+  401:
+    description: Unauthorized (invalid credentials)
+  403:
+    description: Forbidden (account not verified)
+  404:
+    description: User not found

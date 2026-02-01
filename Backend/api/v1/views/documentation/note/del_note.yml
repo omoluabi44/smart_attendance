@@ -1,0 +1,29 @@
+Delete a note by its ID
+---
+tags:
+  - Notes
+security:
+  - bearerAuth: []
+summary: Delete an existing note by its ID
+description: This endpoint allows users to delete a specific note by its ID. It requires a valid JWT and the note ID in the path.
+
+parameters:
+  - in: path
+    name: note_id
+    required: true
+    type: string
+    description: UUID of the note to be deleted
+
+responses:
+  200:
+    description: Note deleted successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message (e.g., "Note deleted")
+  404:
+    description: Note not found

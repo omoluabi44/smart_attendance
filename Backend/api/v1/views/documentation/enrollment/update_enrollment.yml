@@ -1,0 +1,51 @@
+tags:
+  - Enrollment
+security:
+  - bearerAuth: []
+summary: Update an existing enrollment
+description: Updates userID or courseID for an existing enrollment.
+
+parameters:
+  - in: path
+    name: enrollment_id
+    required: true
+    schema:
+      type: string
+    description: ID of the enrollment to update
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          userID:
+            type: string
+            description: New user ID (optional)
+          courseID:
+            type: string
+            description: New course ID (optional)
+
+responses:
+  200:
+    description: Enrollment updated successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+            userID:
+              type: string
+            courseID:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+  400:
+    description: Missing fields or invalid user/course
+  404:
+    description: Enrollment not found

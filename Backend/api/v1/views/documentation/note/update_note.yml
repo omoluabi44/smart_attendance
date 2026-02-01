@@ -1,0 +1,57 @@
+Update an existing note by its ID
+---
+tags:
+  - Notes
+security:
+  - bearerAuth: []
+summary: Update an existing note by its ID
+description: This endpoint allows users to update a specific note by its ID. It requires a valid JWT and the note ID in the path. Only fields that are not ignored will be updated.
+
+parameters:
+  - in: path
+    name: note_id
+    required: true
+    type: string
+    description: UUID of the note to be updated
+
+requestBody:
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          content:
+            type: string
+            description: The content of the note
+          orderID:
+            type: integer
+            description: The order of the note in the list of notes
+
+responses:
+  200:
+    description: Note updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the updated note
+        content:
+          type: string
+          description: The content of the note
+        orderID:
+          type: integer
+          description: The order of the note in the list of notes
+        outlineID:
+          type: string
+          description: The ID of the outline this note belongs to
+        created_at:
+          type: string
+          description: Time when the note was created
+        updated_at:
+          type: string
+          description: Time when the note was last updated
+  400:
+    description: Invalid request body or missing fields
+  404:
+    description: Note not found

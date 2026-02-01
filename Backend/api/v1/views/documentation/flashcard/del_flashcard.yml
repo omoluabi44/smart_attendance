@@ -1,0 +1,27 @@
+tags:
+  - Flashcards
+security:
+  - bearerAuth: []
+summary: Delete a flashcard by its ID
+description: This endpoint deletes a specific flashcard by its ID. Requires a valid JWT.
+
+parameters:
+  - in: path
+    name: flashcard_id
+    required: true
+    type: string
+    description: The ID of the flashcard to delete
+
+responses:
+  200:
+    description: Flashcard deleted successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message (e.g., "Flashcard deleted")
+  404:
+    description: Flashcard not found

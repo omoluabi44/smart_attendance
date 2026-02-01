@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Your Password</title>
+  <style>
+    /* Reset & Base */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #F9FAFB; /* Light Gray Background */
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    /* The Main Card - Soft Pop Style */
+    .container {
+      background-color: #ffffff;
+      max-width: 500px;
+      margin: auto;
+      
+      /* The Signature "Soft Pop" Look */
+      border: 2px dashed #D1D5DB; /* border-gray-300 */
+      border-radius: 24px; /* rounded-3xl */
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    /* The Logo Container - Gradient Sparkle Box */
+    .logo-wrapper {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 70px;
+      height: 70px;
+      /* bg-gradient-to-tr from-blue-100 to-purple-50 */
+
+      border-radius: 18px; /* rounded-2xl */
+      margin-bottom: 20px;
+      /* Subtle shadow */
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1); 
+    }
+
+    .logo-wrapper img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    /* Typography */
+    .header-title {
+      font-size: 20px;
+      font-weight: 800; /* font-black */
+      color: #1F2937; /* gray-800 */
+      letter-spacing: -0.5px; /* tracking-tight */
+      margin-bottom: 5px;
+    }
+
+    .header-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #EF4444; /* Red/Rose color for Urgency/Reset */
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 25px;
+    }
+
+    .content-text {
+      color: #4B5563; /* gray-600 */
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* The Code Box */
+    .code-box {
+      margin: 30px 0;
+    }
+
+    .code {
+      display: inline-block;
+      background-color: #FEF2F2; /* Light Red/Rose tint for password reset */
+      color: #DC2626; /* Red-600 */
+      font-size: 32px;
+      font-weight: 800;
+      padding: 15px 40px;
+      border-radius: 16px;
+      letter-spacing: 4px;
+      border: 1px solid #FECACA; /* Red-200 */
+      font-family: monospace;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      color: #9CA3AF;
+      font-size: 12px;
+      border-top: 1px solid #F3F4F6;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    
+    <div class="logo-wrapper">
+      <img src="https://coursepass-profile-bucket.s3.eu-north-1.amazonaws.com/newbrandLogo3.jpg" alt="Coursepass Logo" />
+    </div>
+
+    <div class="header-title">【Coursepass】</div>
+    <div class="header-text">Reset your password</div>
+
+    <div class="content-text">
+      <p>Hi there,</p>
+      <p>Use the verification code below to reset your password.</p>
+    </div>
+
+    <div class="code-box">
+      <div class="code">{{ code }}</div>
+    </div>
+
+    <div class="content-text" style="font-size: 13px; margin-bottom: 0;">
+      <p>If you didn’t request this code, you can safely ignore this email.</p>
+    </div>
+
+    <div class="footer">
+      — The Coursepass Team
+    </div>
+  </div>
+</body>
+
+</html>

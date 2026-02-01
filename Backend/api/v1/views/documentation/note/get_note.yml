@@ -1,0 +1,39 @@
+Retrieve a specific note by its ID
+---
+tags:
+  - Notes
+security:
+  - bearerAuth: []
+summary: Retrieve a specific note by its ID
+description: This endpoint allows users to retrieve a specific note by its ID. It requires a valid JWT and the note ID.
+
+parameters:
+  - in: path
+    name: note_id
+    required: true
+    type: string
+    description: UUID of the note to be retrieved
+
+responses:
+  200:
+    description: A specific note
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the note
+        content:
+          type: string
+          description: The content of the note
+        outlineID:
+          type: string
+          description: The ID of the outline this note belongs to
+        created_at:
+          type: string
+          description: Time when the note was created
+        updated_at:
+          type: string
+          description: Time when the note was last updated
+  404:
+    description: Note not found

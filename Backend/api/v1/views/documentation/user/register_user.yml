@@ -1,0 +1,81 @@
+CREATE a new user
+---
+tags:
+  - Authentication
+security:
+  - bearerAuth: []
+summary: Register a new user
+description: Creates a new user account in the system. Requires a valid JWT token. The user will receive an email verification code upon registration. This endpoint ensures required fields are provided.
+
+consumes:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing user registration data
+    schema:
+      type: object
+      required:
+        - username
+        - password
+        - email
+        - Fname
+        - Lname
+      properties:
+        username:
+          type: string
+          description: Desired username for the user
+        password:
+          type: string
+          description: Password for the user
+        email:
+          type: string
+          description: Email address of the user
+        Fname:
+          type: string
+          description: User's first name
+        Lname:
+          type: string
+          description: User's last name
+
+responses:
+  201:
+    description: User created successfully
+    schema:
+      type: object
+      properties:
+        __class__:
+          type: string
+        created_at:
+          type: string
+          description: Time of creation of the instance
+        updated_at:
+          type: string
+          description: Time of last update of the instance
+        id:
+          type: string
+          description: The UUID of the instance
+        email:
+          type: string
+          description: User's email
+        username:
+          type: string
+          description: User's username
+        Fname:
+          type: string
+          description: User's first name
+        Lname:
+          type: string
+          description: User's last name
+        is_verified:
+          type: boolean
+          description: Whether the user's email is verified
+        verification_code:
+          type: string
+          description: Verification code sent to user's email
+        code_expires_at:
+          type: string
+          description: Expiration time for the verification code
+  400:
+    description: Invalid input (e.g., missing fields or not a JSON)

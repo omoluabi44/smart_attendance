@@ -1,0 +1,82 @@
+Create a new quiz
+---
+tags:
+  - Quizzes
+security:
+  - bearerAuth: []
+summary: Create a new quiz for a course
+description: Creates a new quiz entry for a specific course. Requires valid course ID and university code for the associated university.
+
+parameters:
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing quiz details
+    schema:
+      type: object
+      required:
+        - courseID
+        - university_code
+        - questionText
+        - correct_answer
+        - incorrect_answers
+        - explanation
+      properties:
+        courseID:
+          type: string
+          description: UUID of the course where the quiz belongs
+        university_code:
+          type: string
+          description: University code for the university offering the course
+        questionText:
+          type: string
+          description: The question text for the quiz
+        correct_answer:
+          type: string
+          description: The correct answer to the question
+        incorrect_answers:
+          type: array
+          description: List of incorrect answers
+          items:
+            type: string
+        explanation:
+          type: string
+          description: Explanation for the correct answer
+
+responses:
+  201:
+    description: Quiz created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the quiz
+        courseID:
+          type: string
+          description: ID of the course to which the quiz belongs
+        university_code:
+          type: string
+          description: University code
+        questionText:
+          type: string
+          description: The question text for the quiz
+        correct_answer:
+          type: string
+          description: The correct answer
+        incorrect_answers:
+          type: array
+          items:
+            type: string
+          description: List of incorrect answers
+        explanation:
+          type: string
+          description: Explanation for the correct answer
+        created_at:
+          type: string
+          description: Time when the quiz was created
+        updated_at:
+          type: string
+          description: Time when the quiz was last updated
+  400:
+    description: Bad Request (e.g., missing required fields or not a JSON)

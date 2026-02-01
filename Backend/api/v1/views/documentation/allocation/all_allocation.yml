@@ -1,0 +1,52 @@
+
+  tags:
+    - Allocation
+  summary: Create allocations for eligible students
+  description: Create new allocations of assignments for eligible students in a course.
+  operationId: post_allocation
+  consumes:
+    - application/json
+  produces:
+    - application/json
+  parameters:
+    - in: body
+      name: body
+      description: Allocation object
+      required: true
+      schema:
+        type: object
+        properties:
+          userID:
+            type: string
+            description: ID of the user assigning the allocation
+          courseID:
+            type: string
+            description: ID of the course
+          assign_date:
+            type: string
+            description: Assignment date in YYYY-MM-DD format
+          assignmentID:
+            type: string
+            description: ID of the assignment to be allocated
+  responses:
+    201:
+      description: Allocations created successfully
+      schema:
+        type: array
+        items:
+          type: object
+          properties:
+            userID:
+              type: string
+            courseID:
+              type: string
+            assign_date:
+              type: string
+            assignmentID:
+              type: string
+    400:
+      description: Bad request (e.g., missing fields, invalid data)
+    404:
+      description: Course enrollment not found for user
+    500:
+      description: Internal server error

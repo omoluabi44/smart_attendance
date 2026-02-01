@@ -1,0 +1,33 @@
+Get all scores for a user
+---
+tags:
+  - Scores
+security:
+  - bearerAuth: []
+summary: Retrieve all scores for a user across all courses
+description: Retrieves all scores associated with a user, across all courses the user is enrolled in. Requires JWT authentication.
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    type: string
+    description: UUID of the user
+
+responses:
+  200:
+    description: List of all scores retrieved successfully
+    schema:
+      type: array
+      items:
+        type: array
+        items:
+          - type: string
+            description: Course ID
+          - type: array
+            items:
+              type: number
+              format: float
+            description: List of scores for the course
+  404:
+    description: No courses or scores found for the user

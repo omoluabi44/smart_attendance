@@ -1,0 +1,21 @@
+Delete an existing outline
+---
+tags:
+  - Outlines
+security:
+  - bearerAuth: []
+summary: Delete an existing outline by its ID
+description: This endpoint allows users to delete an outline for a specific course by its ID. It requires a valid JWT and will return a `404` if the outline is not found.
+
+parameters:
+  - in: path
+    name: outline_id
+    required: true
+    type: string
+    description: UUID of the outline to be deleted
+
+responses:
+  200:
+    description: Outline deleted successfully
+  404:
+    description: Outline not found

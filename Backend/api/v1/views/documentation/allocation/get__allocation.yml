@@ -1,0 +1,35 @@
+Retrieve specific content by its ID
+---
+tags:
+  - Outlines
+summary: Retrieve a specific content by its ID
+description: Retrieves the content of a specific outline based on the given outline ID. If the outline is not found, returns a 404 error.
+
+parameters:
+  - in: path
+    name: outline_id
+    required: true
+    type: string
+    description: UUID of the outline to retrieve
+
+responses:
+  200:
+    description: Successfully retrieved the outline content
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the outline
+        topic:
+          type: string
+          description: Topic covered in the outline
+        courseID:
+          type: string
+          description: ID of the course that the outline belongs to
+        created_at:
+          type: string
+          description: Time when the outline was created
+        updated_at:
+          type: string
+          description: Time whe

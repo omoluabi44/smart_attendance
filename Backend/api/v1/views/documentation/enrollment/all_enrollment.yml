@@ -1,0 +1,35 @@
+tags:
+  - Enrollment
+security:
+  - bearerAuth: []
+summary: Get all courses a user is enrolled in
+description: Retrieves all the courses a specific user is enrolled in.
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    schema:
+      type: string
+    description: ID of the user
+
+responses:
+  200:
+    description: List of enrolled courses
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              courseID:
+                type: string
+              created_at:
+                type: string
+              updated_at:
+                type: string
+  404:
+    description: User not found

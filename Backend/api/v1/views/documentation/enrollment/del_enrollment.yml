@@ -1,0 +1,24 @@
+tags:
+  - Enrollment
+security:
+  - bearerAuth: []
+summary: Delete an enrollment by ID
+description: Deletes an existing enrollment.
+
+parameters:
+  - in: path
+    name: enrollment_id
+    required: true
+    schema:
+      type: string
+    description: ID of the enrollment to delete
+
+responses:
+  200:
+    description: Enrollment deleted successfully
+    content:
+      application/json:
+        schema:
+          type: object
+  404:
+    description: Enrollment not found

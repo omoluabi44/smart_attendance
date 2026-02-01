@@ -1,0 +1,46 @@
+Verify user account
+---
+tags:
+  - Authentication
+security:
+  - bearerAuth: []
+summary: Verify a user's email account
+description: Verifies a user's account by validating the provided verification code. Requires username, email, and the verification code.
+
+consumes:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing verification data
+    schema:
+      type: object
+      required:
+        - username
+        - code
+        - email
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        email:
+          type: string
+          description: Email address of the user
+        code:
+          type: string
+          description: Verification code received by email
+
+responses:
+  200:
+    description: User verified successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Confirmation message
+  400:
+    description: Bad Request (e.g., already verified, invalid code, expired code)
+  404:
+    description: User not found

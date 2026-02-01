@@ -1,0 +1,22 @@
+tags:
+  - Assignment
+summary: Delete an assignment
+description: Deletes an assignment by its ID.
+
+parameters:
+  - in: path
+    name: assignment_id
+    required: true
+    schema:
+      type: string
+    description: ID of the assignment to delete
+
+responses:
+  200:
+    description: Assignment deleted successfully
+    content:
+      application/json:
+        schema:
+          type: object
+  404:
+    description: Assignment not found

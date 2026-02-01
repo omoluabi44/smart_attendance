@@ -1,0 +1,25 @@
+tags:
+  - Courses
+summary: Retrieve all courses
+description: Retrieves a list of all available courses.
+
+responses:
+  200:
+    description: A list of courses
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              courseID:
+                type: string
+              courseName:
+                type: string
+              created_at:
+                type: string
+              updated_at:
+                type: string

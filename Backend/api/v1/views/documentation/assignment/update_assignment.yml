@@ -1,0 +1,39 @@
+tags:
+  - Assignment
+summary: Update an assignment
+description: Updates an existing assignment.
+
+parameters:
+  - in: path
+    name: assignment_id
+    required: true
+    schema:
+      type: string
+    description: ID of the assignment to update
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          courseID:
+            type: string
+          title:
+            type: string
+          due_date:
+            type: string
+            format: date
+
+responses:
+  200:
+    description: Assignment updated successfully
+    content:
+      application/json:
+        schema:
+          type: object
+  400:
+    description: Not a JSON
+  404:
+    description: Assignment not found

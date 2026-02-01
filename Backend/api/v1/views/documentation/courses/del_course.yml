@@ -1,0 +1,22 @@
+tags:
+  - Courses
+summary: Delete a course
+description: Deletes a course by its ID.
+
+parameters:
+  - in: path
+    name: course_id
+    required: true
+    schema:
+      type: string
+    description: ID of the course to delete
+
+responses:
+  200:
+    description: Course deleted successfully
+    content:
+      application/json:
+        schema:
+          type: object
+  404:
+    description: Course not found

@@ -1,0 +1,41 @@
+Retrieve all notes for a specific outline
+---
+tags:
+  - Notes
+security:
+  - bearerAuth: []
+summary: Retrieve all notes for a specific outline by its ID
+description: This endpoint allows users to retrieve all notes related to a specific outline in a course. It requires a valid JWT and the outline ID to fetch the notes.
+
+parameters:
+  - in: path
+    name: outline_id
+    required: true
+    type: string
+    description: UUID of the outline for which notes are to be retrieved
+
+responses:
+  200:
+    description: A list of notes for the specified outline
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: UUID of the note
+          content:
+            type: string
+            description: The content of the note
+          outlineID:
+            type: string
+            description: The ID of the outline this note belongs to
+          created_at:
+            type: string
+            description: Time when the note was created
+          updated_at:
+            type: string
+            description: Time when the note was last updated
+  404:
+    description: Outline not found

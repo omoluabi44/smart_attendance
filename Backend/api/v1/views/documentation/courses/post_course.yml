@@ -1,0 +1,42 @@
+tags:
+  - Courses
+summary: Create a new course
+description: Creates a new course.
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - courseID
+          - courseName
+        properties:
+          courseID:
+            type: string
+            description: Unique ID for the course
+          courseName:
+            type: string
+            description: Name of the course
+
+responses:
+  201:
+    description: Course created successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+            courseID:
+              type: string
+            courseName:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+  400:
+    description: Missing required fields or not a valid JSON

@@ -1,0 +1,38 @@
+Get scores for a user's course
+---
+tags:
+  - Scores
+security:
+  - bearerAuth: []
+summary: Retrieve user's scores for a specific course
+description: Retrieves a list of scores for a user in a specific course, based on the user ID and course ID. Requires JWT authentication.
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    type: string
+    description: UUID of the user
+  - in: path
+    name: course_id
+    required: true
+    type: string
+    description: UUID of the course
+
+responses:
+  200:
+    description: List of scores retrieved successfully
+    schema:
+      type: object
+      properties:
+        course_id:
+          type: string
+          description: ID of the course
+        scores:
+          type: array
+          description: List of scores for the course
+          items:
+            type: number
+            format: float
+  404:
+    description: Enrollment not found

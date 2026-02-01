@@ -1,0 +1,87 @@
+Update an existing user
+---
+tags:
+  - Users
+security:
+  - bearerAuth: []
+summary: Update user information
+description: Updates the details of an existing user by user ID. Allows modification of user fields and nested university information if provided. Fields like `id`, `created_at`, `updated_at`, and `university` ID cannot be updated directly.
+
+consumes:
+  - application/json
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    type: string
+    description: UUID of the user to update
+  - in: body
+    name: body
+    required: true
+    description: JSON object containing fields to update
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Updated email of the user
+        first_name:
+          type: string
+          description: Updated first name
+        last_name:
+          type: string
+          description: Updated last name
+        password:
+          type: string
+          description: Updated password
+        username:
+          type: string
+          description: Updated username
+        university:
+          type: object
+          description: University data to update
+          properties:
+            name:
+              type: string
+              description: University name
+            location:
+              type: string
+              description: University location
+            # You can extend fields here depending on your University model.
+
+responses:
+  200:
+    description: User updated successfully
+    schema:
+      type: object
+      properties:
+        __class__:
+          type: string
+        id:
+          type: string
+          description: UUID of the user
+        created_at:
+          type: string
+          description: Time when user was created
+        updated_at:
+          type: string
+          description: Time when user was last updated
+        email:
+          type: string
+          description: User email
+        username:
+          type: string
+          description: User username
+        first_name:
+          type: string
+          description: User's first name
+        last_name:
+          type: string
+          description: User's last name
+        university:
+          type: object
+          description: University information (if linked)
+  400:
+    description: Invalid request (e.g., not a JSON)
+  404:
+    description: User or university not found

@@ -1,0 +1,60 @@
+Update an existing outline
+---
+tags:
+  - Outlines
+security:
+  - bearerAuth: []
+summary: Update an existing outline by its ID
+description: This endpoint allows users to update an existing outline for a specific course. It requires a valid JWT and a JSON body with the updated data.
+
+parameters:
+  - in: path
+    name: outline_id
+    required: true
+    type: string
+    description: UUID of the outline to be updated
+  - in: body
+    name: body
+    required: true
+    description: The outline data to be updated
+    schema:
+      type: object
+      properties:
+        topic:
+          type: string
+          description: The topic covered in the outline
+        orderID:
+          type: integer
+          description: The order of the outline within the course
+      required:
+        - topic
+        - orderID
+
+responses:
+  200:
+    description: Outline updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the outline
+        topic:
+          type: string
+          description: The topic covered in the outline
+        courseID:
+          type: string
+          description: The ID of the course the outline belongs to
+        orderID:
+          type: integer
+          description: The order of the outline within the course
+        created_at:
+          type: string
+          description: Time when the outline was created
+        updated_at:
+          type: string
+          description: Time when the outline was last updated
+  400:
+    description: Invalid input or not a JSON
+  404:
+    description: Outline not found

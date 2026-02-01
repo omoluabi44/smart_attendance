@@ -1,0 +1,38 @@
+
+certbot
+__pycache__
+venv/
+.env# Virtual Environments (Add all variations you have)
+coursepass/
+courpass/
+courspass/
+venv/
+env/
+
+# Data & Temp files (Don't copy these to Docker!)
+uploads/
+tmp/
+__pycache__/
+*.pyc
+
+# Configuration & Git
+.env
+.git
+.gitignore
+alembic/    # Optional: Ignore if you run migrations inside Docker, but usually keep this.
+.git
+.gitignore
+*.pyc
+
+
+.env.prod
+alembic
+certbot
+.env
+.env.prod
+node_modules
+attendance
+attendance/
+.next
+
+

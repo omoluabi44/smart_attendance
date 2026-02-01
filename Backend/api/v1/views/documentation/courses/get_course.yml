@@ -1,0 +1,33 @@
+tags:
+  - Courses
+summary: Retrieve a specific course
+description: Retrieves the details of a specific course by ID.
+
+parameters:
+  - in: path
+    name: course_id
+    required: true
+    schema:
+      type: string
+    description: ID of the course to retrieve
+
+responses:
+  200:
+    description: A course object
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+            courseID:
+              type: string
+            courseName:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+  404:
+    description: Course not found

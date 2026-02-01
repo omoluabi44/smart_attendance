@@ -1,0 +1,44 @@
+Get all quizzes for a course
+---
+tags:
+  - Quizzes
+security:
+  - bearerAuth: []
+summary: Retrieve all quizzes for a specific course
+description: Fetches a list of all quizzes associated with a given course ID. Requires JWT authentication.
+
+parameters:
+  - in: path
+    name: course_id
+    required: true
+    type: string
+    description: UUID of the course
+
+responses:
+  200:
+    description: List of quizzes retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            description: UUID of the quiz
+          title:
+            type: string
+            description: Title of the quiz
+          description:
+            type: string
+            description: Description of the quiz
+          courseID:
+            type: string
+            description: UUID of the course to which the quiz belongs
+          created_at:
+            type: string
+            description: Creation timestamp of the quiz
+          updated_at:
+            type: string
+            description: Last update timestamp of the quiz
+  404:
+    description: Course not found

@@ -1,0 +1,24 @@
+Delete a quiz by ID
+---
+tags:
+  - Quizzes
+security:
+  - bearerAuth: []
+summary: Delete a quiz by its ID
+description: Deletes a quiz entry based on the given quiz ID. This action is irreversible. Requires JWT authentication.
+
+parameters:
+  - in: path
+    name: quize_id
+    required: true
+    type: string
+    description: UUID of the quiz to delete
+
+responses:
+  200:
+    description: Quiz deleted successfully
+    schema:
+      type: object
+      description: Empty object indicating successful deletion
+  404:
+    description: Quiz not found

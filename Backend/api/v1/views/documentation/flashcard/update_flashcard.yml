@@ -1,0 +1,48 @@
+tags:
+  - Flashcards
+security:
+  - bearerAuth: []
+summary: Update an existing flashcard
+description: This endpoint allows the updating of an existing flashcard. Requires a valid JWT.
+
+parameters:
+  - in: path
+    name: flashcard_id
+    required: true
+    type: string
+    description: The ID of the flashcard to update
+
+requestBody:
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          question:
+            type: string
+            description: The updated flashcard question
+          answer:
+            type: string
+            description: The updated flashcard answer
+
+responses:
+  200:
+    description: Flashcard updated successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The flashcard ID
+            question:
+              type: string
+              description: The flashcard question
+            answer:
+              type: string
+              description: The flashcard answer
+  400:
+    description: Missing or invalid data
+  404:
+    description: Flashcard not found

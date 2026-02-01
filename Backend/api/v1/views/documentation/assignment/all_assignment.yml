@@ -1,0 +1,37 @@
+tags:
+  - Assignment
+summary: Retrieve assignments by course ID
+description: Fetches all assignments linked to a specific course.
+
+parameters:
+  - in: path
+    name: course_id
+    required: true
+    schema:
+      type: string
+    description: ID of the course to fetch assignments for
+
+responses:
+  200:
+    description: A list of assignments
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              courseID:
+                type: string
+              title:
+                type: string
+              due_date:
+                type: string
+              created_at:
+                type: string
+              updated_at:
+                type: string
+  404:
+    description: Assignment not found

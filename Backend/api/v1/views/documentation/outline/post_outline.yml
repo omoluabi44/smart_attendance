@@ -1,0 +1,59 @@
+Create a new outline for a specific course
+---
+tags:
+  - Outlines
+security:
+  - bearerAuth: []
+summary: Create a new outline for a specific course
+description: This endpoint allows users to create a new outline for a given course. The request requires a JSON body and JWT authentication.
+
+parameters:
+  - in: body
+    name: body
+    required: true
+    description: The outline data to be created
+    schema:
+      type: object
+      properties:
+        topic:
+          type: string
+          description: The topic covered in the outline
+        courseID:
+          type: string
+          description: The ID of the course the outline belongs to
+        orderID:
+          type: integer
+          description: The order of the outline within the course
+      required:
+        - topic
+        - courseID
+        - orderID
+
+responses:
+  201:
+    description: Outline created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the outline
+        topic:
+          type: string
+          description: The topic covered in the outline
+        courseID:
+          type: string
+          description: The ID of the course the outline belongs to
+        orderID:
+          type: integer
+          description: The order of the outline within the course
+        created_at:
+          type: string
+          description: Time when the outline was created
+        updated_at:
+          type: string
+          description: Time when the outline was last updated
+  400:
+    description: Invalid input or missing required fields
+  404:
+    description: Course not found
