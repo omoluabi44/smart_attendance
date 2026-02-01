@@ -3,8 +3,7 @@
 
 
 """ Flask Application """
-import eventlet
-eventlet.monkey_patch()
+
 from models import storage
 from api.v1.views import app_views
 from api.v1.oauth_client import oauth
