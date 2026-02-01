@@ -20,7 +20,7 @@ export default function AttendanceDashboard() {
     const [loading, setLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
 
-    const API_URL = "http://13.221.128.227/api/v1/";
+    const API_URL = "https://face.coursepass.app/api/v1/";
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
