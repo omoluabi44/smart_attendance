@@ -47,7 +47,7 @@ export default function AttendanceDashboard() {
             setAttendanceData(response.data.data);
             toast.success("Attendance Captured!");
         } catch (error) {
-            toast.error(error.response?.data?.error || "Verification failed.");
+            toast.error(error.response || "Verification failed.");
         } finally {
             setLoading(false);
         }
