@@ -212,13 +212,14 @@ def verify_group():
                 CollectionId='Student',
                 Image={'Bytes': crop_bytes},
                 MaxUsers=1,
-               UserMatchThreshold=95
+            #    UserMatchThreshold=95
         )
         except rekognition.exceptions.InvalidParameterException:
             
             print("No face detected in this specific crop. Skipping...")
             continue
         matches = search_response.get('UserMatches', [])
+        print(matches)
         if matches:
             all_results.append({
                 "user_id":  matches[0]['User'].get('UserId')
@@ -229,6 +230,7 @@ def verify_group():
         else:
             all_results.append({"identity": "Unknown", "confidence": 0})
     sorted_users= get_user(all_results)
+    print(sorted_users)
     return jsonify({"data": sorted_users})
 
 @app_views.route('/export-attendance', methods=["POST"], strict_slashes=False)

@@ -74,7 +74,7 @@ export default function FaceCardUpload() {
         } catch (error) {
             console.log(error.response?.data?.error);
             
-            toast.error(error.response?.data?.error || "Upload failed. Please try again.");
+            toast.error(error.response || "Upload failed. Please try again.");
         } finally {
             setSpinner(false);
         }
