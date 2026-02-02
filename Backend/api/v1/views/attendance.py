@@ -245,23 +245,35 @@ def export_attendance():
 
 
 def get_user(user_dict):
-
+    print(user_dict)
     grouped_users = {}
 
     for user_entry in user_dict:
         user_id = user_entry.get("user_id")
         user_obj = storage.get_id(User, user_id)
+        print(user_obj)
+        
+       
         if not user_obj:
-            dept = "Unknown"
-        if user_obj.university:
+            print(f"Skipping: User ID {user_id} not found in database.")
+            continue 
+            
+        # 2. Safely get the department
+        if user_obj.university and user_obj.university.department:
             dept = user_obj.university.department.lower()
+        else:
+            dept = "unknown"
+
         student_info = {
             "name": user_obj.name,
             "matric": user_obj.matric
         }
+        
         if dept not in grouped_users:
             grouped_users[dept] = []
         grouped_users[dept].append(student_info)
+
+    # Logging the results
     for dept, students in grouped_users.items():
         print(f"\n{dept.upper()}")
         for i, student in enumerate(students, 1):

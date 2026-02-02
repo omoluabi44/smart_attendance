@@ -65,7 +65,7 @@ export default function FaceCardUpload() {
         if (userId) formData.append("user_id", userId);
 
         try {
-            const response = await axios.post(`${API_URL}register-face`, formData, {
+            const response = await axios.post(`${API_URL}register-faces`, formData, {
                 headers: {"Content-Type": "multipart/form-data"},
             });
 
