@@ -44,7 +44,8 @@ export default function AttendanceDashboard() {
 
         try {
             const response = await axios.post(`${API_URL}verify-group`, formData);
-            setAttendanceData(response.data.data);
+            console.log(response)
+            setAttendanceData(response.data);
             toast.success("Attendance Captured!");
         } catch (error) {
             toast.error(error.response || "Verification failed.");

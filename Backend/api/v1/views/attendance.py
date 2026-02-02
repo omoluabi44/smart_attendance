@@ -220,7 +220,7 @@ def verify_group():
             print("No face detected in this specific crop. Skipping...")
             continue
         matches = search_response.get('UserMatches', [])
-        print(matches)
+
         if matches:
             all_results.append({
                 "user_id":  matches[0]['User'].get('UserId')
@@ -239,6 +239,7 @@ def verify_group():
 def export_attendance():
 
     data = request.get_json()
+    print(data)
     
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -289,31 +290,62 @@ import io
 import pandas as pd
 from openpyxl.styles import Font
 from datetime import datetime
+
+
 def export_attendance_to_excel(grouped_users):
     output = io.BytesIO()
     
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+    # Check if grouped_users is empty to avoid the IndexError
+    if not grouped_users:
+        # Create a blank dataframe so the sheet exists
+        grouped_users = {"Empty": []}
 
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        # We must write SOMETHING to the sheet first to initialize it
+        pd.DataFrame().to_excel(writer, sheet_name='Attendance')
         
+        workbook = writer.book
+        worksheet = writer.sheets['Attendance']
+        bold_font = Font(bold=True)
+
+        # Re-add your header info logic here
+        fixed_info = [
+            ["LAGOS STATE UNIVERSITY OF SCIENCE AND TECHNOLOGY"],
+            ["COURSE CODE: GET 201"],
+            ["COURSE NAME: APPLIED ELECTRICITY"],
+            ["SESSION: 2025/2026"],
+            [f"DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
+        ]
+        for i, row_data in enumerate(fixed_info, 1):
+            worksheet.cell(row=i, column=1, value=row_data[0]).font = bold_font
+
         start_row = 7 
         for dept, students in grouped_users.items():
-       
-            worksheet = writer.sheets['Attendance']
+            # Add Department Header
             dept_cell = worksheet.cell(row=start_row + 1, column=1)
             dept_cell.value = dept.upper()
-            dept_cell.font = Font(bold=True)
+            dept_cell.font = bold_font
             
-            df = pd.DataFrame(students)
-            
-            df.columns = ["NAME", "MATRIC", "DAYS ATTENDED", "PERCENTAGE", "ELIGIBILITY"]
-            df.index = df.index + 1
-            
-            # Write to Excel
-            df.to_excel(writer, startrow=start_row + 1, sheet_name='Attendance')
-            start_row += len(students) + 4
+            if students:
+                df = pd.DataFrame(students)
+                # Ensure columns match the keys in get_user's student_info dict
+                df.columns = ["NAME", "MATRIC", "DAYS ATTENDED", "PERCENTAGE", "ELIGIBILITY"]
+                df.index = df.index + 1
+                
+                # Write to Excel
+                df.to_excel(writer, startrow=start_row + 1, sheet_name='Attendance')
+                start_row += len(students) + 4
+            else:
+                worksheet.cell(row=start_row + 2, column=1, value="No students found")
+                start_row += 4
 
     output.seek(0)
-    return send_file(output, as_attachment=True, download_name="Attendance_Report.xlsx")
+    return send_file(
+        output, 
+        as_attachment=True, 
+        download_name=f"Attendance_Report_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     
     
     
