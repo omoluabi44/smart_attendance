@@ -5,6 +5,7 @@ from models.attendance import Attendance
 from models import storage
 import random
 from models.user import User
+from models.attendance import Attendance
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request
 from flasgger.utils import swag_from
@@ -229,8 +230,9 @@ def verify_group():
             
         else:
             all_results.append({"identity": "Unknown", "confidence": 0})
+     
+    update_student_record(all_results)
     sorted_users= get_user(all_results)
-    print(sorted_users)
     return jsonify({"data": sorted_users})
 
 @app_views.route('/export-attendance', methods=["POST"], strict_slashes=False)
@@ -247,39 +249,36 @@ def export_attendance():
 
 
 def get_user(user_dict):
-    print(user_dict)
+    session = storage._DBStorage__session
+    CURRENT_SESSION_ID = "afec07ad-1779-4f6a-9a19-92b6a6eb4e06"
     grouped_users = {}
 
     for user_entry in user_dict:
         user_id = user_entry.get("user_id")
         user_obj = storage.get_id(User, user_id)
-        print(user_obj)
         
-       
         if not user_obj:
-            print(f"Skipping: User ID {user_id} not found in database.")
             continue 
             
-        # 2. Safely get the department
-        if user_obj.university and user_obj.university.department:
-            dept = user_obj.university.department.lower()
-        else:
-            dept = "unknown"
+        dept = user_obj.university.department.lower() if user_obj.university and user_obj.university.department else "unknown"
+
+
+        att_record = session.query(Attendance).filter(
+            Attendance.user_id == user_id, 
+            Attendance.session_id == CURRENT_SESSION_ID
+        ).first()
 
         student_info = {
             "name": user_obj.name,
-            "matric": user_obj.matric
+            "matric": user_obj.matric,
+            "days": att_record.days if att_record else 0,
+            "percentage": att_record.percentage if att_record else "0.00%",
+            "eligibility": att_record.eligibility if att_record else "Ineligible"
         }
         
         if dept not in grouped_users:
             grouped_users[dept] = []
         grouped_users[dept].append(student_info)
-
-    # Logging the results
-    for dept, students in grouped_users.items():
-        print(f"\n{dept.upper()}")
-        for i, student in enumerate(students, 1):
-            print(f"{i}. {student['name']}, {student['matric']}")
             
     return grouped_users
 
@@ -290,51 +289,67 @@ import io
 import pandas as pd
 from openpyxl.styles import Font
 from datetime import datetime
-
 def export_attendance_to_excel(grouped_users):
-    # Create an in-memory byte stream
     output = io.BytesIO()
     
-    # Use the buffer 'output' as the destination instead of a filename
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        fixed_info = [
-            ["LAGOS STATE UNIVERSITY OF SCIENCE AND TECHNOLOGY"],
-            ["COURSE CODE: GET 201"],
-            ["COURSE NAME: APPLIED ELECTRICITY"],
-            [f"SESSION: 2025/2026"],
-            [f"DATE: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
-        ]
-        
-        header_df = pd.DataFrame(fixed_info)
-        header_df.to_excel(writer, index=False, header=False, sheet_name='Attendance')
-        
-        workbook = writer.book
-        worksheet = writer.sheets['Attendance']
-        bold_font = Font(bold=True)
 
-        for row in range(1, 6):
-            cell = worksheet.cell(row=row, column=1)
-            cell.font = bold_font
-
+        
         start_row = 7 
         for dept, students in grouped_users.items():
+       
+            worksheet = writer.sheets['Attendance']
             dept_cell = worksheet.cell(row=start_row + 1, column=1)
             dept_cell.value = dept.upper()
-            dept_cell.font = bold_font
+            dept_cell.font = Font(bold=True)
             
             df = pd.DataFrame(students)
-            df.columns = [col.upper() for col in df.columns]
+            
+            df.columns = ["NAME", "MATRIC", "DAYS ATTENDED", "PERCENTAGE", "ELIGIBILITY"]
             df.index = df.index + 1
+            
+            # Write to Excel
             df.to_excel(writer, startrow=start_row + 1, sheet_name='Attendance')
             start_row += len(students) + 4
 
-    # Seek to the start of the stream so Flask can read it
     output.seek(0)
+    return send_file(output, as_attachment=True, download_name="Attendance_Report.xlsx")
     
-    # Return the file as a downloadable attachment
-    return send_file(
-        output,
-        as_attachment=True,
-        download_name=f"Attendance_GET201_{datetime.now().strftime('%Y%m%d')}.xlsx",
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    
+    
+def update_student_record(all_results):
+    session = storage._DBStorage__session
+    TOTAL_LECTURES = 13
+    REQUIRED_PERCENTAGE = 75
+
+    for user_entry in all_results:
+        user_id = user_entry.get("user_id")
+        if not user_id:
+            continue
+        attendance = session.query(Attendance).filter(Attendance.user_id == user_id).first() 
+
+        if not attendance:
+
+            attendance = Attendance(
+                user_id=user_id,
+                session_id="afec07ad-1779-4f6a-9a19-92b6a6eb4e06",
+                days=1,
+                lecturer_id="omoluabi",
+                status='present'
+            )
+        else:
+
+            attendance.days += 1
+            attendance.status = 'present'
+
+        calc_percentage = (attendance.days / TOTAL_LECTURES) * 100
+        attendance.percentage = f"{calc_percentage:.2f}%"
+
+    
+        if calc_percentage >= REQUIRED_PERCENTAGE:
+            attendance.eligibility = "Eligible"
+        else:
+            attendance.eligibility = "Ineligible"
+
+
+        attendance.save()

@@ -166,6 +166,9 @@ export default function AttendanceDashboard() {
                                                 <th className="px-8 py-4 text-[10px] font-black  uppercase">S/N</th>
                                                 <th className="px-8 py-4 text-[10px] font-black  uppercase">Name</th>
                                                 <th className="px-8 py-4 text-[10px] font-black  uppercase">Matric No.</th>
+                                                 <th className="px-8 py-4 text-[10px] font-black  uppercase">Lecture days attended</th>
+                                                 <th className="px-8 py-4 text-[10px] font-black  uppercase">Percentage %</th>
+                                                 <th className="px-8 py-4 text-[10px] font-black  uppercase">eligibility</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50">
@@ -174,6 +177,10 @@ export default function AttendanceDashboard() {
                                                     <td className="px-8 py-4 text-sm font-bold">{i + 1}</td>
                                                     <td className="px-8 py-4 text-sm font-bold ">{s.name}</td>
                                                     <td className="px-8 py-4 text-sm font-medium font-mono">{s.matric}</td>
+                                                    <td className="px-8 py-4 text-sm font-medium font-mono">{s.days}</td>
+                                                    <td className="px-8 py-4 text-sm font-medium font-mono">{s.percentage}</td>
+                                                    <td className="px-8 py-4 text-sm font-medium font-mono">{s.eligibility}</td>
+
                                                 </tr>
                                             ))}
                                         </tbody>
