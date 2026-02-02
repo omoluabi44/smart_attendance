@@ -58,7 +58,7 @@ export default function FaceCardUpload() {
 
         // Append images to formData
         images.forEach((image) => {
-            formData.append("image", image);
+            formData.append("images", image);
         });
 
         // Append userId if required by your backend
