@@ -16,9 +16,9 @@ export default function FaceCardUpload() {
 
     const router = useRouter();
     const searchParams = useSearchParams();
-    //   const userId = searchParams.get("id");
+      const userId = searchParams.get("id");
 
-    const userId = "c25ac302-9cd7-4857-be07-d81528fcb5e0"
+
     const API_URL = "https://face.coursepass.app/api/v1/";
 
     const handleFileChange = (e) => {

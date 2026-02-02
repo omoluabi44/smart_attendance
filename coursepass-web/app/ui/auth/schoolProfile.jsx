@@ -140,14 +140,16 @@ export default function SchoolPofile({title}) {
 
       toast.success(response?.data?.message || "Successful");
       setSpinner(false)
-      router.push(`/login`);
+  
+      router.push(`/facecard?id=${userId}`);
+
 
     } catch (error) {
       setSpinner(false)
       console.log(error.status);
-      if (error.status == -400) {
-        router.push(`/login`);
-      }
+      // if (error.status == -400) {
+      //   router.push(`/login`);
+      // }
 
       toast.error(error?.response?.data?.error || "Something went wrong")
 

@@ -182,7 +182,7 @@ export default function LoginForm() {
           </div>
         </form>
 
-        <Oauth />
+        {/* <Oauth /> */}
 
         <div className="mt-4 sm:mt-6 text-center">
           <p className="text-xs sm:text-sm">
