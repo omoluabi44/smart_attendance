@@ -42,6 +42,7 @@ export default function LoginForm() {
           access_token: response.tokens.access,
           email: response.user.email,
           profile_url: response.user.profile_url,
+          role: response.user.role,
           isLoggedIn: true,
         })
       );
@@ -56,7 +57,14 @@ export default function LoginForm() {
       });
 
       toast.success("Login Successful");
-      router.push("/dashboard");
+      
+      // Redirect based on role
+      if (response.user.role === 'admin' || response.user.role === 'lecturer') {
+          router.push("/lecturer");
+      } else {
+          router.push("/student");
+      }
+      
     } catch (err) {
       console.error(err);
       const errorMessage = err?.data?.error || "Login failed. Please try again.";

@@ -18,6 +18,10 @@ from models.session import Sessions
 from models.attendance import  Attendance
 from models.profile import Profile
 from models.auth_provider import AuthProvider
+from models.lecturer_session import LecturerSession
+from models.attendance_log import AttendanceLog
+from models.session_enrollment import SessionEnrollment
+from models.notification import Notification
 
 from os import getenv
 import sqlalchemy
@@ -29,6 +33,8 @@ classes = {
             "Courses": Courses,  "Attendance": Attendance, "Enrollment":Enrollment,
              "Universities":Universities, "College":College,"Department":Department, 
             "Profile":Profile, "AuthProvider":AuthProvider,
+            "LecturerSession":LecturerSession, "AttendanceLog":AttendanceLog,
+            "SessionEnrollment":SessionEnrollment, "Notification":Notification,
           }
 
 

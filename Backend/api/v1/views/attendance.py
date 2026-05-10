@@ -447,39 +447,121 @@ def export_attendance_to_excel(grouped_users):
     
     
     
-def update_student_record(all_results):
+def update_student_record(all_results, session_id=None, lecturer_id=None):
     session = storage._DBStorage__session
-    TOTAL_LECTURES = 13
     REQUIRED_PERCENTAGE = 75
+    
+    # Use provided session_id or fall back to default
+    active_session_id = session_id or "afec07ad-1779-4f6a-9a19-92b6a6eb4e06"
+    
+    # Get total lectures from the session object
+    from models.session import Sessions
+    session_obj = storage.get_id(Sessions, active_session_id)
+    TOTAL_LECTURES = session_obj.total_expected_classes if session_obj else 13
 
     for user_entry in all_results:
         user_id = user_entry.get("user_id")
         if not user_id:
             continue
-        attendance = session.query(Attendance).filter(Attendance.user_id == user_id).first() 
+
+        # ── Create granular AttendanceLog entry ──
+        from models.attendance_log import AttendanceLog
+        from datetime import datetime
+        log = AttendanceLog(
+            session_id=active_session_id,
+            user_id=user_id,
+            recorded_by=lecturer_id,
+            date=datetime.utcnow(),
+            status='present'
+        )
+        log.save()
+
+        # ── Update cached Attendance summary ──
+        attendance = session.query(Attendance).filter(
+            Attendance.user_id == user_id,
+            Attendance.session_id == active_session_id
+        ).first() 
 
         if not attendance:
-
             attendance = Attendance(
                 user_id=user_id,
-                session_id="afec07ad-1779-4f6a-9a19-92b6a6eb4e06",
+                session_id=active_session_id,
                 days=1,
-                lecturer_id="omoluabi",
+                lecturer_id=lecturer_id or "system",
                 status='present'
             )
         else:
-
             attendance.days += 1
             attendance.status = 'present'
 
         calc_percentage = (attendance.days / TOTAL_LECTURES) * 100
         attendance.percentage = f"{calc_percentage:.2f}%"
 
-    
         if calc_percentage >= REQUIRED_PERCENTAGE:
             attendance.eligibility = "Eligible"
         else:
             attendance.eligibility = "Ineligible"
 
-
         attendance.save()
+
+        # ── Trigger notification if student is near 75% threshold ──
+        _check_and_notify(user_id, active_session_id, calc_percentage, TOTAL_LECTURES, attendance.days)
+
+
+def _check_and_notify(user_id, session_id, percentage, total_lectures, days_attended):
+    """Send notification to student if their attendance drops into warning zones."""
+    from models.notification import Notification
+    from models.session import Sessions
+    from models.course import Courses
+    ses = storage._DBStorage__session
+
+    session_obj = storage.get_id(Sessions, session_id)
+    course = ses.query(Courses).filter_by(courseID=session_obj.courseID).first() if session_obj else None
+    course_label = f"{course.courseName} ({session_obj.courseID})" if course and session_obj else "your course"
+
+    remaining = total_lectures - days_attended
+    
+    # Warning zone: 76-80%
+    if 76 <= percentage <= 80:
+        title = f"⚠️ Attendance Warning — {course_label}"
+        message = (
+            f"Your attendance is at {percentage:.1f}%. "
+            f"You have {remaining} classes left. "
+            f"Missing more classes may make you ineligible for exams."
+        )
+        _create_notification_if_new(user_id, session_id, title, message, "warning")
+
+    # Danger zone: below 75%
+    elif percentage < 75:
+        title = f"🚨 Attendance Critical — {course_label}"
+        message = (
+            f"Your attendance has dropped to {percentage:.1f}%, "
+            f"below the 75% required for exam eligibility. "
+            f"Please attend all remaining classes."
+        )
+        _create_notification_if_new(user_id, session_id, title, message, "danger")
+
+
+def _create_notification_if_new(user_id, session_id, title, message, notif_type):
+    """Create a notification only if a similar one hasn't been sent today."""
+    from models.notification import Notification
+    from datetime import datetime, timedelta
+    ses = storage._DBStorage__session
+
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    existing = ses.query(Notification).filter(
+        Notification.user_id == user_id,
+        Notification.related_session_id == session_id,
+        Notification.notification_type == notif_type,
+        Notification.created_at >= today_start
+    ).first()
+
+    if not existing:
+        notification = Notification(
+            user_id=user_id,
+            title=title,
+            message=message,
+            notification_type=notif_type,
+            related_session_id=session_id,
+        )
+        notification.save()

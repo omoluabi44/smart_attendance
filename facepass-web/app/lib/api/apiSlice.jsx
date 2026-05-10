@@ -50,6 +50,12 @@ export const baseApi = createApi({
    tagTypes: [
     'StagingCourses',
     'StagingData',
+    'LecturerSessions',
+    'SessionDashboard',
+    'SessionHistory',
+    'StudentSessions',
+    'StudentAttendance',
+    'Notifications',
   ],
   endpoints: () => ({}),
 });

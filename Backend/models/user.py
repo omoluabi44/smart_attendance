@@ -16,7 +16,7 @@ class User(BaseModel, Base):
     is_verified = Column(Boolean, default=False)
     code_expires_at = Column(DateTime, nullable=True)
     universityID = Column(String(60), ForeignKey("university.id"), nullable=True)
-    role = Column(Enum('student','lecturer'), default="student", nullable=True)
+    role = Column(Enum('student','lecturer','admin'), default="student", nullable=True)
     last_code_sent_at =  Column(DateTime, nullable=True)
     resend_attempts = Column(Integer, nullable=False, server_default=text("0"))
     password_reset_code = Column(String(6), nullable=True)
@@ -32,6 +32,9 @@ class User(BaseModel, Base):
     profile = relationship("Profile", uselist=False, back_populates="user")
     providers = relationship("AuthProvider", back_populates="user")
     attendance = relationship("Attendance", backref="user")
+    lecturer_sessions = relationship("LecturerSession", back_populates="lecturer")
+    session_enrollments = relationship("SessionEnrollment", back_populates="student")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
 
     def __init__(self, *args, **kwargs):
         """initialize user"""

@@ -19,7 +19,7 @@ export default function FaceCardUpload() {
       const userId = searchParams.get("id");
 
 
-    const API_URL = "https://face.coursepass.app/api/v1/";
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);

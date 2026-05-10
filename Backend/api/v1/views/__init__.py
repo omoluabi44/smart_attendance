@@ -16,4 +16,8 @@ from api.v1.views.department import *
 from api.v1.views.Oauth import *
 from api.v1.views.sessions import *
 from api.v1.views.attendance import *
+from api.v1.views.admin import *
+from api.v1.views.lecturer import *
+from api.v1.views.student import *
+
 

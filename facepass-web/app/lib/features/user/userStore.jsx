@@ -7,8 +7,8 @@ const initialState = {
   access_token: null,
   email: null,
   profile_url: null,
-  balance: null
-
+  balance: null,
+  role: 'student',
 }
 
 const userSlice = createSlice({
@@ -22,6 +22,7 @@ const userSlice = createSlice({
       state.access_token = action.payload.access_token
       state.email = action.payload.email
       state.profile_url = action.payload.profile_url
+      state.role = action.payload.role || 'student'
     },
     logout: (state) => {
       state.isLoggedIn = false

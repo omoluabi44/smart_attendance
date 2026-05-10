@@ -15,6 +15,9 @@ class Sessions(BaseModel, Base):
     
     course = relationship("Courses", back_populates="sessions")
     attendance = relationship("Attendance", back_populates="sessions")
+    lecturers = relationship("LecturerSession", back_populates="session", cascade="all, delete-orphan")
+    attendance_logs = relationship("AttendanceLog", back_populates="session", cascade="all, delete-orphan")
+    enrolled_students = relationship("SessionEnrollment", back_populates="session", cascade="all, delete-orphan")
    
     
   

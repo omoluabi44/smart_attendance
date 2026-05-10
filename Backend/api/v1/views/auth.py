@@ -143,8 +143,9 @@ def login_user():
         "tokens": {"access": access_token, "refresh_token_cookie":refresh_token},
         "user": {
             "id": user.id,
- 
             "email": user.email,
+            "role": user.role or "student",
+            "name": user.name,
             "profile_url": user.profile.profile_image if user.profile else "default_url_here"
         }
     }

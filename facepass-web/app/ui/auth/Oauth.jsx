@@ -2,16 +2,16 @@ import Image from "next/image";
 import GoogleButton, {FaceBookButton} from "@/app/ui/OauthLogin"
 export default function Oauth() {
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
     //google authentication 
     const handleGoogle = () => {
-        window.location.href = "https://api.coursepass.app/api/v1/auth/google/login";
-
+        window.location.href = `${API_URL}auth/google/login`;
     };
 
     //Facebook authentication
     const handleFacebook = () => {
-        window.location.href = "https://api.coursepass.app/api/v1/auth/facebook/login";
-
+        window.location.href = `${API_URL}auth/facebook/login`;
     };
     return (
         <>
