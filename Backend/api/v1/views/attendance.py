@@ -33,6 +33,102 @@ rekognition = boto3.client('rekognition',
 
     
 
+s3_client = boto3.client('s3', region_name='us-east-1') 
+BUCKET_NAME = 'coursepass-file'
+
+
+@app_views.route('/upload-video', methods=["POST"], strict_slashes=False)
+def upload_video():
+    if 'video' not in request.files:
+        return jsonify({"error": "No video file provided"}), 400
+    file = request.files['video']
+    
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
+
+    try:
+        # 2. Upload the file directly to S3
+        # upload_fileobj reads the file directly from the request stream
+        s3_client.upload_fileobj(file, BUCKET_NAME, file.filename)
+        
+        response = rekognition.start_face_search(
+            Video={
+                'S3Object': {
+                    'Bucket': BUCKET_NAME,
+                    'Name': file.filename
+                }
+            },
+            CollectionId='Student',          # Your existing collection
+            FaceMatchThreshold=90  
+        )
+        
+        # 3. Get the Job ID
+        job_id = response['JobId']
+        
+        return jsonify({
+            "message": "Video uploaded and face counting started!",
+            "job_id": job_id
+        }), 200
+    except Exception as e:
+        # Catch any AWS credential or bucket errors
+        return jsonify({"error": str(e)}), 500
+
+@app_views.route('/check-count/<job_id>', methods=['GET'], strict_slashes=False)
+@app_views.route('/check-count/<job_id>', methods=['GET'], strict_slashes=False)
+def check_count(job_id):
+    try:
+        response = rekognition.get_face_search(JobId=job_id)
+        status = response['JobStatus']
+        
+        if status == 'IN_PROGRESS':
+            return jsonify({"status": "Still processing..."})
+            
+        elif status == 'SUCCEEDED':
+            all_persons = []
+            next_token = response.get('NextToken')
+            all_persons.extend(response.get('Persons', []))
+            
+            while next_token:
+                page = rekognition.get_face_search(JobId=job_id, NextToken=next_token)
+                all_persons.extend(page.get('Persons', []))
+                next_token = page.get('NextToken')
+            
+            # Build list of results, one entry per face detection event
+            all_results = []
+            for person in all_persons:
+                face_matches = person.get('FaceMatches', [])
+                if face_matches:
+                    # Take the best match (first in list)
+                    best_match = face_matches[0]
+                    user_id = best_match.get('Face', {}).get('ExternalImageId')
+                    confidence = best_match.get('Similarity', 0)
+                    if user_id:
+                        all_results.append({
+                            "user_id": user_id,
+                            "confidence": confidence
+                        })
+                    else:
+                        # Matched a face but ExternalImageId missing
+                        all_results.append({"identity": "Unknown", "confidence": confidence})
+                else:
+                    # No match found for this detection
+                    all_results.append({"identity": "Unknown", "confidence": 0})
+            print(all_results)
+            # Use the same attendance logic as the image endpoint
+            # update_student_record(all_results)
+            sorted_users = get_user(all_results)
+            
+            return jsonify({
+                "status": "Complete",
+                "total_faces_detected": len(all_persons),
+                "data": sorted_users
+            })
+        else:
+            return jsonify({"status": f"Job Failed: {response.get('StatusMessage', 'Unknown error')}"})
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app_views.route('/attendance', methods=["POST"], strict_slashes=False)
 @swag_from(join(dirname(__file__), 'documentation/university/post_uni.yml'))
@@ -94,40 +190,43 @@ def register_face():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app_views.route('/register-faces', methods=["POST"], strict_slashes=False)
+@app_views.route('/register-faces', methods=["POST"],strict_slashes=False)
 def register_faces():
     files = request.files.getlist('images')
-    user_id = request.form.get('user_id') 
+    user_id = request.form.get('user_id')
 
     if not files:
         return jsonify({"error": "No images provided"}), 400
+    if not user_id:
+        return jsonify({"error": "No user_id provided"}), 400
 
     face_ids = []
     try:
-      
+        # 1. Create user in User API (optional but fine)
         try:
             rekognition.create_user(CollectionId='Student', UserId=user_id)
-        except rekognition.exceptions.InvalidParameterException as e:
-            pass 
+        except rekognition.exceptions.InvalidParameterException:
+            pass  # User already exists
 
-        # 2. Index all 5 images to get FaceIds
+        # 2. Index images WITH ExternalImageId for video compatibility
         for file in files:
             response = rekognition.index_faces(
                 CollectionId='Student',
                 Image={'Bytes': file.read()},
+                ExternalImageId=user_id,          # ✅ Critical addition
                 MaxFaces=1,
                 QualityFilter="AUTO"
             )
             if response['FaceRecords']:
                 face_ids.append(response['FaceRecords'][0]['Face']['FaceId'])
 
-        # 3. ASSOCIATE: This is the magic step
+        # 3. Associate faces with the User API user (still works)
         if face_ids:
             rekognition.associate_faces(
                 CollectionId='Student',
                 UserId=user_id,
                 FaceIds=face_ids,
-                UserMatchThreshold=70 # Minimum confidence to link them
+                UserMatchThreshold=70
             )
 
         return jsonify({
@@ -138,7 +237,6 @@ def register_faces():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
 @app_views.route('/verify-face', methods=["POST"], strict_slashes=False)
 def verify_face():
     if 'image' not in request.files:
@@ -230,7 +328,7 @@ def verify_group():
             
         else:
             all_results.append({"identity": "Unknown", "confidence": 0})
-     
+    print(all_results)
     update_student_record(all_results)
     sorted_users= get_user(all_results)
     return jsonify({"data": sorted_users})
