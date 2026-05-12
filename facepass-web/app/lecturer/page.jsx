@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/app/lib/features/user/userStore";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { montserrat } from "@/app/ui/fonts";
 import {
   useGetLecturerSessionsQuery,
+  useGetLecturerCoursesQuery,
   useLecturerCreateCourseMutation,
   useLecturerCreateSessionMutation,
 } from "@/app/lib/api/facepassApi";
@@ -20,8 +23,11 @@ import {
 import Link from "next/link";
 
 export default function LecturerDashboard() {
+  const dispatch = useDispatch();
+  const router = useRouter();
   const user = useSelector((state) => state.user);
   const { data: sessionsData, isLoading, refetch } = useGetLecturerSessionsQuery();
+  const { data: coursesData } = useGetLecturerCoursesQuery();
   const [createCourse, { isLoading: creatingCourse }] = useLecturerCreateCourseMutation();
   const [createSession, { isLoading: creatingSession }] = useLecturerCreateSessionMutation();
 
@@ -39,6 +45,7 @@ export default function LecturerDashboard() {
   const [totalClasses, setTotalClasses] = useState(13);
 
   const sessions = sessionsData?.data || [];
+  const courses = coursesData?.data || [];
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
@@ -62,7 +69,7 @@ export default function LecturerDashboard() {
     e.preventDefault();
     try {
       await createSession({
-        courseID: sessionCourseID.toUpperCase().trim(),
+        courseID: sessionCourseID,
         session_name: sessionName.trim(),
         total_expected_classes: Number(totalClasses),
       }).unwrap();
@@ -75,6 +82,12 @@ export default function LecturerDashboard() {
     } catch (err) {
       toast.error(err?.data?.error || "Failed to create session");
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/login");
+    toast.success("Logged out successfully");
   };
 
   return (
@@ -102,6 +115,12 @@ export default function LecturerDashboard() {
               className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-600 transition shadow-lg shadow-blue-200"
             >
               <PlusIcon className="h-4 w-4" /> New Session
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-100 transition"
+            >
+              Logout
             </button>
           </div>
         </div>
@@ -217,15 +236,26 @@ export default function LecturerDashboard() {
         <Modal title="Create New Session" onClose={() => setShowSessionModal(false)}>
           <form onSubmit={handleCreateSession} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Course Code</label>
-              <input
-                type="text"
-                value={sessionCourseID}
-                onChange={(e) => setSessionCourseID(e.target.value)}
-                placeholder="e.g. PHY102"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
-                required
-              />
+              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Course</label>
+              {courses.length === 0 ? (
+                <div className="border border-amber-200 bg-amber-50 rounded-xl px-4 py-3 text-sm text-amber-700 font-medium">
+                  No courses found. Please create a course first.
+                </div>
+              ) : (
+                <select
+                  value={sessionCourseID}
+                  onChange={(e) => setSessionCourseID(e.target.value)}
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none bg-white appearance-none cursor-pointer"
+                  required
+                >
+                  <option value="" disabled>Select a course...</option>
+                  {courses.map((course) => (
+                    <option key={course.courseID} value={course.courseID}>
+                      {course.courseID} — {course.courseName}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Academic Session</label>
@@ -252,7 +282,7 @@ export default function LecturerDashboard() {
             </div>
             <button
               type="submit"
-              disabled={creatingSession}
+              disabled={creatingSession || courses.length === 0}
               className="w-full bg-blue-500 text-white py-3.5 rounded-xl font-bold hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 transition"
             >
               {creatingSession ? "Creating..." : "Create Session"}

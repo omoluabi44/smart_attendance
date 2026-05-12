@@ -33,6 +33,8 @@ const userSlice = createSlice({
       Cookies.remove("refresh_token")
       Cookies.remove("access_token")
       Cookies.remove("is_new")
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("persist:root"); // Clear persisted state if using redux-persist
 
     },
     updateAccessToken: (state, action) => {

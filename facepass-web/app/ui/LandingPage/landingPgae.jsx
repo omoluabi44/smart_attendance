@@ -53,14 +53,14 @@ const HeroSection = () => {
                         <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
                             <Link
                             prefetch={false}
-                            href={id ? "/dashboard":"/signup"}
+                            href={id ? "/student":"/signup"}
                            
                              className="w-full sm:w-auto px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/30">
                                 {id ? "Dashboard":"Join CoursePass"}
                             </Link>
                             <Link
                            prefetch={false}
-                            href={id ? "/dashboard/AI":"/signup"}
+                            href={id ? "/student":"/signup"}
                             className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl font-medium transition-all hover:border-blue-200">
                                 View Demo
                             </Link>

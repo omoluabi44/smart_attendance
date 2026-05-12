@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/app/lib/features/user/userStore";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { montserrat } from "@/app/ui/fonts";
 import {
@@ -24,6 +26,8 @@ import {
 import Link from "next/link";
 
 export default function StudentDashboard() {
+  const dispatch = useDispatch();
+  const router = useRouter();
   const user = useSelector((state) => state.user);
   const { data: sessionsData, isLoading } = useGetStudentSessionsQuery();
   const { data: notifData } = useGetNotificationsQuery();
@@ -38,6 +42,12 @@ export default function StudentDashboard() {
 
   // Check for any warning/danger sessions
   const hasWarning = sessions.some((s) => s.warning);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/login");
+    toast.success("Logged out successfully");
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -69,6 +79,12 @@ export default function StudentDashboard() {
               className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-600 transition shadow-lg shadow-blue-200"
             >
               <PlusIcon className="h-4 w-4" /> Enroll in Session
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-100 transition"
+            >
+              Logout
             </button>
           </div>
         </div>

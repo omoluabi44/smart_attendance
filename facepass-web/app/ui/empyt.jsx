@@ -6,7 +6,7 @@ export default function EmptyActionState({
     title = "No Study Sets yet",
     description = "Generate your first AI quiz set to see it here.",
     buttonLabel = "Create New Set +",
-    redirectUrl = "/dashboard/AI",
+    redirectUrl = "/student",
     onClick,
 }) {
     const router = useRouter();

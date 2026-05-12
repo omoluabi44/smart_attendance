@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Lecturer API endpoints — session management, dashboard analytics, attendance history"""
 from models.user import User
+from models.university import University
 from models.course import Courses
 from models.session import Sessions
 from models.lecturer_session import LecturerSession
@@ -51,6 +52,27 @@ def lecturer_create_course():
         "message": "Course created successfully",
         "course": course.to_dict()
     }), 201)
+
+
+
+# ─── Lecturer's Courses List ──────────────────────────────────────────────────
+
+@app_views.route('/lecturer/courses', methods=["GET"], strict_slashes=False)
+@jwt_required()
+@role_required('lecturer', 'admin')
+def lecturer_courses():
+    """Return all courses available for session creation."""
+    courses = ses.query(Courses).order_by(Courses.courseID).all()
+    courses_list = [
+        {
+            "id": c.id,
+            "courseID": c.courseID,
+            "courseName": c.courseName,
+            "description": c.description,
+        }
+        for c in courses
+    ]
+    return make_response(jsonify({"data": courses_list}), 200)
 
 
 # ─── Session Creation ──────────────────────────────────────────────────────────
@@ -221,14 +243,23 @@ def session_dashboard(session_id):
 
     # Get all enrolled students
     enrollments = ses.query(SessionEnrollment).filter_by(session_id=session_id).all()
-    enrolled_user_ids = [e.user_id for e in enrollments]
+    enrolled_user_ids = set(e.user_id for e in enrollments)
+
+    # Also include students who have attendance logs (recognized via face but not enrolled)
+    attendance_logs_users = ses.query(AttendanceLog.user_id).filter_by(
+        session_id=session_id
+    ).distinct().all()
+    logged_user_ids = set(uid for (uid,) in attendance_logs_users)
+
+    # Merge both sets
+    all_user_ids = enrolled_user_ids | logged_user_ids
 
     students_data = []
     total_percentage = 0
     at_risk = []
     eligible = []
 
-    for user_id in enrolled_user_ids:
+    for user_id in all_user_ids:
         user = storage.get_id(User, user_id)
         if not user:
             continue
@@ -242,13 +273,23 @@ def session_dashboard(session_id):
         ).count()
 
         effective_attended = days_attended + excused
+        days_missed = total_classes - effective_attended
+        if days_missed < 0:
+            days_missed = 0
         percentage = (effective_attended / total_classes) * 100 if total_classes > 0 else 0
+
+        # Get department from university profile
+        department = "N/A"
+        if user.university and user.university.department:
+            department = user.university.department
 
         student_info = {
             "id": user.id,
             "name": user.name,
             "matric": user.matric,
+            "department": department,
             "days_attended": days_attended,
+            "days_missed": days_missed,
             "excused": excused,
             "percentage": round(percentage, 2),
             "eligible": percentage >= REQUIRED_PERCENTAGE
@@ -263,7 +304,10 @@ def session_dashboard(session_id):
         else:
             at_risk.append(student_info)
 
-    avg_attendance = round(total_percentage / len(enrolled_user_ids), 2) if enrolled_user_ids else 0
+    # Sort students by department for the roster view
+    students_data.sort(key=lambda x: (x.get('department', 'ZZZ'), x.get('name', '')))
+
+    avg_attendance = round(total_percentage / len(all_user_ids), 2) if all_user_ids else 0
 
     # Get co-lecturers
     lecturer_links = ses.query(LecturerSession).filter_by(session_id=session_id).all()
@@ -285,7 +329,7 @@ def session_dashboard(session_id):
             "total_expected_classes": total_classes,
         },
         "stats": {
-            "total_enrolled": len(enrolled_user_ids),
+            "total_enrolled": len(all_user_ids),
             "average_attendance": avg_attendance,
             "eligible_count": len(eligible),
             "at_risk_count": len(at_risk),
@@ -346,6 +390,81 @@ def session_attendance_history(session_id):
     return make_response(jsonify({"data": history}), 200)
 
 
+@app_views.route('/lecturer/sessions/<session_id>/export-date/<date_str>', methods=["GET"], strict_slashes=False)
+@jwt_required()
+@role_required('lecturer', 'admin')
+def export_date_attendance(session_id, date_str):
+    """Export attendance records for a specific date as Excel."""
+    session_obj = storage.get_id(Sessions, session_id)
+    if not session_obj:
+        return make_response(jsonify({"error": "Session not found"}), 404)
+
+    course = ses.query(Courses).filter_by(courseID=session_obj.courseID).first()
+
+    try:
+        target_date = datetime.strptime(date_str, '%Y-%m-%d')
+    except ValueError:
+        return make_response(jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400)
+
+    # Get logs for the specific date
+    day_start = target_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    day_end = target_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    logs = ses.query(AttendanceLog).filter(
+        AttendanceLog.session_id == session_id,
+        AttendanceLog.date >= day_start,
+        AttendanceLog.date <= day_end
+    ).order_by(AttendanceLog.date).all()
+
+    rows = []
+    for log in logs:
+        user = storage.get_id(User, log.user_id)
+        if not user:
+            continue
+        department = "N/A"
+        if user.university and user.university.department:
+            department = user.university.department
+        lecturer = storage.get_id(User, log.recorded_by) if log.recorded_by else None
+        rows.append({
+            "NAME": user.name,
+            "MATRIC": user.matric or "N/A",
+            "DEPARTMENT": department,
+            "STATUS": log.status.upper(),
+            "TIME": log.date.strftime("%H:%M:%S") if log.date else "N/A",
+            "RECORDED BY": lecturer.name if lecturer else "System",
+        })
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        pd.DataFrame().to_excel(writer, sheet_name='Attendance')
+        workbook = writer.book
+        worksheet = writer.sheets['Attendance']
+        bold_font = Font(bold=True)
+
+        header_info = [
+            [f"COURSE: {course.courseName if course else 'N/A'} ({session_obj.courseID})"],
+            [f"SESSION: {session_obj.session_name}"],
+            [f"DATE: {date_str}"],
+            [f"TOTAL PRESENT: {sum(1 for r in rows if r['STATUS'] == 'PRESENT')}"],
+        ]
+        for i, row_data in enumerate(header_info, 1):
+            worksheet.cell(row=i, column=1, value=row_data[0]).font = bold_font
+
+        if rows:
+            df = pd.DataFrame(rows)
+            df.index = df.index + 1
+            df.to_excel(writer, startrow=5, sheet_name='Attendance')
+
+    output.seek(0)
+    filename = f"Attendance_{session_obj.courseID}_{date_str}.xlsx"
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+
 # ─── Manual Override ───────────────────────────────────────────────────────────
 
 @app_views.route('/lecturer/sessions/<session_id>/attendance-log/<log_id>', methods=["PUT"], strict_slashes=False)
@@ -373,6 +492,7 @@ def manual_override(session_id, log_id):
     log.save()
 
     # Recalculate summary
+    from api.v1.views.attendance import _recalculate_attendance_summary
     _recalculate_attendance_summary(session_id, log.user_id)
 
     return make_response(jsonify({
@@ -480,31 +600,4 @@ def update_session(session_id):
     return make_response(jsonify({"message": "Session updated", "session": session_obj.to_dict()}), 200)
 
 
-# ─── Helper: Recalculate Attendance Summary ───────────────────────────────────
-
-def _recalculate_attendance_summary(session_id, user_id):
-    """Recalculate the cached Attendance summary record from AttendanceLogs."""
-    session_obj = storage.get_id(Sessions, session_id)
-    total_classes = session_obj.total_expected_classes if session_obj else 13
-
-    days_present = ses.query(AttendanceLog).filter_by(
-        session_id=session_id, user_id=user_id, status='present'
-    ).count()
-    days_excused = ses.query(AttendanceLog).filter_by(
-        session_id=session_id, user_id=user_id, status='excused'
-    ).count()
-
-    effective = days_present + days_excused
-    percentage = (effective / total_classes) * 100 if total_classes > 0 else 0
-
-    # Update or create summary
-    attendance = ses.query(Attendance).filter_by(
-        session_id=session_id, user_id=user_id
-    ).first()
-
-    if attendance:
-        attendance.days = days_present
-        attendance.percentage = f"{percentage:.2f}%"
-        attendance.eligibility = "Eligible" if percentage >= 75 else "Ineligible"
-        attendance.status = 'present' if days_present > 0 else 'absent'
-        attendance.save()
+# _recalculate_attendance_summary is imported from attendance.py

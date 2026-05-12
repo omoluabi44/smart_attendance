@@ -6,7 +6,7 @@ export const facepassApi = baseApi.injectEndpoints({
     // ─── Lecturer Endpoints ─────────────────────────────────────
     lecturerCreateCourse: builder.mutation({
       query: (body) => ({ url: "lecturer/course", method: "POST", body }),
-      invalidatesTags: ["LecturerSessions"],
+      invalidatesTags: ["LecturerSessions", "LecturerCourses"],
     }),
     lecturerCreateSession: builder.mutation({
       query: (body) => ({ url: "lecturer/session", method: "POST", body }),
@@ -15,6 +15,10 @@ export const facepassApi = baseApi.injectEndpoints({
     getLecturerSessions: builder.query({
       query: () => "lecturer/sessions",
       providesTags: ["LecturerSessions"],
+    }),
+    getLecturerCourses: builder.query({
+      query: () => "lecturer/courses",
+      providesTags: ["LecturerCourses"],
     }),
     getSessionDashboard: builder.query({
       query: (sessionId) => `lecturer/sessions/${sessionId}/dashboard`,
@@ -47,6 +51,30 @@ export const facepassApi = baseApi.injectEndpoints({
         url: `lecturer/sessions/${sessionId}/attendance-log/${logId}`,
         method: "PUT",
         body,
+      }),
+      invalidatesTags: (result, error, { sessionId }) => [
+        { type: "SessionDashboard", id: sessionId },
+        { type: "SessionHistory", id: sessionId },
+      ],
+    }),
+
+    // ─── Attendance Endpoints ───────────────────────────────────
+    uploadAttendanceVideo: builder.mutation({
+      query: ({ sessionId, formData }) => ({
+        url: `lecturer/sessions/${sessionId}/attendance/video`,
+        method: "POST",
+        body: formData,
+      }),
+    }),
+    checkVideoStatus: builder.query({
+      query: ({ sessionId, jobId }) =>
+        `lecturer/sessions/${sessionId}/attendance/video-status/${jobId}`,
+    }),
+    takeAttendanceImage: builder.mutation({
+      query: ({ sessionId, formData }) => ({
+        url: `lecturer/sessions/${sessionId}/attendance/image`,
+        method: "POST",
+        body: formData,
       }),
       invalidatesTags: (result, error, { sessionId }) => [
         { type: "SessionDashboard", id: sessionId },
@@ -105,12 +133,17 @@ export const {
   useLecturerCreateCourseMutation,
   useLecturerCreateSessionMutation,
   useGetLecturerSessionsQuery,
+  useGetLecturerCoursesQuery,
   useGetSessionDashboardQuery,
   useGetSessionHistoryQuery,
   useAddCoLecturerMutation,
   useGetCoLecturersQuery,
   useUpdateSessionMutation,
   useManualOverrideMutation,
+  // Attendance
+  useUploadAttendanceVideoMutation,
+  useCheckVideoStatusQuery,
+  useTakeAttendanceImageMutation,
   // Student
   useStudentEnrollMutation,
   useGetStudentSessionsQuery,

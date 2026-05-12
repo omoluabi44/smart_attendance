@@ -36,7 +36,8 @@ app.register_blueprint(app_views)
 
 CORS(
     app,
-    resources={r"/api/v1/*": {"origins": "*"}},
+    resources={r"/api/v1/*": {"origins": ["http://localhost:3000"]}},
+    supports_credentials=True
 )
 
 app.config['JWT_SECRET_KEY'] = environ.get('JWT_SECRET_KEY')

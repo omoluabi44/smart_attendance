@@ -121,7 +121,7 @@ const FeatureLectureNotes = () => {
         {/* CTA BOTTOM */}
         <div className="mt-16 flex justify-start">
           <Link
-          href="/dashboard"
+          href="/student"
            className="group flex items-center gap-3 text-lg font-bold text-slate-900 hover:text-blue-500 transition-colors">
             Start learning now 
             <span className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">

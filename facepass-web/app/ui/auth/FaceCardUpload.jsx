@@ -48,8 +48,8 @@ export default function FaceCardUpload() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (images.length < 5) {
-            toast.error("Please upload exactly 5 face cards.");
+        if (images.length < 1) {
+            toast.error("Please upload at least 1 face card.");
             return;
         }
 
@@ -70,7 +70,7 @@ export default function FaceCardUpload() {
             });
 
             toast.success(response.data?.message || "Face cards uploaded successfully!");
-            router.push("/dashboard"); // Redirect to next logical step
+            router.push("/student"); // Redirect to student dashboard
         } catch (error) {
             console.log(error.response?.data?.error);
             
@@ -90,7 +90,7 @@ export default function FaceCardUpload() {
                 <div className="text-center mb-8">
                     <h2 className={`${montserrat.className} text-2xl font-bold`}>Face Verification</h2>
                     <p className="text-sm text-gray-600 mt-2">
-                        Please upload 5 clear photos of your face for registration.
+                        Please upload at least 1 clear photo of your face for registration.
                     </p>
                 </div>
 
@@ -127,14 +127,14 @@ export default function FaceCardUpload() {
 
                     <div className="text-center">
                         <p className="text-xs text-gray-500">
-                            {images.length} of 5 photos uploaded
+                            {images.length} of 5 photos uploaded (at least 1 required)
                         </p>
                     </div>
 
                     <button
                         type="submit"
-                        disabled={spinner || images.length !== 5}
-                        className={`w-full rounded-lg py-3 text-sm font-medium text-white transition flex justify-center items-center gap-2 ${spinner || images.length !== 5
+                        disabled={spinner || images.length < 1}
+                        className={`w-full rounded-lg py-3 text-sm font-medium text-white transition flex justify-center items-center gap-2 ${spinner || images.length < 1
                                 ? "bg-blue-300 cursor-not-allowed"
                                 : "bg-blue-600 hover:bg-blue-700"
                             }`}

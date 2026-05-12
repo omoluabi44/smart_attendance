@@ -51,6 +51,7 @@ export const baseApi = createApi({
     'StagingCourses',
     'StagingData',
     'LecturerSessions',
+    'LecturerCourses',
     'SessionDashboard',
     'SessionHistory',
     'StudentSessions',
