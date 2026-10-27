@@ -7,7 +7,7 @@
 # ============================================================================
 set -euo pipefail
 
-DOMAIN="${1:-face.coursepass.app}"
+DOMAIN="${1:-facepass.coursepass.app}"
 EMAIL="${2:-admin@coursepass.app}"
 STAGING="${3:-0}" # Set to 1 to test against Let's Encrypt staging environment
 DATA_PATH="./certbot"

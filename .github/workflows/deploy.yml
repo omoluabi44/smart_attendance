@@ -53,7 +53,7 @@ jobs:
           file: ./facepass-web/dockerfile
           push: true
           build-args: |
-            NEXT_PUBLIC_API_URL=https://face.coursepass.app/api/v1/
+            NEXT_PUBLIC_API_URL=https://facepass.coursepass.app/api/v1/
           tags: ${{ steps.meta.outputs.tag }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
@@ -153,13 +153,13 @@ jobs:
 
             # 4. Ensure Certbot directories and bootstrap certificate exist
             mkdir -p certbot/conf certbot/www
-            if [ ! -f "certbot/conf/live/face.coursepass.app/fullchain.pem" ]; then
+            if [ ! -f "certbot/conf/live/facepass.coursepass.app/fullchain.pem" ]; then
               echo ">>> Creating bootstrap self-signed SSL certificate for initial Nginx startup..."
-              mkdir -p certbot/conf/live/face.coursepass.app
+              mkdir -p certbot/conf/live/facepass.coursepass.app
               openssl req -x509 -nodes -newkey rsa:2048 -days 7 \
-                -keyout certbot/conf/live/face.coursepass.app/privkey.pem \
-                -out certbot/conf/live/face.coursepass.app/fullchain.pem \
-                -subj "/CN=face.coursepass.app"
+                -keyout certbot/conf/live/facepass.coursepass.app/privkey.pem \
+                -out certbot/conf/live/facepass.coursepass.app/fullchain.pem \
+                -subj "/CN=facepass.coursepass.app"
             fi
 
             # 5. Stop host web servers that might block ports 80/443
