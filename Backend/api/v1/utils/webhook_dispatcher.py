@@ -7,9 +7,46 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 def get_base_url():
-    # If COURSEPASS_API_BASE_URL is not set, guess from COURSEPASS_WEBHOOK_URL for backward compat
-    base = os.getenv('COURSEPASS_API_BASE_URL', 'http://localhost:8000')
+    base = os.getenv('COURSEPASS_API_BASE_URL', '').strip().rstrip('/')
+    if not base:
+        webhook_url = os.getenv('COURSEPASS_WEBHOOK_URL', '')
+        if '/api/v1/' in webhook_url:
+            base = webhook_url.split('/api/v1/')[0]
+        else:
+            base = 'http://localhost:8000'
     return base
+
+
+def fetch_coursepass_api(path: str, params: dict = None):
+    """
+    Fetch data from CoursePass API (e.g., '/api/v1/universities', '/api/v1/courses').
+    Tries configured COURSEPASS_API_BASE_URL and localhost:8000 first, then derived base URL.
+    Returns parsed JSON on HTTP 200, or None if unreachable.
+    """
+    candidates = []
+    env_base = os.getenv('COURSEPASS_API_BASE_URL', '').strip().rstrip('/')
+    if env_base:
+        candidates.append(env_base)
+    if 'http://localhost:8000' not in candidates and 'http://127.0.0.1:8000' not in candidates:
+        candidates.append('http://localhost:8000')
+    derived = get_base_url()
+    if derived not in candidates:
+        candidates.append(derived)
+
+    secret = os.getenv('COURSEPASS_SERVICE_SECRET', 'facepass_coursepass_secret')
+    headers = {
+        "Accept": "application/json",
+        "X-API-Key": secret
+    }
+    for base in candidates:
+        url = f"{base}{path}"
+        try:
+            res = requests.get(url, params=params, headers=headers, timeout=4)
+            if res.status_code == 200:
+                return res.json()
+        except Exception as e:
+            logger.warning(f"CoursePass API fetch failed for {url}: {e}")
+    return None
 
 def dispatch_attendance_webhook_sync(session_id: str, course_id: str, date_str: str, present_user_ids: list, absent_user_ids: list):
     """Fire real-time attendance webhook to CoursePass (Synchronous)."""

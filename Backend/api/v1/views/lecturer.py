@@ -13,6 +13,7 @@ from api.v1.views import app_views
 from flask import jsonify, make_response, request, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from api.v1.utils.roles import role_required
+from api.v1.utils.webhook_dispatcher import fetch_coursepass_api, dispatch_course_config_webhook
 from datetime import datetime
 import io
 import pandas as pd
@@ -61,17 +62,39 @@ def lecturer_create_course():
 @jwt_required()
 @role_required('lecturer')
 def lecturer_courses():
-    """Return all courses available for session creation."""
-    courses = ses.query(Courses).order_by(Courses.courseID).all()
-    courses_list = [
-        {
-            "id": c.id,
-            "courseID": c.courseID,
-            "courseName": c.courseName,
-            "description": c.description,
-        }
-        for c in courses
-    ]
+    """Return all courses available for session creation (fetched from CoursePass API + local catalog)."""
+    q = request.args.get('q', '').strip()
+    courses_by_code = {}
+
+    # 1. Fetch from CoursePass API
+    if q:
+        remote_courses = fetch_coursepass_api('/api/v1/courses/search', params={'q': q})
+    else:
+        remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 500})
+
+    if isinstance(remote_courses, list):
+        for rc in remote_courses:
+            code = rc.get("courseID")
+            if code:
+                courses_by_code[code] = {
+                    "id": rc.get("id", code),
+                    "courseID": code,
+                    "courseName": rc.get("courseName", code),
+                    "description": rc.get("description") or "Synced from CoursePass catalog",
+                }
+
+    # 2. Merge local courses
+    local_courses = ses.query(Courses).order_by(Courses.courseID).all()
+    for c in local_courses:
+        if c.courseID not in courses_by_code:
+            courses_by_code[c.courseID] = {
+                "id": c.id,
+                "courseID": c.courseID,
+                "courseName": c.courseName,
+                "description": c.description,
+            }
+
+    courses_list = sorted(courses_by_code.values(), key=lambda x: x["courseID"])
     return make_response(jsonify({"data": courses_list}), 200)
 
 
@@ -93,10 +116,26 @@ def lecturer_create_session():
         if field not in data:
             return make_response(jsonify({"error": f"Missing required field: {field}"}), 400)
 
-    # Verify course exists
+    # Verify course exists locally; if not, sync from CoursePass API or request payload
     course = ses.query(Courses).filter_by(courseID=data["courseID"]).first()
     if not course:
-        return make_response(jsonify({"error": "Course not found"}), 404)
+        remote_course = fetch_coursepass_api(f'/api/v1/courses/{data["courseID"]}')
+        if isinstance(remote_course, dict) and remote_course.get("courseID"):
+            course = Courses(
+                courseID=remote_course["courseID"],
+                courseName=remote_course.get("courseName") or data.get("courseName") or data["courseID"],
+                description=remote_course.get("description") or data.get("description") or "Synced from CoursePass"
+            )
+            course.save()
+        elif data.get("courseName"):
+            course = Courses(
+                courseID=data["courseID"],
+                courseName=data["courseName"],
+                description=data.get("description") or "Synced from CoursePass"
+            )
+            course.save()
+        else:
+            return make_response(jsonify({"error": "Course not found in CoursePass catalog"}), 404)
 
     # Create the session
     session_data = {
@@ -111,6 +150,13 @@ def lecturer_create_session():
     lecturer_id = get_jwt_identity()
     lecturer_link = LecturerSession(session_id=new_session.id, lecturer_id=lecturer_id)
     lecturer_link.save()
+
+    # Sync course configuration with CoursePass
+    dispatch_course_config_webhook(
+        course.courseID,
+        int(data["total_expected_classes"]),
+        data["session_name"]
+    )
 
     return make_response(jsonify({
         "message": "Session created successfully",
@@ -597,6 +643,11 @@ def update_session(session_id):
             setattr(session_obj, key, value)
 
     session_obj.save()
+    dispatch_course_config_webhook(
+        session_obj.courseID,
+        int(session_obj.total_expected_classes or 13),
+        session_obj.session_name
+    )
     return make_response(jsonify({"message": "Session updated", "session": session_obj.to_dict()}), 200)
 
 
