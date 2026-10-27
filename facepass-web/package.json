@@ -65,8 +65,10 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@sentry/cli",
       "bcrypt",
-      "sharp"
+      "sharp",
+      "unrs-resolver"
     ],
     "overrides": {
       "glob": ">=10.3.10",
