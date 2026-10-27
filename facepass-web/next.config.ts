@@ -2,7 +2,7 @@ import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: process.env.VERCEL ? undefined : "standalone",
   transpilePackages: [
     'framer-motion', 'lucide-react', 'recharts', 'pdfjs-dist', 'react-pdf', 
     'katex', 'react-icons', 'react-spinners', 'rehype-katex', 'remark-math', 
