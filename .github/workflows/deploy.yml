@@ -152,11 +152,11 @@ jobs:
             fi
 
             # 4. Ensure Certbot directories and bootstrap certificate exist
-            mkdir -p certbot/conf certbot/www
-            if [ ! -f "certbot/conf/live/facepass.coursepass.app/fullchain.pem" ]; then
+            sudo mkdir -p certbot/conf certbot/www
+            if ! sudo test -f "certbot/conf/live/facepass.coursepass.app/fullchain.pem"; then
               echo ">>> Creating bootstrap self-signed SSL certificate for initial Nginx startup..."
-              mkdir -p certbot/conf/live/facepass.coursepass.app
-              openssl req -x509 -nodes -newkey rsa:2048 -days 7 \
+              sudo mkdir -p certbot/conf/live/facepass.coursepass.app
+              sudo openssl req -x509 -nodes -newkey rsa:2048 -days 7 \
                 -keyout certbot/conf/live/facepass.coursepass.app/privkey.pem \
                 -out certbot/conf/live/facepass.coursepass.app/fullchain.pem \
                 -subj "/CN=facepass.coursepass.app"
