@@ -185,6 +185,5 @@ jobs:
               sleep 4
             done
 
-            # 8. Auto-renew certificates if due & reload Nginx
-            sudo docker compose -f docker-compose.prod.yml run --rm certbot renew --webroot -w /var/www/certbot --quiet || true
+            # 8. Reload Nginx configuration
             sudo docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload || true
