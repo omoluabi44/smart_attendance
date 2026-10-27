@@ -127,6 +127,17 @@ jobs:
 
             # 2. Setup production environment file from GitHub secret (CoursePass pattern)
             echo "${{ secrets.ENV_FILE || secrets.BACKEND_ENV_FILE }}" > .env.prod
+
+            # Append dynamic image names to .env.prod so docker compose ALWAYS loads them
+            OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            if [ -n "${{ secrets.DOCKER_USERNAME }}" ]; then
+              echo "WEB_IMAGE=${{ secrets.DOCKER_USERNAME }}/facepass-web:latest" >> .env.prod
+              echo "API_IMAGE=${{ secrets.DOCKER_USERNAME }}/facepass-backend:latest" >> .env.prod
+            else
+              echo "WEB_IMAGE=ghcr.io/${OWNER_LC}/facepass-web:latest" >> .env.prod
+              echo "API_IMAGE=ghcr.io/${OWNER_LC}/facepass-backend:latest" >> .env.prod
+            fi
+
             cp .env.prod .env
             cp .env.prod Backend/.env
             chmod 600 .env.prod .env Backend/.env
@@ -134,12 +145,10 @@ jobs:
             # 3. Authenticate with GHCR if Docker Hub is not configured
             if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
               echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-              OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-              export WEB_IMAGE="ghcr.io/${OWNER_LC}/facepass-web:latest"
-              export API_IMAGE="ghcr.io/${OWNER_LC}/facepass-backend:latest"
+              echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             else
-              export WEB_IMAGE="${{ secrets.DOCKER_USERNAME }}/facepass-web:latest"
-              export API_IMAGE="${{ secrets.DOCKER_USERNAME }}/facepass-backend:latest"
+              echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+              echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             fi
 
             # 4. Ensure Certbot directories and bootstrap certificate exist

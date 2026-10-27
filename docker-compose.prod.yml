@@ -36,7 +36,7 @@ services:
       - facepass_net
 
   facepass_web:
-    image: ${WEB_IMAGE:-ghcr.io/coursepass/facepass-web:latest}
+    image: ${WEB_IMAGE:-ghcr.io/omoluabi44/facepass-web:latest}
     build:
       context: ./facepass-web
       dockerfile: dockerfile
@@ -68,7 +68,7 @@ services:
         max-file: "3"
 
   facepass_api:
-    image: ${API_IMAGE:-ghcr.io/coursepass/facepass-backend:latest}
+    image: ${API_IMAGE:-ghcr.io/omoluabi44/facepass-backend:latest}
     build:
       context: ./Backend
       dockerfile: Dockerfile
@@ -100,7 +100,7 @@ services:
         max-file: "3"
 
   facepass_worker:
-    image: ${API_IMAGE:-ghcr.io/coursepass/facepass-backend:latest}
+    image: ${API_IMAGE:-ghcr.io/omoluabi44/facepass-backend:latest}
     build:
       context: ./Backend
       dockerfile: Dockerfile
