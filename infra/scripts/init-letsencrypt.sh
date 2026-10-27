@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================================
 # FacePass Let's Encrypt SSL Bootstrap Script
-# Run once on EC2 after DNS A record for face.coursepass.app points to EC2 IP:
+# Run once on EC2 after DNS A record for facepass.coursepass.app points to EC2 IP:
 #   chmod +x infra/scripts/init-letsencrypt.sh
-#   ./infra/scripts/init-letsencrypt.sh face.coursepass.app admin@coursepass.app
+#   ./infra/scripts/init-letsencrypt.sh facepass.coursepass.app admin@coursepass.app
 # ============================================================================
 set -euo pipefail
 

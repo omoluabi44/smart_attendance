@@ -12,6 +12,7 @@ import os
 import json
 import re
 
+from api.v1.utils.webhook_dispatcher import dispatch_course_config_webhook
 session = storage._DBStorage__session
 load_dotenv()
 
@@ -79,6 +80,7 @@ def post_course():
 
     course = Courses(**data)
     course.save()
+    dispatch_course_config_webhook(course.id, data.get('total_classes', 13), data.get('academic_session', '2026/2027'))
     return make_response(jsonify(course.to_dict()), 201)
 
 
@@ -102,6 +104,9 @@ def put_course(course_id):
         if key not in ignore:
             setattr(course, key, value)
     course.save()
+    total_classes = getattr(course, 'total_classes', 13)
+    academic_session = getattr(course, 'academic_session', '2026/2027')
+    dispatch_course_config_webhook(course.id, total_classes, academic_session)
     return make_response(jsonify(course.to_dict()), 200)
 
 

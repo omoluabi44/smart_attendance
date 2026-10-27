@@ -340,7 +340,7 @@ def take_attendance_image(session_id):
         # Dispatch webhook to CoursePass
         present_ids = [res['user_id'] for res in unique_results]
         date_str = datetime.utcnow().strftime('%Y-%m-%d')
-        dispatch_attendance_webhook(session_id, date_str, present_ids, [])
+        dispatch_attendance_webhook(session_id, session_obj.courseID, date_str, present_ids, [])
 
         return make_response(jsonify({
             "status": "complete",

@@ -6,7 +6,7 @@ This guide walks you through launching **FacePass** (`facepass-web` + `Backend`)
 
 ## 1. Architecture Summary
 
-- **Domain**: `https://face.coursepass.app`
+- **Domain**: `https://facepass.coursepass.app`
   - `/` -> Routed by Nginx to `facepass_web` (Next.js 15 standalone container on port `3000`)
   - `/api/v1/*` -> Routed by Nginx to `facepass_api` (Flask + Gunicorn Eventlet on port `5001`)
   - `/apidocs` -> Swagger OpenAPI documentation
@@ -14,7 +14,7 @@ This guide walks you through launching **FacePass** (`facepass-web` + `Backend`)
   - **VPC**: `10.0.0.0/16` with 2 Public Subnets (EC2) and 2 Private Subnets (RDS MySQL).
   - **EC2**: Ubuntu 24.04 LTS (`t3.small`), Elastic IP, 30GB encrypted GP3 root volume, 2GB swap, UFW firewall (`22`, `80`, `443`), and **IAM Instance Profile** (IMDSv2 `hop_limit = 2`).
   - **RDS**: MySQL 8.0 (`db.t4g.micro`), encrypted GP3 storage, private subnets only, inbound `3306` restricted strictly to the EC2 Security Group.
-  - **S3 Bucket**: Private bucket with `BlockPublicAccess`, AES-256 encryption, CORS enabled for presigned `PUT` uploads from `https://face.coursepass.app`, and a **24-hour Lifecycle Rule** that automatically deletes classroom media under `attendance_images/` and `attendance_videos/`.
+  - **S3 Bucket**: Private bucket with `BlockPublicAccess`, AES-256 encryption, CORS enabled for presigned `PUT` uploads from `https://facepass.coursepass.app`, and a **24-hour Lifecycle Rule** that automatically deletes classroom media under `attendance_images/` and `attendance_videos/`.
   - **AWS Rekognition**: Accessed via EC2 IAM Role (no static AWS keys needed on the server) using compartmentalized per-course collections (`facepass_session_<session_id>`).
 
 ---
@@ -43,7 +43,7 @@ Once `terraform apply` finishes (approx. 5–8 minutes for RDS creation), note t
 ```bash
 terraform output
 ```
-- `ec2_public_ip`: Point your DNS **A Record** for `face.coursepass.app` to this Elastic IP.
+- `ec2_public_ip`: Point your DNS **A Record** for `facepass.coursepass.app` to this Elastic IP.
 - `rds_host`: Use this as `BDYM_MYSQL_HOST` in GitHub Secrets.
 - `s3_bucket_name`: Use this as `AWS_S3_BUCKET_NAME` in GitHub Secrets.
 
@@ -82,7 +82,7 @@ BDYM_MYSQL_DB=facepass_db
 
 SECRET_KEY=6d4f5cc023d5568358d53b919042333e399e22c866e9335c73cdbdac0a4febec
 JWT_SECRET_KEY=a66e245e2e841ab144c91626fbd6f31b967e3d802abc7a0fbf96c6e084acab64
-CORS_ORIGINS=https://face.coursepass.app,https://coursepass.app,https://www.coursepass.app
+CORS_ORIGINS=https://facepass.coursepass.app,https://coursepass.app,https://www.coursepass.app
 
 AWS_DEFAULT_REGION=us-east-1
 AWS_S3_BUCKET_NAME=facepass-files-223784796667
@@ -100,7 +100,7 @@ MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_DEFAULT_SENDER=
 
-NEXT_PUBLIC_API_URL=https://face.coursepass.app/api/v1/
+NEXT_PUBLIC_API_URL=https://facepass.coursepass.app/api/v1/
 ```
 
 ---
@@ -112,11 +112,11 @@ NEXT_PUBLIC_API_URL=https://face.coursepass.app/api/v1/
    - GitHub Actions will build both images, push them to `ghcr.io`, copy `docker-compose.prod.yml` and `infra/nginx/nginx.prod.conf` to `/opt/facepass`, generate a temporary self-signed certificate so Nginx boots cleanly, and start all 6 containers.
 
 2. **Issue Production Let's Encrypt Certificate**:
-   Once your DNS `A` record for `face.coursepass.app` resolves to `EC2_HOST`, SSH into the server and run `init-letsencrypt.sh` once:
+   Once your DNS `A` record for `facepass.coursepass.app` resolves to `EC2_HOST`, SSH into the server and run `init-letsencrypt.sh` once:
    ```bash
    ssh -i ~/.ssh/facepass_deploy ubuntu@<EC2_PUBLIC_IP>
    cd /opt/facepass
-   ./infra/scripts/init-letsencrypt.sh face.coursepass.app admin@coursepass.app
+   ./infra/scripts/init-letsencrypt.sh facepass.coursepass.app admin@coursepass.app
    ```
    Certbot will obtain a live TLS certificate and reload Nginx automatically. The `facepass_certbot` container will renew the certificate automatically every 12 hours.
 
@@ -130,7 +130,7 @@ cd /opt/facepass
 docker compose -f docker-compose.prod.yml ps
 
 # Verify API & Database Healthcheck
-curl -i https://face.coursepass.app/api/v1/health
+curl -i https://facepass.coursepass.app/api/v1/health
 
 # View real-time logs for API, Celery Worker, or Frontend
 docker compose -f docker-compose.prod.yml logs -f facepass_api facepass_worker facepass_web

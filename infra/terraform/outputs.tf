@@ -1,5 +1,5 @@
 output "ec2_public_ip" {
-  description = "Elastic IP address of the FacePass EC2 server (Point your DNS A record for face.coursepass.app here)"
+  description = "Elastic IP address of the FacePass EC2 server (Point your DNS A record for facepass.coursepass.app here)"
   value       = aws_eip.app_eip.public_ip
 }
 

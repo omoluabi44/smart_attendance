@@ -19,7 +19,7 @@ variable "project_name" {
 variable "domain_name" {
   description = "Primary HTTPS domain for the FacePass application"
   type        = string
-  default     = "face.coursepass.app"
+  default     = "facepass.coursepass.app"
 }
 
 variable "vpc_cidr" {

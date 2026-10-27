@@ -30,7 +30,7 @@ app.register_blueprint(app_views)
 
 cors_origins_env = environ.get(
     "CORS_ORIGINS",
-    "https://facepass.coursepass.app,https://face.coursepass.app,https://coursepass.app,https://www.coursepass.app,http://localhost:3000",
+    "https://facepass.coursepass.app,https://coursepass.app,https://www.coursepass.app,http://localhost:3000",
 )
 allowed_origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
 

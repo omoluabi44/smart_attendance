@@ -4,6 +4,8 @@ from models import storage
 from models.course_material import CourseMaterial
 from api.v1.views import app_views
 from api.v1.utils.roles import role_required
+from api.v1.utils.webhook_dispatcher import dispatch_material_webhook
+from models.sessions import Sessions
 
 @app_views.route('/lecturer/sessions/<session_id>/materials', methods=['GET'], strict_slashes=False)
 @jwt_required()
@@ -43,6 +45,10 @@ def add_material(session_id):
     storage.new(new_material)
     storage.save()
     
+    session_obj = storage.get_id(Sessions, session_id)
+    if session_obj:
+        dispatch_material_webhook(session_obj.courseID, new_material.id, new_material.title, new_material.material_type, new_material.file_url or '')
+
     return jsonify({"message": "Material added successfully", "id": new_material.id}), 201
 
 @app_views.route('/lecturer/sessions/<session_id>/materials/<material_id>', methods=['DELETE'], strict_slashes=False)
