@@ -5,7 +5,7 @@ from models.quiz import Quiz, QuizResult
 from api.v1.views import app_views
 from api.v1.utils.roles import role_required
 from api.v1.utils.webhook_dispatcher import dispatch_quiz_webhook
-from models.sessions import Sessions
+from models.session import Sessions
 from datetime import datetime
 import os
 

@@ -5,7 +5,7 @@ from models.course_material import CourseMaterial
 from api.v1.views import app_views
 from api.v1.utils.roles import role_required
 from api.v1.utils.webhook_dispatcher import dispatch_material_webhook
-from models.sessions import Sessions
+from models.session import Sessions
 
 @app_views.route('/lecturer/sessions/<session_id>/materials', methods=['GET'], strict_slashes=False)
 @jwt_required()

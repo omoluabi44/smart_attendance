@@ -30,7 +30,7 @@ def modify_materials():
 
     content = content.replace(
         "from api.v1.utils.roles import role_required",
-        "from api.v1.utils.roles import role_required\nfrom api.v1.utils.webhook_dispatcher import dispatch_material_webhook\nfrom models.sessions import Sessions"
+        "from api.v1.utils.roles import role_required\nfrom api.v1.utils.webhook_dispatcher import dispatch_material_webhook\nfrom models.session import Sessions"
     )
 
     content = content.replace(
@@ -48,7 +48,7 @@ def modify_quizzes():
 
     content = content.replace(
         "from api.v1.utils.roles import role_required",
-        "from api.v1.utils.roles import role_required\nfrom api.v1.utils.webhook_dispatcher import dispatch_quiz_webhook\nfrom models.sessions import Sessions"
+        "from api.v1.utils.roles import role_required\nfrom api.v1.utils.webhook_dispatcher import dispatch_quiz_webhook\nfrom models.session import Sessions"
     )
 
     content = content.replace(
