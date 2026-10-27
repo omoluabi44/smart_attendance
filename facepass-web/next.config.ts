@@ -24,8 +24,28 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack: (config) => {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(self), microphone=()',
+          },
+        ],
+      },
+    ];
+  },
+  webpack: (config, { isServer }) => {
     config.resolve.alias.canvas = false;
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        encoding: false,
+      };
+    }
     return config;
   },
 };
@@ -37,7 +57,7 @@ export default withSentryConfig(nextConfig, {
 
   // 1. Correct property for hiding source maps
   sourcemaps: {
-    disable: false,
+    disable: !process.env.SENTRY_AUTH_TOKEN,
     // This replaces 'hideSourceMaps': it removes the sourceMappingURL 
     // comment so browsers don't try to download them.
     deleteSourcemapsAfterUpload: true, 

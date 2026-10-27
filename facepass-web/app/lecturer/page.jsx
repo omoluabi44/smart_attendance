@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/app/lib/features/user/userStore";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { montserrat } from "@/app/ui/fonts";
+import CPLogo from "@/app/ui/CPLogo";
 import {
   useGetLecturerSessionsQuery,
   useGetLecturerCoursesQuery,
@@ -13,13 +13,19 @@ import {
   useLecturerCreateSessionMutation,
 } from "@/app/lib/api/facepassApi";
 import {
-  PlusIcon,
-  AcademicCapIcon,
-  CalendarDaysIcon,
-  UserGroupIcon,
-  ChevronRightIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+  Plus,
+  BookOpen,
+  Calendar,
+  Users,
+  ArrowUpRight,
+  X,
+  ScanFace,
+  ShieldCheck,
+  Search,
+  LogOut,
+  Cpu,
+  FolderPlus,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function LecturerDashboard() {
@@ -34,6 +40,10 @@ export default function LecturerDashboard() {
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showSessionModal, setShowSessionModal] = useState(false);
 
+  // Filter & Search state
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Course form
   const [courseID, setCourseID] = useState("");
   const [courseName, setCourseName] = useState("");
@@ -41,27 +51,54 @@ export default function LecturerDashboard() {
 
   // Session form
   const [sessionCourseID, setSessionCourseID] = useState("");
-  const [sessionName, setSessionName] = useState("");
+  const [sessionName, setSessionName] = useState("2025/2026");
   const [totalClasses, setTotalClasses] = useState(13);
 
   const sessions = sessionsData?.data || [];
   const courses = coursesData?.data || [];
 
+  // Computed metrics
+  const totalEnrolledAcrossSessions = useMemo(
+    () =>
+      sessions.reduce(
+        (acc, s) => acc + (Number(s.enrolled_students) || 0),
+        0
+      ),
+    [sessions]
+  );
+
+  // Filtered sessions
+  const filteredSessions = useMemo(() => {
+    return sessions.filter((s) => {
+      const matchesCourse =
+        selectedCourseFilter === "ALL" || s.courseID === selectedCourseFilter;
+      const q = searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        (s.courseID && s.courseID.toLowerCase().includes(q)) ||
+        (s.course_name && s.course_name.toLowerCase().includes(q)) ||
+        (s.session_name && s.session_name.toLowerCase().includes(q));
+      return matchesCourse && matchesSearch;
+    });
+  }, [sessions, selectedCourseFilter, searchQuery]);
+
   const handleCreateCourse = async (e) => {
     e.preventDefault();
     try {
+      const cleanCode = courseID.toUpperCase().trim();
       await createCourse({
-        courseID: courseID.toUpperCase().trim(),
+        courseID: cleanCode,
         courseName: courseName.trim(),
         description: courseDesc.trim() || "No description",
       }).unwrap();
-      toast.success("Course created!");
+      toast.success(`Course ${cleanCode} registered in catalog.`);
       setShowCourseModal(false);
       setCourseID("");
       setCourseName("");
       setCourseDesc("");
+      setSessionCourseID(cleanCode);
     } catch (err) {
-      toast.error(err?.data?.error || "Failed to create course");
+      toast.error(err?.data?.error || "Failed to register course");
     }
   };
 
@@ -73,182 +110,408 @@ export default function LecturerDashboard() {
         session_name: sessionName.trim(),
         total_expected_classes: Number(totalClasses),
       }).unwrap();
-      toast.success("Session created!");
+      toast.success("Session & isolated Computer Vision collection provisioned!");
       setShowSessionModal(false);
       setSessionCourseID("");
-      setSessionName("");
+      setSessionName("2025/2026");
       setTotalClasses(13);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.error || "Failed to create session");
+      toast.error(err?.data?.error || "Failed to provision session");
     }
   };
 
   const handleLogout = () => {
     dispatch(logout());
     router.push("/login");
-    toast.success("Logged out successfully");
+    toast.success("Signed out of Command Center");
   };
 
+  const requiredLecturesPreview = Math.ceil((Number(totalClasses) || 0) * 0.75);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      {/* ── Top Bar ── */}
-      <div className="bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-          <div>
-            <h1 className={`${montserrat.className} text-2xl font-black text-slate-900`}>
-              facePass <span className="text-blue-500">Control Room</span>
-            </h1>
-            <p className="text-slate-500 text-xs font-semibold mt-1 uppercase tracking-widest">
-              Lecturer Dashboard
-            </p>
+    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 flex flex-col">
+      {/* ── Top Command Bar ── */}
+      <header className="sticky top-0 z-30 backdrop-blur-md bg-white/85 border-b border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link href="/lecturer" className="focus:outline-none">
+              <CPLogo theme="light" size="sm" />
+            </Link>
+            <div className="hidden md:flex items-center gap-2 pl-4 border-l border-slate-200">
+              <span className="px-2.5 py-0.5 rounded-md bg-blue-50 border border-blue-200/80 text-[11px] font-mono font-medium text-blue-700">
+                COMMAND CENTER // FACULTY
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200/80 text-[11px] font-mono font-medium text-emerald-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                CV ENGINE: READY
+              </span>
+            </div>
           </div>
-          <div className="flex gap-3">
+
+          <div className="flex items-center gap-2.5">
+            {user?.email && (
+              <span className="hidden lg:inline-block text-xs font-mono text-slate-500 mr-2">
+                {user.email}
+              </span>
+            )}
             <button
               onClick={() => setShowCourseModal(true)}
-              className="flex items-center gap-2 bg-slate-100 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-slate-200 transition"
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 text-slate-700 hover:text-blue-600 px-3.5 py-2 rounded-xl font-semibold text-xs transition shadow-2xs"
             >
-              <PlusIcon className="h-4 w-4" /> New Course
+              <FolderPlus className="w-3.5 h-3.5 text-blue-500" />
+              <span>Register Course</span>
             </button>
             <button
               onClick={() => setShowSessionModal(true)}
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-blue-600 transition shadow-lg shadow-blue-200"
+              className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold text-xs transition shadow-md shadow-blue-500/20"
             >
-              <PlusIcon className="h-4 w-4" /> New Session
+              <Plus className="w-3.5 h-3.5 text-white" />
+              <span>New Session</span>
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-red-100 transition"
+              title="Sign Out"
+              className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-rose-200 hover:bg-rose-50 text-slate-600 hover:text-rose-600 px-3 py-2 rounded-xl font-semibold text-xs transition"
             >
-              Logout
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* ── Sessions Grid ── */}
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <h2 className="text-lg font-bold text-slate-800 mb-6">Your Active Sessions</h2>
+      {/* ── Main Content Workspace ── */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* ── Executive Summary Strip (4 Metric Cards) ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+              <span>ACTIVE SESSIONS</span>
+              <Calendar className="w-4 h-4 text-blue-500" />
+            </div>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+                {sessions.length}
+              </span>
+              <span className="text-[11px] font-mono text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
+                LIVE ROSTERS
+              </span>
+            </div>
+          </div>
 
-        {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 animate-pulse h-48 border border-slate-100" />
-            ))}
-          </div>
-        ) : sessions.length === 0 ? (
-          <div className="text-center py-20">
-            <AcademicCapIcon className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-500 mb-2">No Sessions Yet</h3>
-            <p className="text-slate-400 mb-6">Create a course and session to get started.</p>
-            <button
-              onClick={() => setShowSessionModal(true)}
-              className="bg-blue-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-600 transition"
-            >
-              Create Your First Session
-            </button>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sessions.map((session) => (
-              <Link
-                key={session.id}
-                href={`/lecturer/${session.id}`}
-                className="group bg-white rounded-2xl p-6 border border-slate-100 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50 transition-all duration-300"
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+              <span>REGISTERED COURSES</span>
+              <BookOpen className="w-4 h-4 text-blue-500" />
+            </div>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+                {courses.length}
+              </span>
+              <button
+                onClick={() => setShowCourseModal(true)}
+                className="text-[11px] font-mono text-blue-600 font-semibold hover:underline"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="bg-blue-50 p-2.5 rounded-xl">
-                    <AcademicCapIcon className="h-6 w-6 text-blue-500" />
-                  </div>
-                  <ChevronRightIcon className="h-5 w-5 text-slate-300 group-hover:text-blue-500 transition" />
-                </div>
+                + ADD COURSE
+              </button>
+            </div>
+          </div>
 
-                <h3 className="font-black text-slate-900 text-lg mb-1">
-                  {session.courseID}
-                </h3>
-                <p className="text-slate-500 text-sm font-medium mb-4">{session.course_name}</p>
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+              <span>ENROLLED STUDENTS</span>
+              <Users className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+                {totalEnrolledAcrossSessions}
+              </span>
+              <span className="text-[11px] font-mono text-slate-500">
+                PORTAL SYNCED
+              </span>
+            </div>
+          </div>
 
-                <div className="flex items-center gap-4 text-xs font-bold text-slate-400 border-t border-slate-50 pt-4">
-                  <span className="flex items-center gap-1">
-                    <CalendarDaysIcon className="h-3.5 w-3.5" />
-                    {session.session_name}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <UserGroupIcon className="h-3.5 w-3.5" />
-                    {session.enrolled_students} students
-                  </span>
-                </div>
-              </Link>
+          <div className="bg-obsidian-950 text-white rounded-2xl p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute inset-0 bg-vision-grid-dark opacity-30 pointer-events-none" />
+            <div className="relative z-10 flex items-center justify-between text-[11px] font-mono text-blue-400 uppercase">
+              <span>CV FACE COLLECTIONS</span>
+              <ScanFace className="w-4 h-4 text-blue-400" />
+            </div>
+            <div className="relative z-10 mt-4 flex items-baseline justify-between">
+              <span className="text-3xl font-bold font-mono tracking-tight text-white">
+                {sessions.length}
+              </span>
+              <span className="text-[10px] font-mono text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
+                ISOLATED 1:N
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Course Registry Filter Pills & Search Bar ── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+            <span className="text-[11px] font-mono uppercase text-slate-400 mr-1 shrink-0">
+              FILTER:
+            </span>
+            <button
+              onClick={() => setSelectedCourseFilter("ALL")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition shrink-0 ${
+                selectedCourseFilter === "ALL"
+                  ? "bg-blue-500 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+              }`}
+            >
+              ALL SESSIONS ({sessions.length})
+            </button>
+            {courses.map((course) => (
+              <button
+                key={course.courseID}
+                onClick={() => setSelectedCourseFilter(course.courseID)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition shrink-0 ${
+                  selectedCourseFilter === course.courseID
+                    ? "bg-blue-500 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                }`}
+              >
+                {course.courseID}
+              </button>
             ))}
           </div>
-        )}
-      </div>
+
+          <div className="relative w-full md:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Filter by course code or title..."
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none transition"
+            />
+          </div>
+        </div>
+
+        {/* ── Sessions Grid ── */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-mono uppercase tracking-wider text-slate-500 font-semibold">
+              PROVISIONED COURSE SESSIONS ({filteredSessions.length})
+            </h2>
+          </div>
+
+          {isLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-6 animate-pulse h-56 border border-slate-200/80"
+                />
+              ))}
+            </div>
+          ) : filteredSessions.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center max-w-xl mx-auto my-6">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center mx-auto mb-4 shadow-md shadow-blue-500/20">
+                <ScanFace className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">
+                {sessions.length === 0
+                  ? "No Course Sessions Provisioned"
+                  : "No matching sessions found"}
+              </h3>
+              <p className="text-sm text-slate-500 mb-6">
+                {sessions.length === 0
+                  ? "Register your academic course code and initialize a session to provision an isolated Computer Vision collection, share lecture materials, and schedule quizzes."
+                  : "Try clearing your search query or switching the course filter pill above."}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={() => setShowCourseModal(true)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-blue-50/50 hover:border-blue-300 text-slate-700 text-xs font-semibold transition"
+                >
+                  1. Register Course Code
+                </button>
+                <button
+                  onClick={() => setShowSessionModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold transition shadow-md shadow-blue-500/20"
+                >
+                  2. Provision Session
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredSessions.map((session) => (
+                <Link
+                  key={session.id}
+                  href={`/lecturer/${session.id}`}
+                  className="group relative bg-white rounded-2xl p-6 border border-slate-200/90 hover:border-blue-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between overflow-hidden"
+                >
+                  {/* Subtle Corner Reticles on Hover */}
+                  <div className="absolute top-2.5 left-2.5 w-2.5 h-2.5 border-t-2 border-l-2 border-transparent group-hover:border-blue-500 transition-colors" />
+                  <div className="absolute top-2.5 right-2.5 w-2.5 h-2.5 border-t-2 border-r-2 border-transparent group-hover:border-blue-500 transition-colors" />
+                  <div className="absolute bottom-2.5 left-2.5 w-2.5 h-2.5 border-b-2 border-l-2 border-transparent group-hover:border-blue-500 transition-colors" />
+                  <div className="absolute bottom-2.5 right-2.5 w-2.5 h-2.5 border-b-2 border-r-2 border-transparent group-hover:border-blue-500 transition-colors" />
+
+                  <div>
+                    {/* Top Metadata Row */}
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-blue-500 text-white font-mono text-xs font-bold tracking-wider">
+                          {session.courseID}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-mono text-xs font-medium">
+                          {session.session_name}
+                        </span>
+                      </div>
+                      <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 group-hover:bg-blue-500 group-hover:text-white group-hover:border-blue-500 transition-colors">
+                        <ArrowUpRight className="w-4 h-4" />
+                      </div>
+                    </div>
+
+                    {/* Course Name */}
+                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
+                      {session.course_name}
+                    </h3>
+
+                    {/* Computer Vision Collection Tag */}
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-400 mb-6">
+                      <ScanFace className="w-3.5 h-3.5 text-blue-500" />
+                      <span>CV ENGINE SCOPE: CV-{session.courseID}</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Telemetry Strip */}
+                  <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100">
+                      <span className="block text-[10px] font-mono text-slate-400 uppercase">
+                        ENROLLED ROSTER
+                      </span>
+                      <span className="font-mono font-bold text-slate-900 text-sm">
+                        {session.enrolled_students ?? 0} Students
+                      </span>
+                    </div>
+                    <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100">
+                      <span className="block text-[10px] font-mono text-slate-400 uppercase">
+                        ELIGIBILITY RULE
+                      </span>
+                      <span className="font-mono font-bold text-emerald-700 text-sm">
+                        ≥ 75% Attendance
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
 
       {/* ── Create Course Modal ── */}
       {showCourseModal && (
-        <Modal title="Create New Course" onClose={() => setShowCourseModal(false)}>
+        <Modal
+          badge="CATALOG // NEW COURSE"
+          title="Register Academic Course"
+          subtitle="Add a course code to your lecturer catalog before provisioning an academic session."
+          onClose={() => setShowCourseModal(false)}
+        >
           <form onSubmit={handleCreateCourse} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Course Code</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
+                Course Code
+              </label>
               <input
                 type="text"
                 value={courseID}
                 onChange={(e) => setCourseID(e.target.value)}
-                placeholder="e.g. PHY102"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
+                placeholder="e.g. CSC401 or PHY102"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Course Name</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
+                Course Title
+              </label>
               <input
                 type="text"
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
-                placeholder="e.g. Applied Electricity"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
+                placeholder="e.g. Artificial Intelligence & Computer Vision"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Description (optional)</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
+                Syllabus / Description (Optional)
+              </label>
               <textarea
                 value={courseDesc}
                 onChange={(e) => setCourseDesc(e.target.value)}
-                placeholder="Brief course description..."
+                placeholder="Brief course overview for synced student rosters..."
                 rows={3}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none resize-none"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none resize-none transition"
               />
             </div>
-            <button
-              type="submit"
-              disabled={creatingCourse}
-              className="w-full bg-blue-500 text-white py-3.5 rounded-xl font-bold hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 transition"
-            >
-              {creatingCourse ? "Creating..." : "Create Course"}
-            </button>
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowCourseModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={creatingCourse}
+                className="px-5 py-2.5 bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
+              >
+                {creatingCourse ? "Registering..." : "Register Course"}
+              </button>
+            </div>
           </form>
         </Modal>
       )}
 
       {/* ── Create Session Modal ── */}
       {showSessionModal && (
-        <Modal title="Create New Session" onClose={() => setShowSessionModal(false)}>
+        <Modal
+          badge="PROVISIONING // COMPUTER VISION SESSION"
+          title="Provision Course Session"
+          subtitle="Creates an academic session and provisions an isolated per-course Computer Vision collection."
+          onClose={() => setShowSessionModal(false)}
+        >
           <form onSubmit={handleCreateSession} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Course</label>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
+                Select Registered Course
+              </label>
               {courses.length === 0 ? (
-                <div className="border border-amber-200 bg-amber-50 rounded-xl px-4 py-3 text-sm text-amber-700 font-medium">
-                  No courses found. Please create a course first.
+                <div className="border border-amber-200 bg-amber-50/80 rounded-xl p-3.5 text-xs text-amber-900 flex items-center justify-between gap-3">
+                  <span>No courses registered in your catalog yet.</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSessionModal(false);
+                      setShowCourseModal(true);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-amber-900 text-white font-semibold shrink-0"
+                  >
+                    + Register Course
+                  </button>
                 </div>
               ) : (
                 <select
                   value={sessionCourseID}
                   onChange={(e) => setSessionCourseID(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none bg-white appearance-none cursor-pointer"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none cursor-pointer transition"
                   required
                 >
-                  <option value="" disabled>Select a course...</option>
+                  <option value="" disabled>
+                    Choose a course from catalog...
+                  </option>
                   {courses.map((course) => (
                     <option key={course.courseID} value={course.courseID}>
                       {course.courseID} — {course.courseName}
@@ -257,36 +520,71 @@ export default function LecturerDashboard() {
                 </select>
               )}
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Academic Session</label>
-              <input
-                type="text"
-                value={sessionName}
-                onChange={(e) => setSessionName(e.target.value)}
-                placeholder="e.g. 2025/2026"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
-                required
-              />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  Academic Session
+                </label>
+                <input
+                  type="text"
+                  value={sessionName}
+                  onChange={(e) => setSessionName(e.target.value)}
+                  placeholder="e.g. 2025/2026"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
+                  Total Expected Lectures
+                </label>
+                <input
+                  type="number"
+                  value={totalClasses}
+                  onChange={(e) => setTotalClasses(e.target.value)}
+                  min={1}
+                  max={100}
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Total Expected Lectures</label>
-              <input
-                type="number"
-                value={totalClasses}
-                onChange={(e) => setTotalClasses(e.target.value)}
-                min={1}
-                max={100}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
-                required
-              />
+
+            {/* Live 75% Threshold Calculation Box */}
+            <div className="p-3.5 rounded-xl bg-obsidian-950 text-white border border-obsidian-700 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-blue-400 uppercase block">
+                  75% ATTENDANCE ELIGIBILITY THRESHOLD
+                </span>
+                <span className="text-xs text-slate-300">
+                  Students must attend at least{" "}
+                  <strong className="text-white font-mono">
+                    {requiredLecturesPreview} of {totalClasses || 0}
+                  </strong>{" "}
+                  lectures to qualify for exams.
+                </span>
+              </div>
+              <ScanFace className="w-5 h-5 text-blue-400 shrink-0" />
             </div>
-            <button
-              type="submit"
-              disabled={creatingSession || courses.length === 0}
-              className="w-full bg-blue-500 text-white py-3.5 rounded-xl font-bold hover:bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 transition"
-            >
-              {creatingSession ? "Creating..." : "Create Session"}
-            </button>
+
+            <div className="pt-2 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSessionModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={creatingSession || courses.length === 0}
+                className="px-5 py-2.5 bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
+              >
+                {creatingSession ? "Provisioning..." : "Provision Session"}
+              </button>
+            </div>
           </form>
         </Modal>
       )}
@@ -294,17 +592,23 @@ export default function LecturerDashboard() {
   );
 }
 
-function Modal({ title, onClose, children }) {
+function Modal({ badge, title, subtitle, onClose, children }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-4">
+      <div className="bg-white rounded-2xl border border-slate-200 w-full max-w-lg p-6 sm:p-8 shadow-2xl relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-xl transition"
+          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
         >
-          <XMarkIcon className="h-5 w-5 text-slate-400" />
+          <X className="h-4 w-4" />
         </button>
-        <h2 className="text-xl font-black text-slate-900 mb-6">{title}</h2>
+        {badge && (
+          <div className="text-[11px] font-mono font-semibold text-blue-600 uppercase tracking-wider mb-1">
+            {badge}
+          </div>
+        )}
+        <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+        {subtitle && <p className="text-xs text-slate-500 mt-1 mb-6">{subtitle}</p>}
         {children}
       </div>
     </div>

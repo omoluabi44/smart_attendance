@@ -19,7 +19,7 @@ def role_required(*allowed_roles):
             ...
         
         @jwt_required()
-        @role_required('lecturer', 'admin')
+        @role_required('lecturer')
         def lecturer_or_admin_route():
             ...
     """

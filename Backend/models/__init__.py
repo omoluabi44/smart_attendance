@@ -4,7 +4,8 @@ initialize the models package
 """
 
 from os import getenv
-
+from dotenv import load_dotenv
+load_dotenv()
 
 storage_t = getenv("BDYM_TYPE_STORAGE")
 
@@ -15,4 +16,3 @@ else:
     from models.engine.file_storage import FileStorage
     storage = FileStorage()
 storage.reload()
-

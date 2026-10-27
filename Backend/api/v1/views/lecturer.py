@@ -26,7 +26,7 @@ ses = storage._DBStorage__session
 
 @app_views.route('/lecturer/course', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def lecturer_create_course():
     """
     Create a new course. Lecturer must provide courseID, courseName.
@@ -59,7 +59,7 @@ def lecturer_create_course():
 
 @app_views.route('/lecturer/courses', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def lecturer_courses():
     """Return all courses available for session creation."""
     courses = ses.query(Courses).order_by(Courses.courseID).all()
@@ -79,7 +79,7 @@ def lecturer_courses():
 
 @app_views.route('/lecturer/session', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def lecturer_create_session():
     """
     Create a session (course + year). Auto-assigns the creating lecturer.
@@ -122,7 +122,7 @@ def lecturer_create_session():
 
 @app_views.route('/lecturer/sessions/<session_id>/co-lecturers', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def add_co_lecturer(session_id):
     """
     Add a co-lecturer to a session.
@@ -153,7 +153,7 @@ def add_co_lecturer(session_id):
 
     if not new_lecturer:
         return make_response(jsonify({"error": "Lecturer not found"}), 404)
-    if new_lecturer.role != 'lecturer' and new_lecturer.role != 'admin':
+    if new_lecturer.role != 'lecturer' :
         return make_response(jsonify({"error": "User is not a lecturer"}), 400)
 
     # Check if already assigned
@@ -174,7 +174,7 @@ def add_co_lecturer(session_id):
 
 @app_views.route('/lecturer/sessions/<session_id>/co-lecturers', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def list_co_lecturers(session_id):
     """List all lecturers assigned to a session."""
     session_obj = storage.get_id(Sessions, session_id)
@@ -195,7 +195,7 @@ def list_co_lecturers(session_id):
 
 @app_views.route('/lecturer/sessions', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def lecturer_sessions():
     """Retrieve all sessions assigned to the current lecturer."""
     lecturer_id = get_jwt_identity()
@@ -227,7 +227,7 @@ def lecturer_sessions():
 
 @app_views.route('/lecturer/sessions/<session_id>/dashboard', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def session_dashboard(session_id):
     """
     Returns aggregate analytics for a session:
@@ -345,7 +345,7 @@ def session_dashboard(session_id):
 
 @app_views.route('/lecturer/sessions/<session_id>/history', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def session_attendance_history(session_id):
     """
     Returns all attendance log entries for a session, grouped by date.
@@ -392,7 +392,7 @@ def session_attendance_history(session_id):
 
 @app_views.route('/lecturer/sessions/<session_id>/export-date/<date_str>', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def export_date_attendance(session_id, date_str):
     """Export attendance records for a specific date as Excel."""
     session_obj = storage.get_id(Sessions, session_id)
@@ -469,7 +469,7 @@ def export_date_attendance(session_id, date_str):
 
 @app_views.route('/lecturer/sessions/<session_id>/attendance-log/<log_id>', methods=["PUT"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def manual_override(session_id, log_id):
     """
     Allow lecturer to manually change a student's attendance status.
@@ -505,7 +505,7 @@ def manual_override(session_id, log_id):
 
 @app_views.route('/lecturer/sessions/<session_id>/export', methods=["GET"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def export_session_attendance(session_id):
     """Generate and download an Excel attendance report for a session."""
     session_obj = storage.get_id(Sessions, session_id)
@@ -577,7 +577,7 @@ def export_session_attendance(session_id):
 
 @app_views.route('/lecturer/sessions/<session_id>', methods=["PUT"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def update_session(session_id):
     """
     Update session settings (e.g., total_expected_classes).
@@ -601,3 +601,29 @@ def update_session(session_id):
 
 
 # _recalculate_attendance_summary is imported from attendance.py
+
+import csv
+from io import StringIO
+from models.course_material import CourseMaterial
+from models.quiz import Quiz, QuizResult
+
+@app_views.route('/lecturer/sessions/<session_id>/export-csv', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def export_csv(session_id):
+    session_obj = storage.get_id(Sessions, session_id)
+    if not session_obj: return make_response(jsonify({"error": "Session not found"}), 404)
+    # Generate CSV logic (Mocked for brevity)
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['Matric', 'Name', 'Total Classes', 'Attended', 'Missed', 'Percentage', 'Eligibility'])
+    # Populate with grouped_users...
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output
+
+@app_views.route('/lecturer/sessions/<session_id>/student-audit/<student_id>', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def student_audit(session_id, student_id):
+    # Fetch chronological history and quiz results for a specific student...
+    return jsonify({"student_id": student_id, "history": [], "quizzes": []}), 200

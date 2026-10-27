@@ -21,3 +21,6 @@ from api.v1.views.lecturer import *
 from api.v1.views.student import *
 
 
+from api.v1.views.integrations import *
+from api.v1.views.materials import *
+from api.v1.views.quizzes import *

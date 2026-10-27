@@ -1,0 +1,153 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: facepass_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on:
+      facepass_web:
+        condition: service_started
+      facepass_api:
+        condition: service_healthy
+    networks:
+      - facepass_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: facepass_certbot
+    restart: unless-stopped
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - facepass_net
+
+  facepass_web:
+    image: ${WEB_IMAGE:-ghcr.io/coursepass/facepass-web:latest}
+    build:
+      context: ./facepass-web
+      dockerfile: dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://face.coursepass.app/api/v1/}
+    container_name: facepass_web
+    restart: always
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://face.coursepass.app/api/v1/}
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - facepass_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  facepass_api:
+    image: ${API_IMAGE:-ghcr.io/coursepass/facepass-backend:latest}
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: facepass_api
+    restart: always
+    command: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5001 --timeout 120 --access-logfile - --error-logfile - --capture-output --log-level info run:app
+    env_file:
+      - .env.prod
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://facepass_redis:6379/0
+    expose:
+      - "5001"
+    depends_on:
+      facepass_redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5001/api/v1/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    networks:
+      - facepass_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  facepass_worker:
+    image: ${API_IMAGE:-ghcr.io/coursepass/facepass-backend:latest}
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: facepass_worker
+    restart: always
+    command: celery -A api.v1.celery.celery worker --loglevel=info -P eventlet -c 50 --without-gossip --without-mingle
+    env_file:
+      - .env.prod
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://facepass_redis:6379/0
+    depends_on:
+      facepass_redis:
+        condition: service_healthy
+    networks:
+      - facepass_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  facepass_redis:
+    image: redis:7-alpine
+    container_name: facepass_redis
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - facepass_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  facepass_net:
+    driver: bridge
+
+volumes:
+  redis_data:

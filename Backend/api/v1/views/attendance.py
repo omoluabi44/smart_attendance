@@ -9,6 +9,13 @@ from models.course import Courses
 from models.notification import Notification
 from models.user import User
 from models.lecturer_session import LecturerSession
+from api.v1.utils.rekognition_utils import (
+    search_faces_and_detect_intruders,
+    ensure_session_collection,
+    get_rekognition_client,
+    get_s3_client,
+)
+from api.v1.utils.webhook_dispatcher import dispatch_attendance_webhook
 from models import storage
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request, send_file
@@ -25,20 +32,9 @@ import uuid
 import pandas as pd
 from openpyxl.styles import Font
 
-rekognition = boto3.client(
-    'rekognition',
-    region_name='us-east-1',
-    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
-)
-
-s3_client = boto3.client(
-    's3',
-    region_name='us-east-1',
-    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
-)
-BUCKET_NAME = 'facepass-file'
+rekognition = get_rekognition_client()
+s3_client = get_s3_client()
+BUCKET_NAME = os.getenv('AWS_S3_BUCKET_NAME', 'facepass-file')
 
 ses = storage._DBStorage__session
 
@@ -47,7 +43,7 @@ ses = storage._DBStorage__session
 
 @app_views.route('/lecturer/sessions/<session_id>/attendance/presigned-url', methods=['GET'], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def generate_presigned_url(session_id):
     """Generate a presigned URL to upload video/image directly to S3."""
     session_obj = storage.get_id(Sessions, session_id)
@@ -101,7 +97,7 @@ def generate_presigned_url(session_id):
 @app_views.route('/lecturer/sessions/<session_id>/attendance/video',
                  methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def upload_attendance_video(session_id):
     """
     Process a video for face-based attendance already uploaded to S3.
@@ -127,6 +123,7 @@ def upload_attendance_video(session_id):
     s3_key = data['s3_key']
 
     try:
+        collection_id = ensure_session_collection(session_id)
         response = rekognition.start_face_search(
             Video={
                 'S3Object': {
@@ -134,8 +131,8 @@ def upload_attendance_video(session_id):
                     'Name': s3_key
                 }
             },
-            CollectionId='Student',
-            FaceMatchThreshold=90
+            CollectionId=collection_id,
+            FaceMatchThreshold=85
         )
 
         job_id = response['JobId']
@@ -153,7 +150,7 @@ def upload_attendance_video(session_id):
 @app_views.route('/lecturer/sessions/<session_id>/attendance/video-status/<job_id>',
                  methods=['GET'], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def check_video_attendance_status(session_id, job_id):
     """
     Poll the status of a video attendance job.
@@ -239,7 +236,7 @@ def check_video_attendance_status(session_id, job_id):
 @app_views.route('/lecturer/sessions/<session_id>/attendance/image',
                  methods=['POST'], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def take_attendance_image(session_id):
     """
     Process a group photo (uploaded to S3) to take attendance via face recognition.
@@ -280,13 +277,23 @@ def take_attendance_image(session_id):
 
         all_results = []
         best_matches = {}
+        MIN_FACE_PIXELS = 55
+        qualifying_faces_count = 0
+        low_resolution_faces_count = 0
 
         for faceDetail in detection_response['FaceDetails']:
             box = faceDetail['BoundingBox']
             left = width * box['Left']
             top = height * box['Top']
-            right = left + (width * box['Width'])
-            bottom = top + (height * box['Height'])
+            face_w = width * box['Width']
+            face_h = height * box['Height']
+            right = left + face_w
+            bottom = top + face_h
+
+            if round(face_w) < MIN_FACE_PIXELS or round(face_h) < MIN_FACE_PIXELS:
+                low_resolution_faces_count += 1
+            else:
+                qualifying_faces_count += 1
 
             face_crop = img.crop((left, top, right, bottom))
 
@@ -295,11 +302,12 @@ def take_attendance_image(session_id):
             crop_bytes = stream.getvalue()
 
             try:
+                collection_id = ensure_session_collection(session_id)
                 search_response = rekognition.search_users_by_image(
-                    CollectionId='Student',
+                    CollectionId=collection_id,
                     Image={'Bytes': crop_bytes},
                     MaxUsers=1,
-                    UserMatchThreshold=90
+                    UserMatchThreshold=85
                 )
             except rekognition.exceptions.InvalidParameterException:
                 continue
@@ -320,16 +328,30 @@ def take_attendance_image(session_id):
         # Record attendance
         record_result = update_student_record(unique_results, session_id=session_id, lecturer_id=lecturer_id)
 
+        # Intruder alert logic (compare against qualifying >= 55x55px faces so low-res background faces don't trigger false alerts)
+        total_faces = len(detection_response['FaceDetails'])
+        recognized_count = len(unique_results)
+        effective_faces_for_alert = qualifying_faces_count if qualifying_faces_count > 0 else total_faces
+        unregistered_alert = effective_faces_for_alert > recognized_count
+
         # Build response
         recognized_students = get_user(unique_results, session_id=session_id)
+        
+        # Dispatch webhook to CoursePass
+        present_ids = [res['user_id'] for res in unique_results]
+        date_str = datetime.utcnow().strftime('%Y-%m-%d')
+        dispatch_attendance_webhook(session_id, date_str, present_ids, [])
 
         return make_response(jsonify({
             "status": "complete",
             "total_faces_detected": len(detection_response['FaceDetails']),
+            "qualifying_faces_count": qualifying_faces_count,
+            "low_resolution_faces_count": low_resolution_faces_count,
             "unique_faces_recognized": len(unique_results),
             "new_records": record_result["recognized_count"],
             "skipped_already_recorded": record_result["skipped_count"],
             "skipped_students": record_result["skipped_users"],
+            "unregistered_alert": unregistered_alert,
             "data": recognized_students,
         }), 200)
 
@@ -341,7 +363,7 @@ def take_attendance_image(session_id):
 
 @app_views.route('/attendance', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def post_attendance():
     """Create a manual attendance record for a student in a session."""
     data = request.get_json()
@@ -539,7 +561,7 @@ def verify_face():
 
 @app_views.route('/export-attendance', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer', 'admin')
+@role_required('lecturer')
 def export_attendance():
     """Export attendance data to Excel."""
     data = request.get_json()

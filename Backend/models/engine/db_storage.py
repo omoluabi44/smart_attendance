@@ -22,6 +22,8 @@ from models.lecturer_session import LecturerSession
 from models.attendance_log import AttendanceLog
 from models.session_enrollment import SessionEnrollment
 from models.notification import Notification
+from models.course_material import CourseMaterial
+from models.quiz import Quiz, QuizResult
 
 from os import getenv
 import sqlalchemy
@@ -34,7 +36,7 @@ classes = {
              "Universities":Universities, "College":College,"Department":Department, 
             "Profile":Profile, "AuthProvider":AuthProvider,
             "LecturerSession":LecturerSession, "AttendanceLog":AttendanceLog,
-            "SessionEnrollment":SessionEnrollment, "Notification":Notification,
+            "SessionEnrollment":SessionEnrollment, "Notification":Notification, "CourseMaterial":CourseMaterial, "Quiz":Quiz, "QuizResult":QuizResult,
           }
 
 

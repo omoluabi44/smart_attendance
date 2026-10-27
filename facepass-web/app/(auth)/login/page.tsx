@@ -3,28 +3,26 @@ import DashboardPreview from '@/app/ui/auth/DashboardPreview';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login',
-  description: 'Login to access lecture note,flashcards, omoluabiGPT and past questions.',
+  title: 'Faculty Sign In | FacePass',
+  description: 'Sign in to the FacePass Lecturer Command Center for AI biometric attendance and course management.',
   robots: {
-    index: false, 
-    follow: true, 
+    index: false,
+    follow: true,
   },
 };
 
 export default function LoginPage() {
   return (
-    <main className='flex flex-col md:flex-row min-h-screen'>
-      
-      {/* Left Side: The Form */}
-      <div className='flex flex-col justify-center w-full md:w-1/2 px-6 py-12'>
+    <main className="flex flex-col lg:flex-row min-h-screen bg-[#FAFAFA]">
+      {/* Left Side: Minimalist Lecturer Auth Workspace */}
+      <div className="flex flex-col justify-center w-full lg:w-[52%] px-6 py-12 bg-[#FAFAFA] bg-vision-grid">
         <LoginForm />
       </div>
 
-      {/* Right Side: The Preview */}
-      <div className='hidden md:flex flex-1 items-center justify-center bg-gray-50'>
-        <DashboardPreview mode="login"/>
+      {/* Right Side: Dark Obsidian Biometric Telemetry Preview */}
+      <div className="hidden lg:flex lg:w-[48%] bg-obsidian-950 border-l border-slate-800">
+        <DashboardPreview mode="login" />
       </div>
-
     </main>
   );
 }
