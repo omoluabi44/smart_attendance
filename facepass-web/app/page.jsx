@@ -253,31 +253,26 @@ export default function FacePassLanding() {
               </div>
 
               <h1
-                className={`${montserrat.className} text-3xl sm:text-5xl lg:text-[3.45rem] font-extrabold text-slate-950 tracking-tight leading-[1.1] sm:leading-[1.08]`}
+                className={`${montserrat.className} text-3xl sm:text-5xl lg:text-[3.35rem] font-extrabold text-slate-950 tracking-tight leading-[1.1] sm:leading-[1.08]`}
               >
-                The Complete AI Command Center for{" "}
+                AI Command Center for{" "}
                 <span className="text-blue-500">University Lecturers.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl">
-                More than just attendance. Verify{" "}
-                <span className="font-semibold text-slate-900">100+ students in seconds</span> via our{" "}
-                <span className="font-semibold text-blue-600">1:N Computer Vision Engine</span>,{" "}
-                <span className="font-semibold text-slate-900">
-                  distribute lecture materials & PDFs
-                </span>{" "}
-                directly to enrolled students,{" "}
-                <span className="font-semibold text-slate-900">schedule timed quizzes</span> with
-                auto-grading, and audit <span className="font-semibold text-slate-900">75% exam eligibility</span>.
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-lg">
+                Verify <span className="font-semibold text-slate-900">100+ students in seconds</span>,
+                share <span className="font-semibold text-slate-900">lecture materials</span>, run{" "}
+                <span className="font-semibold text-slate-900">auto-graded quizzes</span>, and track{" "}
+                <span className="font-semibold text-blue-600">75% exam eligibility</span>.
               </p>
 
               {/* Quick Capability Pills */}
               <div className="flex flex-wrap gap-2 pt-1">
                 {[
-                  { icon: CameraIcon, label: "1:N Computer Vision Attendance" },
-                  { icon: DocumentTextIcon, label: "Instant Material & Slide Sharing" },
-                  { icon: ClipboardDocumentCheckIcon, label: "Scheduled Quizzes & Auto-Grading" },
-                  { icon: ChartBarIcon, label: "75% Exam Eligibility Audit" },
+                  { icon: CameraIcon, label: "1:N Vision Attendance" },
+                  { icon: DocumentTextIcon, label: "Course Materials" },
+                  { icon: ClipboardDocumentCheckIcon, label: "Auto-Graded Quizzes" },
+                  { icon: ChartBarIcon, label: "75% Eligibility Audit" },
                 ].map((pill, i) => (
                   <span
                     key={i}
@@ -576,14 +571,14 @@ export default function FacePassLanding() {
                         <span
                           className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-wider`}
                         >
-                          DIRECT STUDENT MATERIAL BROADCAST
+                          MATERIAL BROADCAST
                         </span>
                         <h3 className="text-sm sm:text-base font-bold text-white mt-0.5">
-                          Share Lecture Slides, PDFs & Study Guides
+                          Share Slides, PDFs & Notes
                         </h3>
                       </div>
                       <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[11px] font-sans shrink-0">
-                        142 Enrolled Synced
+                        142 Synced
                       </span>
                     </div>
 
@@ -595,15 +590,15 @@ export default function FacePassLanding() {
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-white">
-                            Publish New Course Material to GET201 Students
+                            Publish Material to GET201
                           </p>
                           <p className="text-[11px] text-slate-400">
-                            Supports PDF, PPTX, DOCX • Instant notification to enrolled students
+                            PDF, PPTX, DOCX • Instant student notification
                           </p>
                         </div>
                       </div>
                       <span className="w-full sm:w-auto text-center px-3 py-2 sm:py-1.5 rounded-lg bg-blue-500 text-white text-xs font-semibold shrink-0">
-                        + Upload Material
+                        + Upload
                       </span>
                     </div>
 
@@ -639,8 +634,8 @@ export default function FacePassLanding() {
                     </div>
 
                     <div className="pt-2 border-t border-obsidian-700 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400">
-                      <span>STORAGE: ENCRYPTED CLOUD VAULT</span>
-                      <span className="text-blue-400">STUDENT PORTAL SYNC: REAL-TIME</span>
+                      <span>ENCRYPTED CLOUD VAULT</span>
+                      <span className="text-blue-400">PORTAL SYNC: LIVE</span>
                     </div>
                   </div>
                 )}
@@ -653,10 +648,10 @@ export default function FacePassLanding() {
                         <span
                           className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-wider`}
                         >
-                          TIMED ASSESSMENTS & AUTO-GRADING
+                          TIMED ASSESSMENTS
                         </span>
                         <h3 className="text-sm sm:text-base font-bold text-white mt-0.5">
-                          Schedule Quizzes & Track Live Class Performance
+                          Live Quizzes & Auto-Grading
                         </h3>
                       </div>
                       <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[11px] font-sans shrink-0">
@@ -695,13 +690,13 @@ export default function FacePassLanding() {
                               >
                                 {qz.avgScore}
                               </p>
-                              <p className="text-[10px] text-slate-400">Class Mean</p>
+                              <p className="text-[10px] text-slate-400">Mean</p>
                             </div>
                           </div>
 
                           <div className="space-y-1">
                             <div className="flex items-center justify-between text-[11px] font-sans">
-                              <span className="text-slate-400">Student Submissions</span>
+                              <span className="text-slate-400">Submissions</span>
                               <span className="text-white">{qz.submissions}</span>
                             </div>
                             <div className="w-full h-2 rounded-full bg-obsidian-950 overflow-hidden">
@@ -718,8 +713,8 @@ export default function FacePassLanding() {
                     </div>
 
                     <div className="pt-2 border-t border-obsidian-700 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400">
-                      <span>GRADING: INSTANT SCORE MATRIX</span>
-                      <span className="text-emerald-400">CSV / EXCEL GRADE EXPORT READY</span>
+                      <span>INSTANT SCORE MATRIX</span>
+                      <span className="text-emerald-400">CSV / EXCEL EXPORT</span>
                     </div>
                   </div>
                 )}
@@ -730,166 +725,155 @@ export default function FacePassLanding() {
       </section>
 
       {/* SECTION 2: COMPLETE ACADEMIC OPERATIONS BENTO GRID */}
-      <section id="features" className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto">
-        <div className="max-w-3xl mb-10 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 mb-4">
+      <section id="features" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto">
+        <div className="max-w-2xl mb-8 sm:mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 mb-3">
             <SparklesIcon className="w-4 h-4 text-blue-500" />
             <span
               className={`${jetbrainsMono.className} text-xs font-semibold uppercase tracking-wider text-blue-700`}
             >
-              Complete Lecturer & Classroom Suite
+              Platform Suite
             </span>
           </div>
           <h2
             className={`${montserrat.className} text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight`}
           >
-            Built for Attendance, Student Communication, Course Materials & Assessments.
+            Everything You Need to Run a Course.
           </h2>
-          <p className="text-slate-600 mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed">
-            FacePass unifies your entire lecture room workflow—combining our precision 1:N Computer
-            Vision Engine with direct material distribution, scheduled quizzes, and automated 75%
-            exam eligibility auditing.
+          <p className="text-slate-600 mt-2.5 text-sm sm:text-base">
+            Attendance, materials, quizzes, and exam eligibility in one workspace.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6">
           {/* Card 1: 1:N Computer Vision Attendance (7 cols) */}
-          <div className="md:col-span-7 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-8 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
+          <div className="md:col-span-7 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-7 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-5 sm:mb-6">
-                <div className="w-11 h-11 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-sm shadow-blue-500/25">
-                  <CameraIcon className="w-6 h-6" />
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-5">
+                <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-sm shadow-blue-500/25">
+                  <CameraIcon className="w-5 h-5" />
                 </div>
                 <span
-                  className={`${jetbrainsMono.className} text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200`}
+                  className={`${jetbrainsMono.className} text-[11px] font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200`}
                 >
-                  1:N COMPUTER VISION ENGINE
+                  1:N VISION ENGINE
                 </span>
               </div>
-              <h3 className={`${montserrat.className} text-xl sm:text-2xl font-bold text-slate-950 mb-2.5 sm:mb-3`}>
-                Instant Group Photo, Video & Live Camera Attendance
+              <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold text-slate-950 mb-2`}>
+                Instant Photo, Video & Live Attendance
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                Capture a single classroom photo, upload a lecture walk-through video, or snap a
-                live frame. Our compartmentalized per-course Computer Vision Engine matches 100+
-                enrolled faces simultaneously while automatically rejecting unregistered intruders.
+                Snap a classroom photo or video to verify 100+ enrolled faces simultaneously while
+                blocking proxy sign-ins.
               </p>
             </div>
 
-            <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {[
                 { code: "GROUP PHOTO", desc: "100+ faces per frame" },
-                { code: "CLASS VIDEO", desc: "Async frame deduplication" },
+                { code: "CLASS VIDEO", desc: "Frame deduplication" },
                 { code: "INTRUDER SHIELD", desc: "Blocks proxy sign-ins" },
               ].map((item) => (
                 <div
                   key={item.code}
-                  className="p-3 rounded-xl bg-blue-50/50 border border-blue-100"
+                  className="p-2.5 rounded-xl bg-blue-50/50 border border-blue-100"
                 >
                   <p
-                    className={`${jetbrainsMono.className} text-xs font-bold text-blue-600`}
+                    className={`${jetbrainsMono.className} text-[11px] font-bold text-blue-600`}
                   >
                     {item.code}
                   </p>
-                  <p className="text-xs text-slate-600 mt-1">{item.desc}</p>
+                  <p className="text-xs text-slate-600 mt-0.5">{item.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Card 2: Course Materials & Lecture Notes Sharing (5 cols) */}
-          <div className="md:col-span-5 rounded-2xl bg-obsidian-950 text-white border border-obsidian-700 p-5 sm:p-8 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="md:col-span-5 rounded-2xl bg-obsidian-950 text-white border border-obsidian-700 p-5 sm:p-7 shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div className="pointer-events-none absolute -right-12 -bottom-12 w-48 h-48 bg-blue-500/20 rounded-full blur-2xl" />
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-5 sm:mb-6">
-                <div className="w-11 h-11 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center">
-                  <DocumentTextIcon className="w-6 h-6" />
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-5">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center">
+                  <DocumentTextIcon className="w-5 h-5" />
                 </div>
                 <span
-                  className={`${jetbrainsMono.className} text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-500/15 text-blue-300 border border-blue-400/30`}
+                  className={`${jetbrainsMono.className} text-[11px] font-semibold px-2.5 py-1 rounded-md bg-blue-500/15 text-blue-300 border border-blue-400/30`}
                 >
-                  STUDENT COMMUNICATION
+                  COURSE MATERIALS
                 </span>
               </div>
-              <h3 className={`${montserrat.className} text-xl sm:text-2xl font-bold text-white mb-2.5 sm:mb-3`}>
-                Send Course Materials & Slides Directly to Enrolled Students
+              <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold text-white mb-2`}>
+                Direct Slide & PDF Sharing
               </h3>
               <p className="text-slate-300 text-sm leading-relaxed">
-                Upload lecture notes, PDFs, past questions, and lab manuals straight to your course
-                session. Every enrolled student immediately receives the material in their student
-                portal—no messy group chats required.
+                Upload lecture notes, PDFs, and study guides straight to enrolled students&apos;
+                portals—no group chats needed.
               </p>
             </div>
 
-            <div className="mt-6 sm:mt-8 p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-2">
-              <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-blue-400">BROADCAST CHANNEL</span>
-                <span className="text-emerald-400">100% DELIVERED</span>
-              </div>
-              <p className="text-xs text-slate-300">
-                Supports PDF, DOCX, PPTX & reference links scoped per course session.
-              </p>
+            <div className="mt-5 p-3.5 rounded-xl bg-obsidian-900 border border-obsidian-700 flex items-center justify-between text-xs font-sans">
+              <span className="text-blue-400">PDF • DOCX • PPTX</span>
+              <span className="text-emerald-400">100% DELIVERED</span>
             </div>
           </div>
 
           {/* Card 3: Scheduled Quizzes & Auto-Grading (6 cols) */}
-          <div className="md:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-8 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
+          <div className="md:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-7 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-5 sm:mb-6">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center">
-                  <ClipboardDocumentCheckIcon className="w-6 h-6" />
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-5">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center">
+                  <ClipboardDocumentCheckIcon className="w-5 h-5" />
                 </div>
                 <span
-                  className={`${jetbrainsMono.className} text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200`}
+                  className={`${jetbrainsMono.className} text-[11px] font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200`}
                 >
-                  ASSESSMENTS & GRADING
+                  LIVE QUIZZES
                 </span>
               </div>
               <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold text-slate-950 mb-2`}>
-                Schedule Timed Quizzes & Continuous Assessments
+                Timed Quizzes & Auto-Grading
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                Design multiple-choice quizzes, configure start/end time windows and duration
-                limits, and publish them to your class. FacePass automatically grades submissions
-                and compiles class score distributions.
+                Publish timed multiple-choice assessments with automatic grading and instant class
+                score analytics.
               </p>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs font-sans text-slate-600">
+            <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs font-sans text-slate-600">
               <span className="inline-flex items-center gap-1.5 text-blue-600 font-semibold">
-                <ClockIcon className="w-4 h-4" /> Timed Quiz Windows
+                <ClockIcon className="w-4 h-4" /> Timed Windows
               </span>
-              <span>Instant Score Breakdown</span>
+              <span>Instant Analytics</span>
             </div>
           </div>
 
           {/* Card 4: 75% Eligibility & Co-Lecturer Auditing (6 cols) */}
-          <div className="md:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-8 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
+          <div className="md:col-span-6 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-7 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-5 sm:mb-6">
-                <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
-                  <ChartBarIcon className="w-6 h-6" />
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
+                  <ChartBarIcon className="w-5 h-5" />
                 </div>
                 <span
-                  className={`${jetbrainsMono.className} text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200`}
+                  className={`${jetbrainsMono.className} text-[11px] font-semibold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200`}
                 >
-                  75% EXAM ELIGIBILITY
+                  75% ELIGIBILITY
                 </span>
               </div>
               <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold text-slate-950 mb-2`}>
-                Automated 75% Attendance Threshold & Excel Exports
+                Automated 75% Threshold & Exports
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                Continuously calculates each student&apos;s attendance against total lectures held,
-                isolates at-risk students below 75%, supports co-lecturer collaboration, and
-                exports Senate-ready CSV/Excel sheets in one click.
+                Track attendance against total lectures, flag at-risk students below 75%, and export
+                Senate-ready CSV/Excel sheets in one click.
               </p>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs font-sans text-slate-600">
+            <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs font-sans text-slate-600">
               <span className="text-emerald-600 font-semibold">ELIGIBLE &ge; 75%</span>
               <span className="text-amber-600 font-semibold">AT-RISK &lt; 75%</span>
-              <span className="text-blue-600 font-semibold">1-CLICK XLSX/CSV</span>
+              <span className="text-blue-600 font-semibold">1-CLICK CSV</span>
             </div>
           </div>
         </div>
@@ -898,58 +882,57 @@ export default function FacePassLanding() {
       {/* SECTION 3: LECTURER-TO-STUDENT ENGAGEMENT & REAL-TIME SYNC SHOWCASE */}
       <section
         id="engagement"
-        className="py-14 sm:py-20 lg:py-24 bg-white border-y border-slate-200/80 px-4 sm:px-6 lg:px-10"
+        className="py-12 sm:py-16 lg:py-20 bg-white border-y border-slate-200/80 px-4 sm:px-6 lg:px-10"
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
-            <div className="lg:col-span-5 space-y-5 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-center">
+            <div className="lg:col-span-5 space-y-4 sm:space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200">
                 <ArrowsRightLeftIcon className="w-4 h-4 text-blue-500" />
                 <span
                   className={`${jetbrainsMono.className} text-xs font-semibold uppercase tracking-wider text-blue-700`}
                 >
-                  Connected Classroom Ecosystem
+                  Real-Time Sync
                 </span>
               </div>
               <h2
                 className={`${montserrat.className} text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight`}
               >
-                Direct Communication Between Lecturer & Enrolled Students.
+                Instant Sync with Enrolled Students.
               </h2>
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Every action you take in FacePass—whether verifying attendance with Computer
-                Vision, uploading a new lecture PDF, or scheduling a pop quiz—is synchronized
-                instantly with your enrolled students.
+                Every attendance scan, file upload, and quiz syncs directly to the CoursePass
+                student portal in real time.
               </p>
 
-              <div className="space-y-3.5 sm:space-y-4 pt-1 sm:pt-2">
+              <div className="space-y-3 pt-1">
                 {[
                   {
                     icon: DocumentTextIcon,
-                    title: "Course Material Distribution",
-                    desc: "Upload lecture slides, reading lists, and lab sheets once; every enrolled student gets immediate access.",
+                    title: "Course Material Broadcast",
+                    desc: "Instant student access to slides, PDFs, and lab sheets.",
                   },
                   {
                     icon: ClipboardDocumentCheckIcon,
-                    title: "Scheduled Quiz Notifications & Live Grading",
-                    desc: "Publish timed quizzes with custom deadlines and inspect student scores as soon as they submit.",
+                    title: "Live Quiz Delivery",
+                    desc: "Timed quizzes with automatic grading and score breakdowns.",
                   },
                   {
                     icon: BellAlertIcon,
-                    title: "Real-Time Attendance & Eligibility Alerts",
-                    desc: "Students receive instant confirmation when verified by the Computer Vision Engine and see their live 75% eligibility standing.",
+                    title: "Attendance & Eligibility Alerts",
+                    desc: "Immediate scan confirmation and live 75% eligibility standing.",
                   },
                 ].map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-3.5 p-3.5 sm:p-4 rounded-xl bg-[#FAFAFA] border border-slate-200/80"
+                    className="flex items-start gap-3 p-3.5 rounded-xl bg-[#FAFAFA] border border-slate-200/80"
                   >
                     <div className="w-9 h-9 rounded-lg bg-blue-500 text-white flex items-center justify-center shrink-0 mt-0.5">
                       <item.icon className="w-5 h-5" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">{item.title}</h4>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">{item.desc}</p>
+                      <p className="text-xs text-slate-600 mt-0.5">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -958,87 +941,84 @@ export default function FacePassLanding() {
 
             {/* Right Interactive Ecosystem Bridge Diagram */}
             <div className="lg:col-span-7">
-              <div className="rounded-2xl bg-obsidian-950 border border-obsidian-700 p-4 sm:p-8 text-white shadow-xl space-y-5 sm:space-y-6">
-                <div className="flex flex-wrap items-start justify-between gap-2 border-b border-obsidian-700 pb-4">
+              <div className="rounded-2xl bg-obsidian-950 border border-obsidian-700 p-4 sm:p-7 text-white shadow-xl space-y-4 sm:space-y-5">
+                <div className="flex flex-wrap items-start justify-between gap-2 border-b border-obsidian-700 pb-3.5">
                   <div>
                     <span
                       className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-wider`}
                     >
-                      REAL-TIME CLASSROOM SYNCHRONIZATION
+                      WEBHOOK SYNC
                     </span>
                     <h3 className={`${montserrat.className} text-base sm:text-lg font-bold text-white mt-0.5`}>
-                      FacePass Lecturer Command &harr; Enrolled Student Portal
+                      FacePass Lecturer &harr; Student Portal
                     </h3>
                   </div>
-                  <span className="px-2.5 sm:px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[11px] sm:text-xs font-sans shrink-0">
+                  <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[11px] font-sans shrink-0">
                     LIVE WEBHOOKS
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  <div className="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3.5 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-1.5">
                     <span
                       className={`${jetbrainsMono.className} text-[10px] text-blue-400 uppercase`}
                     >
                       CHANNEL 01
                     </span>
-                    <p className="text-sm font-bold text-white">CV Attendance Sync</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      1:N Computer Vision scan marks student present & updates 75% exam eligibility
-                      counter in real time.
+                    <p className="text-sm font-bold text-white">CV Attendance</p>
+                    <p className="text-xs text-slate-400">
+                      Marks attendance & updates 75% standing live.
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-obsidian-900 border border-blue-500/40 space-y-2 shadow-[0_0_25px_-8px_rgba(0,123,255,0.4)]">
+                  <div className="p-3.5 rounded-xl bg-obsidian-900 border border-blue-500/40 space-y-1.5 shadow-[0_0_25px_-8px_rgba(0,123,255,0.4)]">
                     <span
                       className={`${jetbrainsMono.className} text-[10px] text-blue-400 uppercase`}
                     >
                       CHANNEL 02
                     </span>
-                    <p className="text-sm font-bold text-white">Materials Broadcast</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Lecturer uploads PDFs, notes, or slides; files appear immediately in enrolled
-                      students&apos; course library.
+                    <p className="text-sm font-bold text-white">Course Materials</p>
+                    <p className="text-xs text-slate-400">
+                      Delivers PDFs & slides straight to student libraries.
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-2">
+                  <div className="p-3.5 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-1.5">
                     <span
                       className={`${jetbrainsMono.className} text-[10px] text-blue-400 uppercase`}
                     >
                       CHANNEL 03
                     </span>
-                    <p className="text-sm font-bold text-white">Scheduled Quizzes</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      Timed quizzes open on student devices at the scheduled time and return
-                      auto-graded scores to the lecturer.
+                    <p className="text-sm font-bold text-white">Timed Quizzes</p>
+                    <p className="text-xs text-slate-400">
+                      Pushes quizzes & returns auto-graded scores.
                     </p>
                   </div>
                 </div>
 
                 {/* Simulated Live Event Stream */}
-                <div className="rounded-xl bg-obsidian-900/90 border border-obsidian-700 p-3.5 sm:p-4 space-y-2.5 font-sans text-xs">
+                <div className="rounded-xl bg-obsidian-900/90 border border-obsidian-700 p-3.5 space-y-2 font-sans text-xs">
                   <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-slate-400 border-b border-obsidian-700 pb-2">
-                    <span className="truncate">LIVE ACADEMIC EVENT STREAM // GET201</span>
+                    <span className="truncate">EVENT STREAM // GET201</span>
                     <span className="text-emerald-400 shrink-0 ml-2">● ACTIVE</span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 text-slate-300">
                     <span className="truncate">
-                      [MATERIAL] Published &quot;Thermodynamics_Wk4_Notes.pdf&quot;
+                      [MATERIAL] &quot;Thermodynamics_Wk4_Notes.pdf&quot;
                     </span>
-                    <span className="text-blue-400 text-[11px] sm:text-xs shrink-0">142 Students Notified</span>
+                    <span className="text-blue-400 text-[11px] sm:text-xs shrink-0">142 Notified</span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 text-slate-300">
                     <span className="truncate">
-                      [QUIZ] Scheduled &quot;Mid-Semester CA Quiz (20m)&quot;
+                      [QUIZ] &quot;Mid-Semester CA Quiz (20m)&quot;
                     </span>
-                    <span className="text-amber-300 text-[11px] sm:text-xs shrink-0">Starts Friday 10:00 AM</span>
+                    <span className="text-amber-300 text-[11px] sm:text-xs shrink-0">Fri 10:00 AM</span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 text-slate-300">
                     <span className="truncate">
                       [CV_ENGINE] 1:N Classroom Frame Verified
                     </span>
-                    <span className="text-emerald-400 text-[11px] sm:text-xs shrink-0">136 Present • 2 Excluded</span>
+                    <span className="text-emerald-400 text-[11px] sm:text-xs shrink-0">136 Present</span>
                   </div>
                 </div>
               </div>
@@ -1048,106 +1028,103 @@ export default function FacePassLanding() {
       </section>
 
       {/* SECTION 4: 4-STEP LECTURER WORKFLOW */}
-      <section id="workflow" className="py-14 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+      <section id="workflow" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <span
             className={`${jetbrainsMono.className} text-xs font-semibold uppercase tracking-widest text-blue-600`}
           >
-            OPERATIONAL WORKFLOW
+            WORKFLOW
           </span>
           <h2
             className={`${montserrat.className} text-2xl sm:text-4xl font-extrabold text-slate-950 mt-2 tracking-tight`}
           >
-            Four Steps to Run Your Entire Course
+            Run Your Course in Four Steps
           </h2>
-          <p className="text-slate-600 mt-3 text-sm sm:text-base">
-            Designed exclusively for university lecturers—students enroll once on their student
-            portal while you command attendance, materials, and quizzes from FacePass.
+          <p className="text-slate-600 mt-2 text-sm sm:text-base">
+            Students enroll once on CoursePass; you manage classes from FacePass.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {[
             {
               step: "01",
-              title: "Provision Course & Session",
-              desc: "Create your course code (e.g., GET201), set total classes, and initialize an isolated Computer Vision collection.",
+              title: "Create Session",
+              desc: "Select your course, set total lectures, and initialize its face collection.",
               icon: AcademicCapIcon,
             },
             {
               step: "02",
-              title: "Capture CV Attendance",
-              desc: "Snap a live camera frame or upload a classroom group photo/video. The Computer Vision Engine verifies enrolled students in seconds.",
+              title: "Scan Classroom",
+              desc: "Capture a live frame, photo, or video to verify enrolled students in seconds.",
               icon: VideoCameraIcon,
             },
             {
               step: "03",
-              title: "Share Materials & Quizzes",
-              desc: "Upload lecture PDFs/slides for enrolled students and schedule timed continuous assessment quizzes with auto-grading.",
+              title: "Share & Assess",
+              desc: "Publish lecture materials and schedule auto-graded quizzes.",
               icon: DocumentTextIcon,
             },
             {
               step: "04",
-              title: "Audit 75% & Export Grades",
-              desc: "Inspect individual student dossiers, review quiz scores, flag <75% at-risk students, and export Excel/CSV reports.",
+              title: "Audit & Export",
+              desc: "Review 75% eligibility standing and export Senate-ready CSV/Excel reports.",
               icon: DocumentArrowDownIcon,
             },
           ].map((item) => (
             <div
               key={item.step}
-              className="relative rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-7 shadow-sm hover:border-blue-300 transition-all"
+              className="relative rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-6 shadow-sm hover:border-blue-300 transition-all"
             >
-              <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <span
                   className={`${jetbrainsMono.className} text-xs font-bold px-3 py-1 rounded-full bg-blue-500 text-white`}
                 >
                   STEP {item.step}
                 </span>
-                <item.icon className="w-6 h-6 text-blue-500" />
+                <item.icon className="w-5 h-5 text-blue-500" />
               </div>
-              <h3 className={`${montserrat.className} text-base sm:text-lg font-bold text-slate-950 mb-2`}>
+              <h3 className={`${montserrat.className} text-base sm:text-lg font-bold text-slate-950 mb-1.5`}>
                 {item.title}
               </h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* SECTION 5: BIOMETRIC PRIVACY & SECURITY */}
-      <section id="privacy" className="py-12 sm:py-20 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto">
-        <div className="rounded-2xl sm:rounded-3xl bg-obsidian-950 text-white p-6 sm:p-12 lg:p-16 border border-obsidian-700 relative overflow-hidden">
+      <section id="privacy" className="py-10 sm:py-16 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto">
+        <div className="rounded-2xl sm:rounded-3xl bg-obsidian-950 text-white p-6 sm:p-10 lg:p-12 border border-obsidian-700 relative overflow-hidden">
           <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl" />
 
-          <div className="max-w-3xl space-y-5 sm:space-y-6 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300">
+          <div className="max-w-2xl space-y-4 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300">
               <LockClosedIcon className="w-4 h-4 shrink-0" />
               <span
                 className={`${jetbrainsMono.className} text-[10px] sm:text-xs uppercase tracking-wider font-semibold`}
               >
-                Zero-Local-Biometrics Guarantee
+                Zero-Local-Biometrics
               </span>
             </div>
 
             <h2
-              className={`${montserrat.className} text-2xl sm:text-4xl font-extrabold tracking-tight`}
+              className={`${montserrat.className} text-2xl sm:text-3xl font-extrabold tracking-tight`}
             >
-              Strict Biometric Privacy. Zero Local Device Storage.
+              Strict Biometric Privacy. Zero Local Storage.
             </h2>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              In compliance with university data protection guardrails, classroom captures are
-              streamed directly to encrypted cloud storage and processed in-memory by our
-              compartmentalized Computer Vision Engine over TLS 1.3. Biometric images are never
-              persisted on lecturer laptops or mobile devices.
+              Classroom captures are processed in-memory over TLS 1.3 inside isolated per-course
+              collections and are never stored on lecturer devices.
             </p>
 
-            <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-4">
+            <div className="pt-2 flex flex-wrap items-center gap-4">
               <Link
                 href={isLoggedIn ? "/lecturer" : "/login"}
                 className="w-full sm:w-auto justify-center inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm transition-all shadow-lg shadow-blue-500/25"
               >
-                {isLoggedIn ? "Go to Lecturer Command Center" : "Sign In to Lecturer Command Center"}
+                {isLoggedIn ? "Open Dashboard" : "Lecturer Sign In"}
                 <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
@@ -1156,11 +1133,11 @@ export default function FacePassLanding() {
       </section>
 
       {/* Minimalist Precision Footer */}
-      <footer className="border-t border-slate-200/80 bg-white py-8 sm:py-10 px-4 sm:px-6 lg:px-10">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <footer className="border-t border-slate-200/80 bg-white py-6 sm:py-8 px-4 sm:px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <FacePassLogo theme="light" size="sm" showBadge={true} />
           <p className={`${jetbrainsMono.className} text-[10px] sm:text-xs text-slate-500`}>
-            FACEPASS LECTURER OS • COMPUTER VISION ATTENDANCE, COURSE MATERIALS & QUIZZES
+            FACEPASS • AI ATTENDANCE, MATERIALS & QUIZZES
           </p>
         </div>
       </footer>
