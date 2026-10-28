@@ -19,9 +19,9 @@ load_dotenv()
 @jwt_required()
 def get_all_courses():
     """
-    Retrieves the list of all Courses from CoursePass API (with local DB fallback).
+    Retrieves the list of all Courses from CoursePass Central Hub API (with local DB fallback).
     """
-    remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 500})
+    remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 2000})
     if isinstance(remote_courses, list) and len(remote_courses) > 0:
         return jsonify(remote_courses)
 

@@ -2,36 +2,62 @@ import requests
 import os
 import logging
 import threading
+import time
+import json
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+# Lightweight in-memory TTL cache for CoursePass GET requests
+_COURSEPASS_CACHE = {}
+_CACHE_TTL_SECONDS = 300
+
+
+def _normalize_coursepass_base_url(url: str) -> str:
+    """Normalize CoursePass base URL so frontend hostnames point to the API host."""
+    url = (url or '').strip().rstrip('/')
+    if url in ('https://coursepass.app', 'http://coursepass.app', 'https://www.coursepass.app', 'http://www.coursepass.app'):
+        return 'https://api.coursepass.app'
+    return url
+
+
 def get_base_url():
-    base = os.getenv('COURSEPASS_API_BASE_URL', '').strip().rstrip('/')
+    base = _normalize_coursepass_base_url(os.getenv('COURSEPASS_API_BASE_URL', ''))
     if not base:
         webhook_url = os.getenv('COURSEPASS_WEBHOOK_URL', '')
         if '/api/v1/' in webhook_url:
-            base = webhook_url.split('/api/v1/')[0]
+            base = _normalize_coursepass_base_url(webhook_url.split('/api/v1/')[0])
         else:
-            base = 'http://localhost:8000'
+            base = 'https://api.coursepass.app'
     return base
 
 
 def fetch_coursepass_api(path: str, params: dict = None):
     """
-    Fetch data from CoursePass API (e.g., '/api/v1/universities', '/api/v1/courses').
-    Tries configured COURSEPASS_API_BASE_URL and localhost:8000 first, then derived base URL.
+    Fetch data from CoursePass Central API (e.g., '/api/v1/universities', '/api/v1/courses').
+    Tries configured COURSEPASS_API_BASE_URL and https://api.coursepass.app first, then localhost fallback.
     Returns parsed JSON on HTTP 200, or None if unreachable.
     """
+    cache_key = f"{path}?{json.dumps(params or {}, sort_keys=True)}"
+    now = time.time()
+    cached = _COURSEPASS_CACHE.get(cache_key)
+    if cached and (now - cached["ts"] < _CACHE_TTL_SECONDS):
+        return cached["data"]
+
     candidates = []
-    env_base = os.getenv('COURSEPASS_API_BASE_URL', '').strip().rstrip('/')
-    if env_base:
+    env_base = _normalize_coursepass_base_url(os.getenv('COURSEPASS_API_BASE_URL', ''))
+    if env_base and env_base not in ('http://localhost:8000', 'http://127.0.0.1:8000'):
         candidates.append(env_base)
-    if 'http://localhost:8000' not in candidates and 'http://127.0.0.1:8000' not in candidates:
-        candidates.append('http://localhost:8000')
+
+    if 'https://api.coursepass.app' not in candidates:
+        candidates.append('https://api.coursepass.app')
+
     derived = get_base_url()
-    if derived not in candidates:
+    if derived and derived not in candidates:
         candidates.append(derived)
+
+    if env_base in ('http://localhost:8000', 'http://127.0.0.1:8000') and env_base not in candidates:
+        candidates.append(env_base)
 
     secret = os.getenv('COURSEPASS_SERVICE_SECRET', 'facepass_coursepass_secret')
     headers = {
@@ -41,11 +67,17 @@ def fetch_coursepass_api(path: str, params: dict = None):
     for base in candidates:
         url = f"{base}{path}"
         try:
-            res = requests.get(url, params=params, headers=headers, timeout=4)
+            res = requests.get(url, params=params, headers=headers, timeout=8)
             if res.status_code == 200:
-                return res.json()
+                data = res.json()
+                _COURSEPASS_CACHE[cache_key] = {"ts": now, "data": data}
+                return data
         except Exception as e:
             logger.warning(f"CoursePass API fetch failed for {url}: {e}")
+
+    # Return stale cache if available when network temporarily fails
+    if cached:
+        return cached["data"]
     return None
 
 def dispatch_attendance_webhook_sync(session_id: str, course_id: str, date_str: str, present_user_ids: list, absent_user_ids: list):

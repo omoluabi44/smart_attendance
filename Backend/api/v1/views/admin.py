@@ -5,7 +5,7 @@ import secrets
 import string
 import bcrypt
 from datetime import datetime
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from flask import jsonify, make_response, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_mail import Message
@@ -20,6 +20,7 @@ from models.session_enrollment import SessionEnrollment
 from models.attendance_log import AttendanceLog
 from api.v1.views import app_views
 from api.v1.utils.roles import role_required
+from api.v1.utils.webhook_dispatcher import fetch_coursepass_api
 
 
 def _generate_temp_password(length: int = 10) -> str:
@@ -84,7 +85,9 @@ def admin_overview():
     total_admins = ses.query(User).filter(User.role == 'admin').count()
     total_students = ses.query(User).filter(User.role == 'student').count()
     pending_password_changes = ses.query(User).filter(User.must_change_password == True).count()
-    total_courses = ses.query(Courses).count()
+    local_courses_count = ses.query(Courses).count()
+    remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 2000})
+    total_courses = max(local_courses_count, len(remote_courses) if isinstance(remote_courses, list) else 0)
     total_sessions = ses.query(Sessions).count()
     total_attendance_logs = ses.query(AttendanceLog).count()
 
@@ -361,20 +364,57 @@ def admin_delete_user(user_id):
 @jwt_required()
 @role_required('admin')
 def admin_list_courses():
-    """List all courses in the local database along with active session counts."""
+    """List all courses from CoursePass central hub (merged with local DB) along with active session counts."""
     ses = storage._DBStorage__session
-    courses = ses.query(Courses).order_by(Courses.courseID).all()
-    result = []
-    for c in courses:
-        session_count = ses.query(Sessions).filter_by(courseID=c.courseID).count()
-        result.append({
-            "id": c.id,
-            "courseID": c.courseID,
-            "courseName": c.courseName,
-            "description": c.description,
-            "session_count": session_count,
-            "created_at": c.created_at.strftime("%Y-%m-%d") if getattr(c, "created_at", None) else None,
-        })
+    q = (request.args.get('q', '') or '').strip()
+
+    # Single query to count active sessions per courseID
+    session_counts_rows = (
+        ses.query(Sessions.courseID, func.count(Sessions.id))
+        .group_by(Sessions.courseID)
+        .all()
+    )
+    session_counts = {row[0]: int(row[1]) for row in session_counts_rows}
+
+    courses_by_code = {}
+
+    # 1. Fetch from CoursePass Central Hub API
+    if q:
+        remote_courses = fetch_coursepass_api('/api/v1/courses/search', params={'q': q})
+    else:
+        remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 2000})
+
+    if isinstance(remote_courses, list):
+        for rc in remote_courses:
+            code = rc.get("courseID")
+            if code:
+                courses_by_code[code] = {
+                    "id": rc.get("id", code),
+                    "courseID": code,
+                    "courseName": rc.get("courseName", code),
+                    "description": rc.get("description") or "Synced from CoursePass catalog",
+                    "session_count": session_counts.get(code, 0),
+                    "created_at": None,
+                }
+
+    # 2. Merge local courses
+    local_courses = ses.query(Courses).order_by(Courses.courseID).all()
+    for c in local_courses:
+        if c.courseID not in courses_by_code:
+            courses_by_code[c.courseID] = {
+                "id": c.id,
+                "courseID": c.courseID,
+                "courseName": c.courseName,
+                "description": c.description,
+                "session_count": session_counts.get(c.courseID, 0),
+                "created_at": c.created_at.strftime("%Y-%m-%d") if getattr(c, "created_at", None) else None,
+            }
+        else:
+            courses_by_code[c.courseID]["session_count"] = session_counts.get(c.courseID, 0)
+            if getattr(c, "created_at", None):
+                courses_by_code[c.courseID]["created_at"] = c.created_at.strftime("%Y-%m-%d")
+
+    result = sorted(courses_by_code.values(), key=lambda x: x["courseID"])
     return make_response(jsonify({"data": result, "total": len(result)}), 200)
 
 

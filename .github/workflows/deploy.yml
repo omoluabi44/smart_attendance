@@ -128,6 +128,11 @@ jobs:
             # 2. Setup production environment file from GitHub secret (CoursePass pattern)
             echo "${{ secrets.ENV_FILE || secrets.BACKEND_ENV_FILE }}" > .env.prod
             sed -i 's|face\.coursepass\.app|facepass.coursepass.app|g' .env.prod
+            if ! grep -q "^COURSEPASS_API_BASE_URL=" .env.prod; then
+              echo "COURSEPASS_API_BASE_URL=https://api.coursepass.app" >> .env.prod
+            else
+              sed -i 's|^COURSEPASS_API_BASE_URL=.*|COURSEPASS_API_BASE_URL=https://api.coursepass.app|g' .env.prod
+            fi
 
             # Append dynamic image names to .env.prod so docker compose ALWAYS loads them
             OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')

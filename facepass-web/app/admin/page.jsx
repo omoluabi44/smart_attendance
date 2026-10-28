@@ -158,6 +158,7 @@ export default function AdminCommandCenter() {
   const [courseName, setCourseName] = useState("");
   const [courseDesc, setCourseDesc] = useState("");
   const [sessionCourseID, setSessionCourseID] = useState("");
+  const [courseSearch, setCourseSearch] = useState("");
   const [sessionName, setSessionName] = useState("2025/2026");
   const [totalClasses, setTotalClasses] = useState(13);
 
@@ -167,6 +168,16 @@ export default function AdminCommandCenter() {
   const allUsers = usersData?.data || [];
   const allCourses = coursesData?.data || [];
   const allSessions = sessionsData?.data || [];
+
+  const filteredCourses = useMemo(() => {
+    const q = courseSearch.trim().toLowerCase();
+    if (!q) return allCourses;
+    return allCourses.filter(
+      (c) =>
+        (c.courseID && c.courseID.toLowerCase().includes(q)) ||
+        (c.courseName && c.courseName.toLowerCase().includes(q))
+    );
+  }, [allCourses, courseSearch]);
 
   const lecturersList = useMemo(
     () => allUsers.filter((u) => u.role === "lecturer" || u.role === "admin"),
@@ -421,7 +432,6 @@ export default function AdminCommandCenter() {
           setLecPassword(generateClientPassword(10));
           setShowProvisionModal(true);
         }}
-        onCreateCourseClick={() => setShowCourseModal(true)}
         onCreateSessionClick={() => setShowSessionModal(true)}
         onLogout={handleLogout}
         isOpen={sidebarOpen}
@@ -558,13 +568,6 @@ export default function AdminCommandCenter() {
 
           {activeTab === "sessions" && (
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowCourseModal(true)}
-                className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-600 px-3.5 py-2 rounded-xl font-semibold text-xs transition"
-              >
-                <FolderPlus className="w-3.5 h-3.5 text-blue-500" />
-                <span>Register Course</span>
-              </button>
               <button
                 onClick={() => setShowSessionModal(true)}
                 className="inline-flex items-center gap-1.5 bg-obsidian-950 hover:bg-slate-800 text-white px-4 py-2 rounded-xl font-semibold text-xs transition"
@@ -950,35 +953,50 @@ export default function AdminCommandCenter() {
               )}
             </div>
 
-            {/* Course Catalog Table */}
+            {/* CoursePass Central Catalog Table */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
-              <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between">
-                <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
-                  LOCAL COURSE CATALOG ({allCourses.length})
-                </span>
+              <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
+                    COURSEPASS CENTRAL HUB CATALOG ({allCourses.length})
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200/70 text-[10px] font-sans font-semibold text-blue-600">
+                    SYNCED
+                  </span>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={courseSearch}
+                    onChange={(e) => setCourseSearch(e.target.value)}
+                    placeholder="Search CoursePass catalog..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:border-blue-500 outline-none"
+                  />
+                </div>
               </div>
               {loadingCourses ? (
                 <div className="p-8 text-center text-xs font-sans text-slate-400">
-                  LOADING COURSES...
+                  LOADING COURSEPASS CATALOG...
                 </div>
-              ) : allCourses.length === 0 ? (
+              ) : filteredCourses.length === 0 ? (
                 <div className="p-8 text-center text-xs text-slate-500">
-                  No local courses registered yet.
+                  No courses matching search query in CoursePass catalog.
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-96 overflow-y-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                         <th className="py-3 px-6">Course Code</th>
                         <th className="py-3 px-6">Course Title</th>
                         <th className="py-3 px-6">Active Sessions</th>
-                        <th className="py-3 px-6 text-right">Action</th>
+                        <th className="py-3 px-6 text-right">Source</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
-                      {allCourses.map((c) => (
-                        <tr key={c.id} className="hover:bg-slate-50/80">
+                      {filteredCourses.slice(0, 100).map((c) => (
+                        <tr key={c.courseID || c.id} className="hover:bg-slate-50/80">
                           <td className="py-3 px-6 font-sans font-bold text-slate-900">
                             {c.courseID}
                           </td>
@@ -989,14 +1007,9 @@ export default function AdminCommandCenter() {
                             {c.session_count || 0}
                           </td>
                           <td className="py-3 px-6 text-right">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteCourse(c)}
-                              className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition"
-                              title="Delete Course"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-sans font-medium">
+                              CoursePass Hub
+                            </span>
                           </td>
                         </tr>
                       ))}
@@ -1422,8 +1435,18 @@ export default function AdminCommandCenter() {
           <form onSubmit={handleCreateSession} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5 uppercase tracking-wider">
-                Select Course
+                Select Course (CoursePass Central Hub)
               </label>
+              <div className="relative mb-2">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={courseSearch}
+                  onChange={(e) => setCourseSearch(e.target.value)}
+                  placeholder="Search CoursePass courses by code or title (e.g. CSC, MTH, PHY)..."
+                  className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 outline-none transition"
+                />
+              </div>
               <select
                 value={sessionCourseID}
                 onChange={(e) => setSessionCourseID(e.target.value)}
@@ -1431,9 +1454,9 @@ export default function AdminCommandCenter() {
                 className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none"
               >
                 <option value="" disabled>
-                  Choose a course ({allCourses.length} available)...
+                  Choose a course from CoursePass Central Hub ({filteredCourses.length} available)...
                 </option>
-                {allCourses.map((c) => (
+                {filteredCourses.map((c) => (
                   <option key={c.courseID} value={c.courseID}>
                     {c.courseID} — {c.courseName}
                   </option>

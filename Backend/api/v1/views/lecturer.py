@@ -66,11 +66,11 @@ def lecturer_courses():
     q = request.args.get('q', '').strip()
     courses_by_code = {}
 
-    # 1. Fetch from CoursePass API
+    # 1. Fetch from CoursePass Central Hub API
     if q:
         remote_courses = fetch_coursepass_api('/api/v1/courses/search', params={'q': q})
     else:
-        remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 500})
+        remote_courses = fetch_coursepass_api('/api/v1/courses', params={'per_page': 2000})
 
     if isinstance(remote_courses, list):
         for rc in remote_courses:
@@ -116,26 +116,37 @@ def lecturer_create_session():
         if field not in data:
             return make_response(jsonify({"error": f"Missing required field: {field}"}), 400)
 
-    # Verify course exists locally; if not, sync from CoursePass API or request payload
-    course = ses.query(Courses).filter_by(courseID=data["courseID"]).first()
+    target_code = str(data["courseID"]).strip()
+
+    # Verify course exists locally; if not, sync from CoursePass central hub or request payload
+    course = ses.query(Courses).filter_by(courseID=target_code).first()
     if not course:
-        remote_course = fetch_coursepass_api(f'/api/v1/courses/{data["courseID"]}')
-        if isinstance(remote_course, dict) and remote_course.get("courseID"):
-            course = Courses(
-                courseID=remote_course["courseID"],
-                courseName=remote_course.get("courseName") or data.get("courseName") or data["courseID"],
-                description=remote_course.get("description") or data.get("description") or "Synced from CoursePass"
-            )
-            course.save()
-        elif data.get("courseName"):
-            course = Courses(
-                courseID=data["courseID"],
-                courseName=data["courseName"],
-                description=data.get("description") or "Synced from CoursePass"
-            )
-            course.save()
-        else:
-            return make_response(jsonify({"error": "Course not found in CoursePass catalog"}), 404)
+        resolved_name = (data.get("courseName") or "").strip()
+        resolved_desc = (data.get("description") or "").strip()
+
+        if not resolved_name:
+            catalog = fetch_coursepass_api('/api/v1/courses', params={'per_page': 2000})
+            if isinstance(catalog, list):
+                matched = next((rc for rc in catalog if rc.get("courseID") == target_code), None)
+                if matched:
+                    resolved_name = (matched.get("courseName") or target_code).strip()
+                    resolved_desc = (matched.get("description") or "Synced from CoursePass").strip()
+
+        if not resolved_name:
+            remote_course = fetch_coursepass_api(f'/api/v1/courses/{target_code}')
+            if isinstance(remote_course, dict) and remote_course.get("courseID"):
+                resolved_name = (remote_course.get("courseName") or target_code).strip()
+                resolved_desc = (remote_course.get("description") or "Synced from CoursePass").strip()
+
+        if not resolved_name:
+            resolved_name = target_code
+
+        course = Courses(
+            courseID=target_code[:120],
+            courseName=resolved_name[:120],
+            description=(resolved_desc or "Synced from CoursePass")[:500]
+        )
+        course.save()
 
     # Create the session
     session_data = {
