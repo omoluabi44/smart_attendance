@@ -163,23 +163,6 @@ export default function FacePassLanding() {
                 <span className="font-semibold text-blue-600">75% exam eligibility</span>.
               </p>
 
-              {/* Quick Capability Pills */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                {[
-                  { icon: CameraIcon, label: "Class Attendance" },
-                  { icon: DocumentTextIcon, label: "Course Materials" },
-                  { icon: ClipboardDocumentCheckIcon, label: "Auto-Graded Quizzes" },
-                  { icon: ChartBarIcon, label: "75% Eligibility Audit" },
-                ].map((pill, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white border border-slate-200/90 text-[11px] sm:text-xs font-semibold text-slate-700 shadow-sm"
-                  >
-                    <pill.icon className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                    {pill.label}
-                  </span>
-                ))}
-              </div>
 
               {/* Action CTAs */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-1 sm:pt-2">

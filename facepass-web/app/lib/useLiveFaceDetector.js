@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 const MIN_GREEN_PIXEL_SIZE = 55; // Minimum 55x55 pixels required for Green box
-const TRACK_RETENTION_MS = 1400; // Keep track memory briefly so detector flicker doesn't double-count
+const TRACK_RETENTION_MS = 1600; // Keep track memory briefly so detector flicker doesn't double-count
 const VISIBLE_GRACE_MS = 180; // Only draw boxes currently in view
 
 let faceApiModulePromise = null;
@@ -37,6 +37,7 @@ async function ensureFaceDetectorLoaded() {
 
 /**
  * Real-time face detection & cumulative capture tracker hook for the lecturer live camera feed.
+ * - Preloads the TinyFaceDetector model immediately when mounted so manual start is instant.
  * - Draws Green (>= 55x55px) and Red (< 55x55px, move closer) rectangle boxes on the overlay canvas.
  * - Once a face turns Green while recording is active, the cumulative counter increments and
  *   NEVER decreases when the lecturer moves the camera past the student.
@@ -56,6 +57,7 @@ export function useLiveFaceDetector({
     capturedGreenFaces: 0,
     totalFaces: 0,
     greenFaces: 0,
+    liveGreenFaces: 0,
     redFaces: 0,
     faces: [],
   });
@@ -76,6 +78,25 @@ export function useLiveFaceDetector({
     onGreenFaceCapturedRef.current = onGreenFaceCaptured;
   }, [onGreenFaceCaptured]);
 
+  // Preload face detector weights in background so clicking "Start Live Recording" is instantaneous
+  useEffect(() => {
+    let cancelled = false;
+    ensureFaceDetectorLoaded()
+      .then((api) => {
+        if (!cancelled && api) {
+          setModelReady(true);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          console.warn("Face detector preload warning:", err?.message || err);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const resetCaptureCount = useCallback(() => {
     capturedCountRef.current = 0;
     tracksRef.current = tracksRef.current.map((t) => ({
@@ -87,6 +108,8 @@ export function useLiveFaceDetector({
     setFaceStats((prev) => ({
       ...prev,
       capturedGreenFaces: 0,
+      greenFaces: 0,
+      totalFaces: 0,
     }));
   }, []);
 
@@ -99,13 +122,14 @@ export function useLiveFaceDetector({
       }
     }
     tracksRef.current = [];
-    setFaceStats((prev) => ({
+    setFaceStats({
       capturedGreenFaces: capturedCountRef.current,
-      totalFaces: 0,
-      greenFaces: 0,
+      totalFaces: capturedCountRef.current,
+      greenFaces: capturedCountRef.current,
+      liveGreenFaces: 0,
       redFaces: 0,
       faces: [],
-    }));
+    });
   }, [overlayCanvasRef]);
 
   useEffect(() => {
@@ -276,7 +300,7 @@ export function useLiveFaceDetector({
           const dist = Math.min(distRaw, distPred);
 
           const refSize = Math.max(d.width, d.height, t.width, t.height);
-          const maxAllowedDist = Math.max(refSize * 1.85, 140);
+          const maxAllowedDist = Math.max(refSize * 1.9, 150);
 
           if (dist <= maxAllowedDist) {
             candidatePairs.push({ tIdx, dIdx, dist });
@@ -511,12 +535,8 @@ export function useLiveFaceDetector({
 
             setFaceStats({
               capturedGreenFaces: cumulativeGreen,
-              totalFaces: isRecordingRef.current
-                ? Math.max(cumulativeGreen, visibleFaces.length)
-                : visibleFaces.length,
-              greenFaces: isRecordingRef.current
-                ? cumulativeGreen
-                : liveGreenCount,
+              totalFaces: cumulativeGreen,
+              greenFaces: cumulativeGreen,
               liveGreenFaces: liveGreenCount,
               redFaces: liveRedCount,
               faces: visibleFaces,
@@ -540,7 +560,6 @@ export function useLiveFaceDetector({
         faceapiInstance = await ensureFaceDetectorLoaded();
         if (cancelled || !faceapiInstance) return;
 
-        // inputSize 608 allows detecting both small faces (<55x55px) and large faces (>=55x55px) in classroom views
         detectorOptions = new faceapiInstance.TinyFaceDetectorOptions({
           inputSize: 608,
           scoreThreshold: 0.35,
