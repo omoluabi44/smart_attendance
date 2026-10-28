@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
@@ -92,6 +92,7 @@ export default function SessionControlRoom() {
   // Attendance Scan Jobs & Intruder Alert State
   const [attendanceJobs, setAttendanceJobs] = useState([]);
   const [intruderAlert, setIntruderAlert] = useState(null);
+  const jobControllersRef = useRef({});
 
   const startAttendanceJob = (file, mode) => {
     const jobId = Date.now().toString();
@@ -115,7 +116,26 @@ export default function SessionControlRoom() {
   };
 
   const removeJob = (jobId) => {
-    setAttendanceJobs((prev) => prev.filter((j) => j.id !== jobId));
+    const entry = jobControllersRef.current[jobId];
+    if (entry) {
+      if (entry.controller) {
+        entry.controller.abort();
+      }
+      if (entry.pollInterval) {
+        clearInterval(entry.pollInterval);
+      }
+      delete jobControllersRef.current[jobId];
+    }
+    setAttendanceJobs((prev) => {
+      const target = prev.find((j) => j.id === jobId);
+      if (
+        target &&
+        (target.stage === "uploading" || target.stage === "processing")
+      ) {
+        toast.info("Attendance scan cancelled.");
+      }
+      return prev.filter((j) => j.id !== jobId);
+    });
   };
 
   const onAttendanceComplete = () => {
@@ -124,6 +144,8 @@ export default function SessionControlRoom() {
   };
 
   const runAttendancePipeline = async (jobId, file, mode) => {
+    const controller = new AbortController();
+    jobControllersRef.current[jobId] = { controller, pollInterval: null };
     try {
       const fileType =
         file.type || (mode === "video" ? "video/mp4" : "image/jpeg");
@@ -132,12 +154,14 @@ export default function SessionControlRoom() {
         {
           params: { file_name: file.name, file_type: fileType },
           headers: { Authorization: `Bearer ${user.access_token}` },
+          signal: controller.signal,
         }
       );
       const { presigned_url, s3_key } = presignedRes.data;
 
       await axios.put(presigned_url, file, {
         headers: { "Content-Type": fileType },
+        signal: controller.signal,
         onUploadProgress: (progressEvent) => {
           const pct = progressEvent.total
             ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -152,7 +176,10 @@ export default function SessionControlRoom() {
         const res = await axios.post(
           `${API_URL}lecturer/sessions/${sessionId}/attendance/image`,
           { s3_key },
-          { headers: { Authorization: `Bearer ${user.access_token}` } }
+          {
+            headers: { Authorization: `Bearer ${user.access_token}` },
+            signal: controller.signal,
+          }
         );
         updateJob(jobId, { stage: "done", results: res.data });
         toast.success(
@@ -174,7 +201,10 @@ export default function SessionControlRoom() {
         const res = await axios.post(
           `${API_URL}lecturer/sessions/${sessionId}/attendance/video`,
           { s3_key },
-          { headers: { Authorization: `Bearer ${user.access_token}` } }
+          {
+            headers: { Authorization: `Bearer ${user.access_token}` },
+            signal: controller.signal,
+          }
         );
         const rekogJobId = res.data.job_id;
 
@@ -182,7 +212,10 @@ export default function SessionControlRoom() {
           try {
             const poll = await axios.get(
               `${API_URL}lecturer/sessions/${sessionId}/attendance/video-status/${rekogJobId}`,
-              { headers: { Authorization: `Bearer ${user.access_token}` } }
+              {
+                headers: { Authorization: `Bearer ${user.access_token}` },
+                signal: controller.signal,
+              }
             );
             if (poll.data.status === "complete") {
               clearInterval(pollInterval);
@@ -204,14 +237,24 @@ export default function SessionControlRoom() {
               });
               toast.error("Video processing failed");
             }
-          } catch {
+          } catch (pollErr) {
+            if (axios.isCancel(pollErr) || pollErr?.name === "CanceledError") {
+              clearInterval(pollInterval);
+              return;
+            }
             clearInterval(pollInterval);
             updateJob(jobId, { stage: "error", error: "Polling error" });
             toast.error("Polling error");
           }
         }, 5000);
+        if (jobControllersRef.current[jobId]) {
+          jobControllersRef.current[jobId].pollInterval = pollInterval;
+        }
       }
     } catch (err) {
+      if (axios.isCancel(err) || err?.name === "CanceledError") {
+        return;
+      }
       updateJob(jobId, {
         stage: "error",
         error: err?.response?.data?.error || err.message || "Upload failed",
@@ -1160,9 +1203,16 @@ export default function SessionControlRoom() {
 
 function Modal({ badge, title, onClose, children }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl border border-slate-200 w-full max-w-md p-6 sm:p-7 shadow-2xl relative">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl border border-slate-200 w-full max-w-md max-h-[90vh] overflow-y-auto p-6 sm:p-7 shadow-2xl relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-5 right-5 p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition"
         >
@@ -1316,14 +1366,14 @@ function AttendanceProgressBanner({ jobs, onRemove }) {
                   {cfg.label}
                 </p>
               </div>
-              {!isActive && (
-                <button
-                  onClick={() => onRemove(job.id)}
-                  className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => onRemove(job.id)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-semibold text-slate-200 hover:text-white transition"
+              >
+                <X className="h-3.5 w-3.5" />
+                <span>{isActive ? "Cancel" : "Close"}</span>
+              </button>
             </div>
 
             {/* 3-Step Telemetry Bar */}
