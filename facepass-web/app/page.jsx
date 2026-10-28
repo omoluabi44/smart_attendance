@@ -153,7 +153,7 @@ export default function FacePassLanding() {
                 className={`${montserrat.className} text-3xl sm:text-5xl lg:text-[3.35rem] font-extrabold text-slate-950 tracking-tight leading-[1.1] sm:leading-[1.08]`}
               >
                 Smart Attendance & Classroom Portal for{" "}
-                <span className="text-blue-500">University Lecturers.</span>
+                <span className="text-blue-500">Lecturers.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-lg">

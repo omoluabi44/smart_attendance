@@ -97,21 +97,22 @@ export default function VisionScannerModal({
     capturedFaceTilesRef.current.set(faceInfo.captureNumber, tileCanvas);
   }, []);
 
-  // Real-time client-side face detector on live camera stream
+  // Real-time client-side face detector runs once the lecturer initiates Live Recording
   const {
     modelReady,
     modelError,
     capturedGreenFaces,
-    totalFaces,
-    greenFaces,
-    liveGreenFaces,
     redFaces,
     resetCaptureCount,
   } = useLiveFaceDetector({
     videoRef,
     overlayCanvasRef,
     enabled: Boolean(
-      isOpen && scanTab === "webcam" && cameraActive && !capturedBlob
+      isOpen &&
+        scanTab === "webcam" &&
+        cameraActive &&
+        isRecording &&
+        !capturedBlob
     ),
     isRecording,
     minPixelSize: MIN_GREEN_PIXELS,
@@ -413,9 +414,9 @@ export default function VisionScannerModal({
     }
 
     const snapshotSummary = {
-      totalFaces: Math.max(finalGreenCount, totalFaces),
+      totalFaces: finalGreenCount,
       greenFaces: finalGreenCount,
-      redFaces,
+      redFaces: 0,
     };
 
     canvas.toBlob(
@@ -493,18 +494,10 @@ export default function VisionScannerModal({
     onClose();
   };
 
-  // Displayed counters: while recording, never decrease after moving past a student
+  // Cumulative counter: strictly non-decreasing once a face has shown Green
   const displayedGreenCount = capturedStats
     ? capturedStats.greenFaces
-    : isRecording
-    ? capturedGreenFaces
-    : liveGreenFaces;
-
-  const displayedTotalCount = capturedStats
-    ? capturedStats.totalFaces
-    : isRecording
-    ? Math.max(capturedGreenFaces, totalFaces)
-    : totalFaces;
+    : capturedGreenFaces;
 
   return (
     <div
@@ -861,7 +854,7 @@ export default function VisionScannerModal({
                       {/* Top HUD Bar: Cumulative Face Counter & Camera Controls */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex flex-wrap items-center gap-1.5">
-                          {/* Primary Live Face Count Badge */}
+                          {/* Primary Live Face Count Badge — Never decreases once Green */}
                           <div
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-950/90 border shadow-lg ${
                               isRecording
@@ -877,17 +870,16 @@ export default function VisionScannerModal({
                               }`}
                             />
                             <span className="font-sans text-xs font-bold text-white tracking-wide">
-                              {isRecording ? "FACES CAPTURED: " : "READY TO START • "}
+                              FACES CAPTURED:{" "}
                               <span className="text-emerald-300 text-sm">
                                 {displayedGreenCount}
                               </span>
                             </span>
                           </div>
 
-                          {/* Green Box Counter (>= 55x55 px) — Never decreases during recording */}
+                          {/* Clear Face Counter — Never decreases */}
                           <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-sans text-[11px] font-bold text-emerald-300">
-                            ● {displayedGreenCount} GREEN (≥{MIN_GREEN_PIXELS}×
-                            {MIN_GREEN_PIXELS}px)
+                            ● {displayedGreenCount} CLEAR FACES
                           </span>
 
                           {/* Red Box Counter (< 55x55 px - Move Closer) */}
@@ -912,7 +904,7 @@ export default function VisionScannerModal({
                               ? "LOADING DETECTOR..."
                               : isRecording
                               ? "LIVE RECORDING ACTIVE"
-                              : "PREVIEW MODE"}
+                              : "READY TO START"}
                           </span>
                           {videoDevices.length > 1 && (
                             <select
@@ -948,7 +940,7 @@ export default function VisionScannerModal({
                       <div className="flex justify-center">
                         {!isRecording ? (
                           <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/90 border border-cyan-400/50 text-cyan-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            TAP &ldquo;START LIVE RECORDING&rdquo; BELOW TO BEGIN LOCKING IN GREEN FACES
+                            TAP &ldquo;START LIVE RECORDING&rdquo; BELOW TO BEGIN CAPTURING FACES
                           </div>
                         ) : redFaces > 0 ? (
                           <div className="px-3.5 py-1.5 rounded-xl bg-amber-950/95 border border-amber-400 text-amber-200 font-sans text-[11px] font-bold text-center shadow-lg">
@@ -956,7 +948,7 @@ export default function VisionScannerModal({
                           </div>
                         ) : capturedGreenFaces > 0 ? (
                           <div className="px-3.5 py-1.5 rounded-xl bg-emerald-950/95 border border-emerald-400 text-emerald-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            ✓ {capturedGreenFaces} GREEN FACE(S) LOCKED IN — KEEP PANNING OR COMPLETE SCAN
+                            ✓ {capturedGreenFaces} GREEN FACE(S) LOCKED IN — KEEP PANNING OR RUN SCAN
                           </div>
                         ) : (
                           <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/85 border border-emerald-500/40 text-emerald-200 font-sans text-[10px] text-center">
@@ -976,10 +968,10 @@ export default function VisionScannerModal({
               <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
                 <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
                   <span className="text-[9px] sm:text-[10px] font-sans text-slate-400 uppercase leading-tight">
-                    {isRecording || capturedStats ? "TOTAL CAPTURED" : "IN VIEW"}
+                    TOTAL CAPTURED
                   </span>
                   <span className="font-sans text-sm sm:text-base font-bold text-white">
-                    {displayedTotalCount}
+                    {displayedGreenCount}
                   </span>
                 </div>
                 <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
@@ -1062,15 +1054,23 @@ export default function VisionScannerModal({
                     <button
                       type="button"
                       onClick={() => buildCaptureAndFinish(false)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold transition shadow-lg shadow-cyan-400/20"
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition"
                     >
                       <Square className="w-3.5 h-3.5 fill-current shrink-0" />
+                      <span>Preview ({capturedGreenFaces})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => buildCaptureAndFinish(true)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold transition shadow-lg shadow-cyan-400/20"
+                    >
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>
                         {capturedGreenFaces > 0
-                          ? `Finish & Review (${capturedGreenFaces} Green Face${
+                          ? `Run Scan (${capturedGreenFaces} Face${
                               capturedGreenFaces === 1 ? "" : "s"
-                            } Locked)`
-                          : "Capture Current Frame"}
+                            } Captured)`
+                          : "Run Scan Now"}
                       </span>
                     </button>
                   </>
