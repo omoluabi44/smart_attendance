@@ -405,11 +405,11 @@ export default function VisionScannerModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-950/80 backdrop-blur-md p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-obsidian-950/80 backdrop-blur-md p-0 sm:p-4"
       onClick={handleCancelModal}
     >
       <div
-        className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl bg-obsidian-900 border border-slate-800 text-white shadow-2xl overflow-hidden"
+        className="relative w-full max-w-2xl max-h-[96dvh] sm:max-h-[90vh] flex flex-col rounded-t-2xl sm:rounded-2xl bg-obsidian-900 border border-slate-800 text-white shadow-2xl overflow-hidden pb-safe"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Background Vision Grid */}
@@ -422,22 +422,22 @@ export default function VisionScannerModal({
         <div className="absolute bottom-3 right-3 w-3.5 h-3.5 border-b-2 border-r-2 border-cyan-400/70 pointer-events-none" />
 
         {/* Header */}
-        <div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-slate-800 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-400">
+        <div className="relative z-10 flex items-center justify-between gap-2 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shrink-0">
               <ScanFace className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-sans text-cyan-400 uppercase tracking-wider">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] sm:text-[11px] font-sans text-cyan-400 uppercase tracking-wider truncate">
                   REKOGNITION 1:N SCANNER
                 </span>
-                <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-sans text-slate-300">
+                <span className="px-1.5 sm:px-2 py-0.5 rounded bg-slate-800 text-[10px] font-sans text-slate-300 shrink-0">
                   COL-{courseID}
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
-                Capture Classroom Attendance ({sessionName})
+              <h2 className="text-sm sm:text-lg font-bold text-white truncate">
+                Capture Attendance ({sessionName})
               </h2>
             </div>
           </div>
@@ -445,57 +445,57 @@ export default function VisionScannerModal({
           <button
             type="button"
             onClick={handleCancelModal}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white text-xs font-semibold transition shrink-0"
           >
             <X className="w-4 h-4" />
-            <span>Cancel</span>
+            <span className="hidden sm:inline">Cancel</span>
           </button>
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="relative z-10 px-6 pt-4 shrink-0">
-          <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-obsidian-950 border border-slate-800">
+        <div className="relative z-10 px-4 sm:px-6 pt-3 sm:pt-4 shrink-0">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 p-1 rounded-xl bg-obsidian-950 border border-slate-800">
             <button
               type="button"
               onClick={() => setScanTab("photo")}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-sans font-semibold transition ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-sans font-semibold transition ${
                 scanTab === "photo"
                   ? "bg-cyan-400 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              <Camera className="w-3.5 h-3.5" />
-              GROUP PHOTO
+              <Camera className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">GROUP PHOTO</span>
             </button>
             <button
               type="button"
               onClick={() => setScanTab("webcam")}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-sans font-semibold transition ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-sans font-semibold transition ${
                 scanTab === "webcam"
                   ? "bg-cyan-400 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              <Aperture className="w-3.5 h-3.5" />
-              LIVE SNAPSHOT
+              <Aperture className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">LIVE SNAPSHOT</span>
             </button>
             <button
               type="button"
               onClick={() => setScanTab("video")}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-sans font-semibold transition ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-sans font-semibold transition ${
                 scanTab === "video"
                   ? "bg-cyan-400 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              <Video className="w-3.5 h-3.5" />
-              CLASS VIDEO
+              <Video className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">CLASS VIDEO</span>
             </button>
           </div>
         </div>
 
         {/* Body Content */}
-        <div className="relative z-10 p-6 overflow-y-auto flex-1">
+        <div className="relative z-10 p-4 sm:p-6 overflow-y-auto flex-1">
           {(scanTab === "photo" || scanTab === "video") && (
             <div className="space-y-4">
               <div
@@ -515,32 +515,32 @@ export default function VisionScannerModal({
                     ? imageInputRef.current?.click()
                     : videoInputRef.current?.click()
                 }
-                className={`relative cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-all ${
+                className={`relative cursor-pointer rounded-2xl border-2 border-dashed p-6 sm:p-10 text-center transition-all ${
                   dragActive
                     ? "border-cyan-400 bg-cyan-500/10"
                     : "border-slate-700 hover:border-cyan-400/60 bg-obsidian-950/70"
                 }`}
               >
-                <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-4 text-cyan-400">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-3 sm:mb-4 text-cyan-400">
                   {scanTab === "photo" ? (
-                    <Camera className="w-7 h-7" />
+                    <Camera className="w-6 h-6 sm:w-7 sm:h-7" />
                   ) : (
-                    <Video className="w-7 h-7" />
+                    <Video className="w-6 h-6 sm:w-7 sm:h-7" />
                   )}
                 </div>
 
-                <h3 className="text-base font-bold text-white mb-1">
+                <h3 className="text-sm sm:text-base font-bold text-white mb-1">
                   {scanTab === "photo"
-                    ? "Drop Lecture Hall Group Photo or Click to Browse"
-                    : "Drop Classroom Walkthrough Video or Click to Browse"}
+                    ? "Drop Lecture Hall Group Photo or Tap to Browse"
+                    : "Drop Classroom Walkthrough Video or Tap to Browse"}
                 </h3>
-                <p className="text-xs text-slate-400 max-w-md mx-auto mb-5">
+                <p className="text-xs text-slate-400 max-w-md mx-auto mb-4 sm:mb-5">
                   {scanTab === "photo"
                     ? "Supports high-resolution JPEG/PNG frames. AWS Rekognition detects and matches up to 100 faces simultaneously against the course collection."
                     : "Supports MP4/MOV recordings. Runs asynchronous multi-frame face tracking and deduplicates recognized students."}
                 </p>
 
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-slate-950 text-xs font-semibold hover:bg-cyan-300 transition">
+                <span className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] w-full sm:w-auto rounded-xl bg-white text-slate-950 text-xs font-semibold hover:bg-cyan-300 transition">
                   <UploadCloud className="w-4 h-4" />
                   {scanTab === "photo"
                     ? "Select Classroom Photo"
@@ -567,7 +567,7 @@ export default function VisionScannerModal({
                 <button
                   type="button"
                   onClick={handleCancelModal}
-                  className="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition"
+                  className="w-full sm:w-auto px-4 py-2.5 min-h-[42px] rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition"
                 >
                   Cancel
                 </button>
@@ -576,9 +576,9 @@ export default function VisionScannerModal({
           )}
 
           {scanTab === "webcam" && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Live Camera Viewport with Real-Time Bounding Box Canvas */}
-              <div className="relative rounded-2xl overflow-hidden bg-obsidian-950 border border-slate-800 aspect-video flex items-center justify-center">
+              <div className="relative rounded-2xl overflow-hidden bg-obsidian-950 border border-slate-800 aspect-[3/4] sm:aspect-video flex items-center justify-center">
                 {/* Keep video element always mounted so videoRef.current is never null when stream starts */}
                 <video
                   ref={videoRef}
@@ -869,39 +869,39 @@ export default function VisionScannerModal({
               </div>
 
               {/* Live Detection Telemetry Summary Bar */}
-              <div className="grid grid-cols-3 gap-2.5">
-                <div className="p-2.5 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] font-sans text-slate-400 uppercase">
+              <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-sans text-slate-400 uppercase leading-tight">
                     TOTAL DETECTED
                   </span>
-                  <span className="font-sans text-base font-bold text-white">
+                  <span className="font-sans text-sm sm:text-base font-bold text-white">
                     {capturedStats ? capturedStats.totalFaces : totalFaces}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-between">
-                  <span className="text-[10px] font-sans text-emerald-400 uppercase">
-                    GREEN (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}px)
+                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-sans text-emerald-400 uppercase leading-tight">
+                    GREEN (≥{MIN_GREEN_PIXELS}px)
                   </span>
-                  <span className="font-sans text-base font-bold text-emerald-400">
+                  <span className="font-sans text-sm sm:text-base font-bold text-emerald-400">
                     {capturedStats ? capturedStats.greenFaces : greenFaces}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-between">
-                  <span className="text-[10px] font-sans text-rose-400 uppercase">
-                    RED (MOVE CLOSER)
+                <div className="p-2 sm:p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-sans text-rose-400 uppercase leading-tight">
+                    RED (CLOSER)
                   </span>
-                  <span className="font-sans text-base font-bold text-rose-400">
+                  <span className="font-sans text-sm sm:text-base font-bold text-rose-400">
                     {capturedStats ? capturedStats.redFaces : redFaces}
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-end gap-3">
+              <div className="flex flex-col-reverse sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-end gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={handleCancelModal}
-                  className="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition"
+                  className="px-4 py-2.5 min-h-[44px] rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition"
                 >
                   Cancel
                 </button>
@@ -910,7 +910,7 @@ export default function VisionScannerModal({
                     <button
                       type="button"
                       onClick={handleRetake}
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition"
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       Retake Snapshot
@@ -918,12 +918,14 @@ export default function VisionScannerModal({
                     <button
                       type="button"
                       onClick={handleSubmitCapturedFrame}
-                      className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold transition"
+                      className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 min-h-[44px] rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold transition"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      Run Rekognition Scan (
-                      {capturedStats?.greenFaces ?? 0} Good Face
-                      {(capturedStats?.greenFaces ?? 0) === 1 ? "" : "s"})
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>
+                        Run Rekognition Scan (
+                        {capturedStats?.greenFaces ?? 0} Good Face
+                        {(capturedStats?.greenFaces ?? 0) === 1 ? "" : "s"})
+                      </span>
                     </button>
                   </>
                 ) : (
@@ -931,7 +933,7 @@ export default function VisionScannerModal({
                     type="button"
                     disabled={!canCapture}
                     onClick={handleCaptureFrame}
-                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold transition ${
+                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] rounded-xl text-xs font-bold transition text-center ${
                       canCapture
                         ? "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20"
                         : redFaces > 0
@@ -939,20 +941,22 @@ export default function VisionScannerModal({
                         : "bg-slate-800 text-slate-400 cursor-not-allowed"
                     }`}
                   >
-                    <Aperture className="w-4 h-4" />
-                    {canCapture
-                      ? `Capture Frame (${greenFaces} Green Face${
-                          greenFaces === 1 ? "" : "s"
-                        } Detected${
-                          redFaces > 0
-                            ? ` • Warning: ${redFaces} Red <55×55px`
-                            : ""
-                        })`
-                      : redFaces > 0
-                      ? `Move Camera Closer — ${redFaces} Face${
-                          redFaces === 1 ? "" : "s"
-                        } in Red (<${MIN_GREEN_PIXELS}×${MIN_GREEN_PIXELS}px)`
-                      : "Waiting for Faces in Live Camera Feed..."}
+                    <Aperture className="w-4 h-4 shrink-0" />
+                    <span>
+                      {canCapture
+                        ? `Capture Frame (${greenFaces} Green Face${
+                            greenFaces === 1 ? "" : "s"
+                          }${
+                            redFaces > 0
+                              ? ` • ${redFaces} Red`
+                              : ""
+                          })`
+                        : redFaces > 0
+                        ? `Move Camera Closer — ${redFaces} Face${
+                            redFaces === 1 ? "" : "s"
+                          } in Red (<${MIN_GREEN_PIXELS}px)`
+                        : "Waiting for Faces in Live Feed..."}
+                    </span>
                   </button>
                 )}
               </div>
@@ -961,22 +965,15 @@ export default function VisionScannerModal({
         </div>
 
         {/* Privacy & Architecture Footer */}
-        <div className="relative z-10 px-6 py-3.5 bg-obsidian-950 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans text-slate-400 shrink-0">
+        <div className="relative z-10 px-4 sm:px-6 py-3 sm:py-3.5 bg-obsidian-950 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] font-sans text-slate-400 shrink-0">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            DIRECT S3 PRESIGNED STREAM • NO LOCAL DEVICE STORAGE
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>DIRECT S3 STREAM • NO LOCAL STORAGE</span>
           </span>
           <div className="flex items-center gap-3">
             <span className="text-cyan-400">
-              MIN PIXEL THRESHOLD: {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX
+              MIN PIXEL: {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX
             </span>
-            <button
-              type="button"
-              onClick={handleCancelModal}
-              className="px-3 py-1 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-[11px] font-semibold transition"
-            >
-              Cancel
-            </button>
           </div>
         </div>
       </div>

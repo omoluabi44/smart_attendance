@@ -7,6 +7,13 @@ import StoreProvider from './StoreProvider';
 import ClientToasts from '@/app/ui/ClientToasts';
 import 'katex/dist/katex.min.css';
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+};
+
 export const metadata = {
   title: {
     default: 'FacePass | AI Lecturer Command, Computer Vision Attendance & Classroom Platform',
@@ -33,7 +40,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`scroll-smooth ${roboto.variable}`}>
       <body
-        className={`${roboto.className} ${roboto.variable} font-sans antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900`}
+        className={`${roboto.className} ${roboto.variable} font-sans antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900 overflow-x-hidden`}
       >
         <StoreProvider>
           {children}

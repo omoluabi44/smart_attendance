@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import CPLogo from "@/app/ui/CPLogo";
 import {
@@ -43,6 +44,20 @@ export default function Sidebar({
     }
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, setIsOpen]);
 
   const navContent = (
     <div className="flex flex-col h-full bg-white text-slate-800">
@@ -292,7 +307,7 @@ export default function Sidebar({
           />
 
           {/* Slide-in Sidebar Panel */}
-          <div className="relative flex-1 flex flex-col max-w-xs w-full shadow-2xl z-10 animate-fade-in-up">
+          <div className="relative flex-1 flex flex-col max-w-[85vw] sm:max-w-xs w-72 shadow-2xl z-10 animate-slide-in-left">
             {navContent}
           </div>
         </div>

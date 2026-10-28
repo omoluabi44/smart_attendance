@@ -178,75 +178,77 @@ export default function LecturerDashboard() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSessionModal(true)}
-                className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl font-semibold text-xs transition shadow-sm shadow-blue-500/20"
+                className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-3 sm:px-3.5 py-2 min-h-[38px] rounded-xl font-semibold text-xs transition shadow-sm shadow-blue-500/20"
               >
-                <Plus className="w-3.5 h-3.5 text-white" />
-                <span>New Session</span>
+                <Plus className="w-3.5 h-3.5 text-white shrink-0" />
+                <span>
+                  <span className="hidden sm:inline">New </span>Session
+                </span>
               </button>
             </div>
           }
         />
 
         {/* ── Main Content Workspace ── */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
         {/* ── Executive Summary Strip (4 Metric Cards) ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
-              <span>ACTIVE SESSIONS</span>
-              <Calendar className="w-4 h-4 text-blue-500" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-sans text-slate-400 uppercase gap-1">
+              <span className="truncate">ACTIVE SESSIONS</span>
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {sessions.length}
               </span>
-              <span className="text-[11px] font-sans text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
+              <span className="text-[10px] sm:text-[11px] font-sans text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-1.5 sm:px-2 py-0.5 rounded">
                 LIVE ROSTERS
               </span>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
-              <span>COURSEPASS CATALOG</span>
-              <BookOpen className="w-4 h-4 text-blue-500" />
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-sans text-slate-400 uppercase gap-1">
+              <span className="truncate">COURSEPASS CATALOG</span>
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {courses.length}
               </span>
-              <span className="text-[11px] font-sans text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded">
+              <span className="text-[10px] sm:text-[11px] font-sans text-blue-600 bg-blue-50 border border-blue-200/60 px-1.5 sm:px-2 py-0.5 rounded">
                 API SYNCED
               </span>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
-              <span>ENROLLED STUDENTS</span>
-              <Users className="w-4 h-4 text-emerald-600" />
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-sans text-slate-400 uppercase gap-1">
+              <span className="truncate">ENROLLED STUDENTS</span>
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {totalEnrolledAcrossSessions}
               </span>
-              <span className="text-[11px] font-sans text-slate-500">
+              <span className="text-[10px] sm:text-[11px] font-sans text-slate-500">
                 PORTAL SYNCED
               </span>
             </div>
           </div>
 
-          <div className="bg-obsidian-950 text-white rounded-2xl p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="bg-obsidian-950 text-white rounded-2xl p-3.5 sm:p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-vision-grid-dark opacity-30 pointer-events-none" />
-            <div className="relative z-10 flex items-center justify-between text-[11px] font-sans text-blue-400 uppercase">
-              <span>CV FACE COLLECTIONS</span>
-              <ScanFace className="w-4 h-4 text-blue-400" />
+            <div className="relative z-10 flex items-center justify-between text-[10px] sm:text-[11px] font-sans text-blue-400 uppercase gap-1">
+              <span className="truncate">CV FACE COLLECTIONS</span>
+              <ScanFace className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
             </div>
-            <div className="relative z-10 mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-white">
+            <div className="relative z-10 mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-white">
                 {sessions.length}
               </span>
-              <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-1.5 sm:px-2 py-0.5 rounded">
                 ISOLATED 1:N
               </span>
             </div>
@@ -254,8 +256,8 @@ export default function LecturerDashboard() {
         </div>
 
         {/* ── Course Registry Filter Pills & Search Bar ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
             <span className="text-[11px] font-sans uppercase text-slate-400 mr-1 shrink-0">
               FILTER:
             </span>
@@ -291,7 +293,7 @@ export default function LecturerDashboard() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter by course code or title..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none transition"
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none transition"
             />
           </div>
         </div>
@@ -338,12 +340,12 @@ export default function LecturerDashboard() {
               </div>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {filteredSessions.map((session) => (
                 <Link
                   key={session.id}
                   href={`/lecturer/${session.id}`}
-                  className="group relative bg-white rounded-2xl p-6 border border-slate-200/90 hover:border-blue-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between overflow-hidden"
+                  className="group relative bg-white rounded-2xl p-4 sm:p-6 border border-slate-200/90 hover:border-blue-500 hover:shadow-lg transition-all duration-200 flex flex-col justify-between overflow-hidden"
                 >
                   {/* Subtle Corner Reticles on Hover */}
                   <div className="absolute top-2.5 left-2.5 w-2.5 h-2.5 border-t-2 border-l-2 border-transparent group-hover:border-blue-500 transition-colors" />
@@ -424,7 +426,7 @@ export default function LecturerDashboard() {
                 value={courseID}
                 onChange={(e) => setCourseID(e.target.value)}
                 placeholder="e.g. CSC401 or PHY102"
-                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans uppercase text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm font-sans uppercase text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                 required
               />
             </div>
@@ -437,7 +439,7 @@ export default function LecturerDashboard() {
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
                 placeholder="e.g. Artificial Intelligence & Computer Vision"
-                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                 required
               />
             </div>
@@ -450,21 +452,21 @@ export default function LecturerDashboard() {
                 onChange={(e) => setCourseDesc(e.target.value)}
                 placeholder="Brief course overview for synced student rosters..."
                 rows={3}
-                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none resize-none transition"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none resize-none transition"
               />
             </div>
             <div className="pt-2 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowCourseModal(false)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+                className="px-4 py-2.5 min-h-[42px] rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={creatingCourse}
-                className="px-5 py-2.5 bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
+                className="px-5 py-2.5 min-h-[42px] bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
               >
                 {creatingCourse ? "Registering..." : "Register Course"}
               </button>
@@ -493,13 +495,13 @@ export default function LecturerDashboard() {
                   value={courseSearch}
                   onChange={(e) => setCourseSearch(e.target.value)}
                   placeholder="Search CoursePass courses by code or title (e.g. CSC, MTH, PHY)..."
-                  className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 outline-none transition"
+                  className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 outline-none transition"
                 />
               </div>
               <select
                 value={sessionCourseID}
                 onChange={(e) => setSessionCourseID(e.target.value)}
-                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none cursor-pointer transition"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none cursor-pointer transition"
                 required
               >
                 <option value="" disabled>
@@ -523,7 +525,7 @@ export default function LecturerDashboard() {
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
                   placeholder="e.g. 2025/2026"
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm font-sans text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                   required
                 />
               </div>
@@ -538,14 +540,14 @@ export default function LecturerDashboard() {
                   onChange={(e) => setTotalClasses(e.target.value)}
                   min={1}
                   max={100}
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm font-sans text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                   required
                 />
               </div>
             </div>
 
             {/* Live 75% Threshold Calculation Box */}
-            <div className="p-3.5 rounded-xl bg-obsidian-950 text-white border border-obsidian-700 flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-obsidian-950 text-white border border-obsidian-700 flex items-center justify-between gap-2">
               <div>
                 <span className="text-[10px] font-sans text-blue-400 uppercase block">
                   75% ATTENDANCE ELIGIBILITY THRESHOLD
@@ -565,14 +567,14 @@ export default function LecturerDashboard() {
               <button
                 type="button"
                 onClick={() => setShowSessionModal(false)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+                className="px-4 py-2.5 min-h-[42px] rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={creatingSession || courses.length === 0}
-                className="px-5 py-2.5 bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
+                className="px-5 py-2.5 min-h-[42px] bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
               >
                 {creatingSession ? "Provisioning..." : "Provision Session"}
               </button>
@@ -587,17 +589,17 @@ export default function LecturerDashboard() {
 function Modal({ badge, title, subtitle, onClose, children }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-0 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative"
+        className="bg-white rounded-t-2xl sm:rounded-2xl border border-slate-200 w-full max-w-lg max-h-[92dvh] overflow-y-auto p-5 sm:p-8 pb-safe shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+          className="absolute top-4 sm:top-5 right-4 sm:right-5 inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
         >
           <X className="h-3.5 w-3.5" />
           <span>Cancel</span>
@@ -607,8 +609,8 @@ function Modal({ badge, title, subtitle, onClose, children }) {
             {badge}
           </div>
         )}
-        <h2 className="text-xl font-bold text-slate-900 pr-20">{title}</h2>
-        {subtitle && <p className="text-xs text-slate-500 mt-1 mb-6">{subtitle}</p>}
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 pr-20">{title}</h2>
+        {subtitle && <p className="text-xs text-slate-500 mt-1 mb-5 sm:mb-6">{subtitle}</p>}
         {children}
       </div>
     </div>

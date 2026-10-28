@@ -15,7 +15,7 @@ export default function LoginPage() {
   return (
     <main className="flex flex-col lg:flex-row min-h-screen bg-[#FAFAFA]">
       {/* Left Side: Minimalist Lecturer Auth Workspace */}
-      <div className="flex flex-col justify-center w-full lg:w-[52%] px-6 py-12 bg-[#FAFAFA] bg-vision-grid">
+      <div className="flex flex-col justify-center flex-1 w-full lg:w-[52%] px-4 py-8 sm:px-6 sm:py-12 bg-[#FAFAFA] bg-vision-grid">
         <LoginForm />
       </div>
 

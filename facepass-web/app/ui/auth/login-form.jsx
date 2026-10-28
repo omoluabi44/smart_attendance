@@ -72,10 +72,10 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full px-4 sm:px-6">
+    <div className="flex items-center justify-center w-full sm:px-4">
       <div className="w-full max-w-md">
         {/* Top Back Navigation */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-5 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors"
@@ -83,30 +83,30 @@ export default function LoginForm() {
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to overview
           </Link>
-          <span className="text-[11px] font-sans text-blue-600 font-semibold uppercase tracking-wider">
+          <span className="text-[10px] sm:text-[11px] font-sans text-blue-600 font-semibold uppercase tracking-wider">
             AUTH // FACULTY &amp; ADMIN
           </span>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 md:p-10">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-8 md:p-10">
           {/* Logo */}
-          <div className="mb-6">
-            <CPLogo theme="light" size="md" />
+          <div className="mb-5 sm:mb-6">
+            <CPLogo theme="light" size="sm" />
           </div>
 
           {/* Header */}
-          <div className="mb-7">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <div className="mb-6 sm:mb-7">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Faculty &amp; Admin Sign In
             </h1>
-            <p className="mt-1.5 text-sm text-slate-600">
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
               Enter your institutional credentials to access the FacePass Command Center.
             </p>
           </div>
 
           {/* Form */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="email"
@@ -117,7 +117,7 @@ export default function LoginForm() {
               <div className="relative">
                 <EnvelopeIcon className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
-                  className={`peer block w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                  className={`peer block w-full rounded-xl border bg-slate-50/50 py-3 sm:py-2.5 pl-10 pr-4 text-base sm:text-sm text-slate-900 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                     apiError
                       ? "border-rose-500 focus:border-rose-600 focus:ring-rose-500/15"
                       : "border-slate-200 focus:border-blue-500 focus:ring-blue-500/15"
@@ -155,7 +155,7 @@ export default function LoginForm() {
                   type="button"
                   onClick={() => setShow(!show)}
                   aria-label={show ? "Hide password" : "Show password"}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 focus:outline-none"
                 >
                   {show ? (
                     <EyeIcon className="h-4 w-4" />
@@ -164,7 +164,7 @@ export default function LoginForm() {
                   )}
                 </button>
                 <input
-                  className={`peer block w-full rounded-xl border bg-slate-50/50 py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
+                  className={`peer block w-full rounded-xl border bg-slate-50/50 py-3 sm:py-2.5 pl-10 pr-10 text-base sm:text-sm text-slate-900 placeholder-slate-400 transition focus:bg-white focus:outline-none focus:ring-2 ${
                     apiError
                       ? "border-rose-500 focus:border-rose-600 focus:ring-rose-500/15"
                       : "border-slate-200 focus:border-blue-500 focus:ring-blue-500/15"
@@ -192,7 +192,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full flex justify-center items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all ${
+                className={`w-full min-h-[44px] flex justify-center items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all ${
                   isLoading
                     ? "bg-slate-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600"
@@ -211,15 +211,28 @@ export default function LoginForm() {
           </form>
 
           {/* Institutional Provisioning Notice */}
-          <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-500">
               Lecturer credentials are provisioned by your university administration.
             </p>
           </div>
         </div>
 
+        {/* Mobile Biometric Architecture Strip (Visible on <lg where right preview is hidden) */}
+        <div className="mt-4 lg:hidden rounded-xl bg-obsidian-950 border border-slate-800 p-3.5 text-slate-300 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="text-[11px] font-medium truncate">
+              AWS Rekognition 1:N • CoursePass Sync
+            </span>
+          </div>
+          <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider shrink-0">
+            TLS 1.3
+          </span>
+        </div>
+
         {/* Scope Guardrail Note */}
-        <p className="mt-5 text-center text-[11px] font-sans text-slate-400">
+        <p className="mt-4 sm:mt-5 text-center text-[10px] sm:text-[11px] font-sans text-slate-400">
           STUDENT ENROLLMENT IS HANDLED EXCLUSIVELY VIA STUDENT PORTAL
         </p>
       </div>

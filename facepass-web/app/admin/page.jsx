@@ -469,68 +469,68 @@ export default function AdminCommandCenter() {
         />
 
         {/* ── Main Admin Workspace Content ── */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
         {/* ── 4 Executive Telemetry Cards ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
-              <span>FACULTY &amp; ADMINS</span>
-              <ShieldCheck className="w-4 h-4 text-blue-500" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400 uppercase">
+              <span className="truncate">FACULTY &amp; ADMINS</span>
+              <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1.5">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {loadingOverview
                   ? "—"
                   : (overview?.total_lecturers || 0) +
                     (overview?.total_admins || 0)}
               </span>
-              <span className="text-[11px] font-sans text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded">
+              <span className="text-[10px] sm:text-[11px] font-sans text-blue-600 bg-blue-50 border border-blue-200/60 px-1.5 sm:px-2 py-0.5 rounded">
                 {overview?.total_lecturers || 0} LECTURERS
               </span>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
-              <span>PENDING PASSWORD RESETS</span>
-              <KeyRound className="w-4 h-4 text-amber-500" />
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400 uppercase">
+              <span className="truncate">PASSWORD RESETS</span>
+              <KeyRound className="w-4 h-4 text-amber-500 shrink-0" />
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1.5">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {loadingOverview ? "—" : overview?.pending_password_changes || 0}
               </span>
-              <span className="text-[11px] font-sans text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded">
+              <span className="text-[10px] sm:text-[11px] font-sans text-amber-700 bg-amber-50 border border-amber-200/60 px-1.5 sm:px-2 py-0.5 rounded">
                 FORCE ON LOGIN
               </span>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
-              <span>COURSES &amp; SESSIONS</span>
-              <Calendar className="w-4 h-4 text-emerald-600" />
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400 uppercase">
+              <span className="truncate">COURSES &amp; SESSIONS</span>
+              <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
             </div>
-            <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
+            <div className="mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1.5">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {loadingOverview ? "—" : overview?.total_sessions || 0}
               </span>
-              <span className="text-[11px] font-sans text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
+              <span className="text-[10px] sm:text-[11px] font-sans text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-1.5 sm:px-2 py-0.5 rounded">
                 {overview?.total_courses || 0} COURSES
               </span>
             </div>
           </div>
 
-          <div className="bg-obsidian-950 text-white rounded-2xl p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
+          <div className="bg-obsidian-950 text-white rounded-2xl p-3.5 sm:p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-vision-grid-dark opacity-30 pointer-events-none" />
-            <div className="relative z-10 flex items-center justify-between text-[11px] font-sans text-blue-400 uppercase">
-              <span>SYNCED STUDENTS &amp; SCANS</span>
-              <ScanFace className="w-4 h-4 text-blue-400" />
+            <div className="relative z-10 flex items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-blue-400 uppercase">
+              <span className="truncate">STUDENTS &amp; SCANS</span>
+              <ScanFace className="w-4 h-4 text-blue-400 shrink-0" />
             </div>
-            <div className="relative z-10 mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-sans tracking-tight text-white">
+            <div className="relative z-10 mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1.5">
+              <span className="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-white">
                 {loadingOverview ? "—" : overview?.total_students || 0}
               </span>
-              <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-1.5 sm:px-2 py-0.5 rounded">
                 {overview?.total_attendance_logs || 0} LOGS
               </span>
             </div>
@@ -538,28 +538,28 @@ export default function AdminCommandCenter() {
         </div>
 
         {/* ── Navigation Tabs ── */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/90">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200/90 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("users")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`flex-1 sm:flex-initial shrink-0 flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition whitespace-nowrap ${
                 activeTab === "users"
                   ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
-              <Users className="w-3.5 h-3.5" />
+              <Users className="w-3.5 h-3.5 shrink-0" />
               <span>Lecturers &amp; Users ({allUsers.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("sessions")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
+              className={`flex-1 sm:flex-initial shrink-0 flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition whitespace-nowrap ${
                 activeTab === "sessions"
                   ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5 shrink-0" />
               <span>
                 Courses &amp; Sessions ({allSessions.length})
               </span>
@@ -570,7 +570,7 @@ export default function AdminCommandCenter() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowSessionModal(true)}
-                className="inline-flex items-center gap-1.5 bg-obsidian-950 hover:bg-slate-800 text-white px-4 py-2 rounded-xl font-semibold text-xs transition"
+                className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5 bg-obsidian-950 hover:bg-slate-800 text-white px-4 py-2.5 sm:py-2 rounded-xl font-semibold text-xs transition"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Provision Session</span>
@@ -583,12 +583,12 @@ export default function AdminCommandCenter() {
             TAB 1: LECTURERS & USERS MANAGEMENT
            ══════════════════════════════════════════════════════════════════════ */}
         {activeTab === "users" && (
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             {/* Filter & Search Bar */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-                <span className="text-[11px] font-sans uppercase text-slate-400 mr-1 shrink-0">
-                  ROLE FILTER:
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90">
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-0.5 md:pb-0">
+                <span className="text-[10px] sm:text-[11px] font-sans uppercase text-slate-400 mr-1 shrink-0">
+                  ROLE:
                 </span>
                 {[
                   { key: "ALL", label: `ALL (${allUsers.length})` },
@@ -632,21 +632,21 @@ export default function AdminCommandCenter() {
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Search name, email, or staff/matric ID..."
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none transition"
+                  className="w-full pl-9 pr-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:outline-none transition"
                 />
               </div>
             </div>
 
-            {/* Users Table */}
+            {/* Users Directory */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
-              <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+              <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
                   <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
                     INSTITUTIONAL DIRECTORY ({filteredUsers.length})
                   </span>
                 </div>
-                <span className="text-[11px] font-sans text-slate-500">
+                <span className="text-[10px] sm:text-[11px] font-sans text-slate-500">
                   STUDENT BIOMETRIC ENROLLMENT IS MANAGED VIA COURSEPASS
                 </span>
               </div>
@@ -656,7 +656,7 @@ export default function AdminCommandCenter() {
                   LOADING DIRECTORY...
                 </div>
               ) : filteredUsers.length === 0 ? (
-                <div className="p-12 text-center">
+                <div className="p-8 sm:p-12 text-center">
                   <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                   <p className="text-sm font-bold text-slate-800 mb-1">
                     No matching accounts found
@@ -666,133 +666,232 @@ export default function AdminCommandCenter() {
                   </p>
                   <button
                     onClick={() => setShowProvisionModal(true)}
-                    className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold"
+                    className="px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold"
                   >
                     + Provision Lecturer Account
                   </button>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
-                        <th className="py-3.5 px-6">Name &amp; Email</th>
-                        <th className="py-3.5 px-6">Staff / Matric ID</th>
-                        <th className="py-3.5 px-6">Role</th>
-                        <th className="py-3.5 px-6">Password Policy Status</th>
-                        <th className="py-3.5 px-6">Sessions</th>
-                        <th className="py-3.5 px-6 text-right">
-                          Admin Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-xs">
-                      {filteredUsers.map((u) => {
-                        const isSelf = u.id === user?.id;
-                        return (
-                          <tr
-                            key={u.id}
-                            className="hover:bg-slate-50/80 transition"
-                          >
-                            <td className="py-3.5 px-6">
-                              <div className="font-semibold text-slate-900 flex items-center gap-1.5">
-                                <span>{u.name}</span>
+                <>
+                  {/* Mobile Card List (<md) */}
+                  <div className="md:hidden divide-y divide-slate-100">
+                    {filteredUsers.map((u) => {
+                      const isSelf = u.id === user?.id;
+                      return (
+                        <div key={u.id} className="p-4 space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="font-semibold text-sm text-slate-900 flex items-center gap-1.5 flex-wrap">
+                                <span className="truncate">{u.name}</span>
                                 {isSelf && (
                                   <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white font-sans text-[9px]">
                                     YOU
                                   </span>
                                 )}
                               </div>
-                              <div className="text-slate-500 font-sans text-[11px]">
+                              <div className="text-slate-500 font-sans text-xs break-all mt-0.5">
                                 {u.email}
                               </div>
-                            </td>
-                            <td className="py-3.5 px-6 font-sans text-slate-600">
-                              {u.matric || "—"}
-                            </td>
-                            <td className="py-3.5 px-6">
-                              <select
-                                value={u.role || "student"}
-                                disabled={isSelf}
-                                onChange={(e) =>
-                                  handleRoleChange(u.id, e.target.value)
-                                }
-                                className={`font-sans text-[11px] font-semibold uppercase rounded-lg px-2.5 py-1 border outline-none cursor-pointer ${
-                                  u.role === "admin"
-                                    ? "bg-obsidian-950 text-white border-obsidian-950"
-                                    : u.role === "lecturer"
-                                    ? "bg-blue-50 text-blue-700 border-blue-200"
-                                    : "bg-slate-100 text-slate-700 border-slate-200"
-                                }`}
+                            </div>
+                            <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-sans text-slate-600 shrink-0">
+                              {u.matric || "NO ID"}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            {u.must_change_password ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-sans text-[10px] font-bold">
+                                <AlertTriangle className="w-3 h-3 text-amber-600 shrink-0" />
+                                TEMP PASSWORD // FORCE CHANGE
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-[10px] font-bold">
+                                <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                                PERSONAL PASSWORD SET
+                              </span>
+                            )}
+                            {u.role !== "student" && (
+                              <span className="text-[11px] font-sans text-slate-500">
+                                {u.assigned_sessions_count || 0} sessions
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-1">
+                            <select
+                              value={u.role || "student"}
+                              disabled={isSelf}
+                              onChange={(e) =>
+                                handleRoleChange(u.id, e.target.value)
+                              }
+                              className={`flex-1 font-sans text-xs font-semibold uppercase rounded-xl px-3 py-2 border outline-none cursor-pointer ${
+                                u.role === "admin"
+                                  ? "bg-obsidian-950 text-white border-obsidian-950"
+                                  : u.role === "lecturer"
+                                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                                  : "bg-slate-100 text-slate-700 border-slate-200"
+                              }`}
+                            >
+                              <option value="lecturer" className="bg-white text-slate-900">
+                                LECTURER
+                              </option>
+                              <option value="admin" className="bg-white text-slate-900">
+                                ADMIN
+                              </option>
+                              <option value="student" className="bg-white text-slate-900">
+                                STUDENT
+                              </option>
+                            </select>
+
+                            <button
+                              type="button"
+                              disabled={resettingPassword}
+                              onClick={() => handleResetUserPassword(u)}
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-blue-50 text-slate-700 font-semibold text-xs transition shrink-0"
+                            >
+                              <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Reset Key</span>
+                            </button>
+
+                            {!isSelf && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteUser(u)}
+                                title="Delete User"
+                                className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition shrink-0"
                               >
-                                <option
-                                  value="lecturer"
-                                  className="bg-white text-slate-900"
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop Table (md+) */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
+                          <th className="py-3.5 px-6">Name &amp; Email</th>
+                          <th className="py-3.5 px-6">Staff / Matric ID</th>
+                          <th className="py-3.5 px-6">Role</th>
+                          <th className="py-3.5 px-6">Password Policy Status</th>
+                          <th className="py-3.5 px-6">Sessions</th>
+                          <th className="py-3.5 px-6 text-right">
+                            Admin Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-xs">
+                        {filteredUsers.map((u) => {
+                          const isSelf = u.id === user?.id;
+                          return (
+                            <tr
+                              key={u.id}
+                              className="hover:bg-slate-50/80 transition"
+                            >
+                              <td className="py-3.5 px-6">
+                                <div className="font-semibold text-slate-900 flex items-center gap-1.5">
+                                  <span>{u.name}</span>
+                                  {isSelf && (
+                                    <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white font-sans text-[9px]">
+                                      YOU
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-slate-500 font-sans text-[11px]">
+                                  {u.email}
+                                </div>
+                              </td>
+                              <td className="py-3.5 px-6 font-sans text-slate-600">
+                                {u.matric || "—"}
+                              </td>
+                              <td className="py-3.5 px-6">
+                                <select
+                                  value={u.role || "student"}
+                                  disabled={isSelf}
+                                  onChange={(e) =>
+                                    handleRoleChange(u.id, e.target.value)
+                                  }
+                                  className={`font-sans text-[11px] font-semibold uppercase rounded-lg px-2.5 py-1 border outline-none cursor-pointer ${
+                                    u.role === "admin"
+                                      ? "bg-obsidian-950 text-white border-obsidian-950"
+                                      : u.role === "lecturer"
+                                      ? "bg-blue-50 text-blue-700 border-blue-200"
+                                      : "bg-slate-100 text-slate-700 border-slate-200"
+                                  }`}
                                 >
-                                  LECTURER
-                                </option>
-                                <option
-                                  value="admin"
-                                  className="bg-white text-slate-900"
-                                >
-                                  ADMIN
-                                </option>
-                                <option
-                                  value="student"
-                                  className="bg-white text-slate-900"
-                                >
-                                  STUDENT
-                                </option>
-                              </select>
-                            </td>
-                            <td className="py-3.5 px-6">
-                              {u.must_change_password ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-sans text-[10px] font-bold">
-                                  <AlertTriangle className="w-3 h-3 text-amber-600" />
-                                  TEMP PASSWORD // FORCE CHANGE
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-[10px] font-bold">
-                                  <Check className="w-3 h-3 text-emerald-600" />
-                                  PERSONAL PASSWORD SET
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3.5 px-6 font-sans text-slate-600">
-                              {u.role === "student"
-                                ? "—"
-                                : `${u.assigned_sessions_count || 0} assigned`}
-                            </td>
-                            <td className="py-3.5 px-6 text-right">
-                              <div className="inline-flex items-center justify-end gap-2">
-                                <button
-                                  type="button"
-                                  disabled={resettingPassword}
-                                  onClick={() => handleResetUserPassword(u)}
-                                  title="Generate a new temporary password & force password change on next login"
-                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-300 text-slate-700 hover:text-blue-600 font-semibold text-[11px] transition"
-                                >
-                                  <KeyRound className="w-3 h-3" />
-                                  <span>Reset Temp Password</span>
-                                </button>
-                                {!isSelf && (
+                                  <option
+                                    value="lecturer"
+                                    className="bg-white text-slate-900"
+                                  >
+                                    LECTURER
+                                  </option>
+                                  <option
+                                    value="admin"
+                                    className="bg-white text-slate-900"
+                                  >
+                                    ADMIN
+                                  </option>
+                                  <option
+                                    value="student"
+                                    className="bg-white text-slate-900"
+                                  >
+                                    STUDENT
+                                  </option>
+                                </select>
+                              </td>
+                              <td className="py-3.5 px-6">
+                                {u.must_change_password ? (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-sans text-[10px] font-bold">
+                                    <AlertTriangle className="w-3 h-3 text-amber-600" />
+                                    TEMP PASSWORD // FORCE CHANGE
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-[10px] font-bold">
+                                    <Check className="w-3 h-3 text-emerald-600" />
+                                    PERSONAL PASSWORD SET
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3.5 px-6 font-sans text-slate-600">
+                                {u.role === "student"
+                                  ? "—"
+                                  : `${u.assigned_sessions_count || 0} assigned`}
+                              </td>
+                              <td className="py-3.5 px-6 text-right">
+                                <div className="inline-flex items-center justify-end gap-2">
                                   <button
                                     type="button"
-                                    onClick={() => handleDeleteUser(u)}
-                                    title="Delete User"
-                                    className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition"
+                                    disabled={resettingPassword}
+                                    onClick={() => handleResetUserPassword(u)}
+                                    title="Generate a new temporary password & force password change on next login"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-300 text-slate-700 hover:text-blue-600 font-semibold text-[11px] transition"
                                   >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <KeyRound className="w-3 h-3" />
+                                    <span>Reset Temp Password</span>
                                   </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                                  {!isSelf && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteUser(u)}
+                                      title="Delete User"
+                                      className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -802,9 +901,9 @@ export default function AdminCommandCenter() {
             TAB 2: COURSES & ACADEMIC SESSIONS GOVERNANCE
            ══════════════════════════════════════════════════════════════════════ */}
         {activeTab === "sessions" && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Search Sessions */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
                   University-Wide Academic Sessions ({filteredSessions.length})
@@ -821,19 +920,19 @@ export default function AdminCommandCenter() {
                   value={sessionSearch}
                   onChange={(e) => setSessionSearch(e.target.value)}
                   placeholder="Filter sessions by course code..."
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 outline-none"
+                  className="w-full pl-9 pr-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl text-base sm:text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 outline-none"
                 />
               </div>
             </div>
 
-            {/* Sessions Table */}
+            {/* Sessions Governance */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
               {loadingSessions ? (
                 <div className="p-12 text-center text-xs font-sans text-slate-400">
                   LOADING SESSIONS...
                 </div>
               ) : filteredSessions.length === 0 ? (
-                <div className="p-12 text-center">
+                <div className="p-8 sm:p-12 text-center">
                   <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                   <p className="text-sm font-bold text-slate-800 mb-1">
                     No Academic Sessions Found
@@ -843,24 +942,14 @@ export default function AdminCommandCenter() {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
-                        <th className="py-3.5 px-6">Course &amp; Session</th>
-                        <th className="py-3.5 px-6">Assigned Faculty</th>
-                        <th className="py-3.5 px-6">Roster &amp; Logs</th>
-                        <th className="py-3.5 px-6 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-xs">
-                      {filteredSessions.map((s) => (
-                        <tr
-                          key={s.id}
-                          className="hover:bg-slate-50/80 transition"
-                        >
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-2 mb-1">
+                <>
+                  {/* Mobile Card List (<md) */}
+                  <div className="md:hidden divide-y divide-slate-100">
+                    {filteredSessions.map((s) => (
+                      <div key={s.id} className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
                               <span className="px-2 py-0.5 rounded bg-blue-500 text-white font-sans text-xs font-bold">
                                 {s.courseID}
                               </span>
@@ -871,92 +960,205 @@ export default function AdminCommandCenter() {
                                 {s.total_expected_classes} lectures
                               </span>
                             </div>
-                            <div className="font-semibold text-slate-900">
+                            <div className="font-semibold text-sm text-slate-900">
                               {s.course_name}
                             </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              {s.lecturers && s.lecturers.length > 0 ? (
-                                s.lecturers.map((lec) => (
-                                  <span
-                                    key={lec.id}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-xs font-medium"
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/70 text-xs font-sans">
+                          <span className="font-bold text-slate-900">
+                            {s.enrolled_students || 0} Enrolled Students
+                          </span>
+                          <span className="text-slate-500">
+                            {s.attendance_logs_count || 0} Scans
+                          </span>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <span className="block text-[10px] font-sans uppercase tracking-wider text-slate-400">
+                            Assigned Faculty
+                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {s.lecturers && s.lecturers.length > 0 ? (
+                              s.lecturers.map((lec) => (
+                                <span
+                                  key={lec.id}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-xs font-medium"
+                                >
+                                  <span>{lec.name}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleRemoveLecturerFromSession(
+                                        s.id,
+                                        lec.id,
+                                        lec.name
+                                      )
+                                    }
+                                    title={`Unassign ${lec.name}`}
+                                    className="text-slate-400 hover:text-rose-600 p-0.5"
                                   >
-                                    <span>{lec.name}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        handleRemoveLecturerFromSession(
-                                          s.id,
-                                          lec.id,
-                                          lec.name
-                                        )
-                                      }
-                                      title={`Unassign ${lec.name}`}
-                                      className="text-slate-400 hover:text-rose-600"
-                                    >
-                                      <X className="w-3 h-3" />
-                                    </button>
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-amber-600 font-sans text-[11px]">
-                                  UNASSIGNED
+                                    <X className="w-3 h-3" />
+                                  </button>
                                 </span>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setAssignModalSession(s);
-                                  setSelectedLecturerToAssign("");
-                                }}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 text-[11px] font-semibold transition"
-                              >
-                                <Plus className="w-3 h-3" />
-                                Assign Lecturer
-                              </button>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 font-sans">
-                            <div className="text-slate-900 font-bold">
-                              {s.enrolled_students || 0} Students
-                            </div>
-                            <div className="text-[11px] text-slate-500">
-                              {s.attendance_logs_count || 0} Attendance Scans
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-right">
-                            <div className="inline-flex items-center gap-2">
-                              <Link
-                                href={`/lecturer/${s.id}`}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-obsidian-950 hover:bg-slate-800 text-white text-xs font-semibold transition"
-                              >
-                                <span>Control Room</span>
-                                <ArrowUpRight className="w-3.5 h-3.5" />
-                              </Link>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteSession(s)}
-                                title="Delete Session"
-                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
+                              ))
+                            ) : (
+                              <span className="text-amber-600 font-sans text-[11px]">
+                                UNASSIGNED
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAssignModalSession(s);
+                                setSelectedLecturerToAssign("");
+                              }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 text-xs font-semibold transition"
+                            >
+                              <Plus className="w-3 h-3" />
+                              Assign Lecturer
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <Link
+                            href={`/lecturer/${s.id}`}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-obsidian-950 hover:bg-slate-800 text-white text-xs font-semibold transition"
+                          >
+                            <span>Open Control Room</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSession(s)}
+                            title="Delete Session"
+                            className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition shrink-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table (md+) */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
+                          <th className="py-3.5 px-6">Course &amp; Session</th>
+                          <th className="py-3.5 px-6">Assigned Faculty</th>
+                          <th className="py-3.5 px-6">Roster &amp; Logs</th>
+                          <th className="py-3.5 px-6 text-right">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-xs">
+                        {filteredSessions.map((s) => (
+                          <tr
+                            key={s.id}
+                            className="hover:bg-slate-50/80 transition"
+                          >
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="px-2 py-0.5 rounded bg-blue-500 text-white font-sans text-xs font-bold">
+                                  {s.courseID}
+                                </span>
+                                <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-sans text-[11px] text-slate-700">
+                                  {s.session_name}
+                                </span>
+                                <span className="text-[11px] font-sans text-slate-400">
+                                  {s.total_expected_classes} lectures
+                                </span>
+                              </div>
+                              <div className="font-semibold text-slate-900">
+                                {s.course_name}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {s.lecturers && s.lecturers.length > 0 ? (
+                                  s.lecturers.map((lec) => (
+                                    <span
+                                      key={lec.id}
+                                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-xs font-medium"
+                                    >
+                                      <span>{lec.name}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleRemoveLecturerFromSession(
+                                            s.id,
+                                            lec.id,
+                                            lec.name
+                                          )
+                                        }
+                                        title={`Unassign ${lec.name}`}
+                                        className="text-slate-400 hover:text-rose-600"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-amber-600 font-sans text-[11px]">
+                                    UNASSIGNED
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAssignModalSession(s);
+                                    setSelectedLecturerToAssign("");
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-dashed border-blue-300 text-blue-600 hover:bg-blue-50 text-[11px] font-semibold transition"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  Assign Lecturer
+                                </button>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6 font-sans">
+                              <div className="text-slate-900 font-bold">
+                                {s.enrolled_students || 0} Students
+                              </div>
+                              <div className="text-[11px] text-slate-500">
+                                {s.attendance_logs_count || 0} Attendance Scans
+                              </div>
+                            </td>
+                            <td className="py-4 px-6 text-right">
+                              <div className="inline-flex items-center gap-2">
+                                <Link
+                                  href={`/lecturer/${s.id}`}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-obsidian-950 hover:bg-slate-800 text-white text-xs font-semibold transition"
+                                >
+                                  <span>Control Room</span>
+                                  <ArrowUpRight className="w-3.5 h-3.5" />
+                                </Link>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteSession(s)}
+                                  title="Delete Session"
+                                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
 
-            {/* CoursePass Central Catalog Table */}
+            {/* CoursePass Central Catalog */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
-              <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
+              <div className="px-4 sm:px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
                     COURSEPASS CENTRAL HUB CATALOG ({allCourses.length})
                   </span>
@@ -971,7 +1173,7 @@ export default function AdminCommandCenter() {
                     value={courseSearch}
                     onChange={(e) => setCourseSearch(e.target.value)}
                     placeholder="Search CoursePass catalog..."
-                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:border-blue-500 outline-none"
+                    className="w-full pl-8 pr-3 py-2 sm:py-1.5 bg-white border border-slate-200 rounded-xl text-base sm:text-xs text-slate-900 placeholder-slate-400 focus:border-blue-500 outline-none"
                   />
                 </div>
               </div>
@@ -984,38 +1186,65 @@ export default function AdminCommandCenter() {
                   No courses matching search query in CoursePass catalog.
                 </div>
               ) : (
-                <div className="overflow-x-auto max-h-96 overflow-y-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
-                        <th className="py-3 px-6">Course Code</th>
-                        <th className="py-3 px-6">Course Title</th>
-                        <th className="py-3 px-6">Active Sessions</th>
-                        <th className="py-3 px-6 text-right">Source</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-xs">
-                      {filteredCourses.slice(0, 100).map((c) => (
-                        <tr key={c.courseID || c.id} className="hover:bg-slate-50/80">
-                          <td className="py-3 px-6 font-sans font-bold text-slate-900">
-                            {c.courseID}
-                          </td>
-                          <td className="py-3 px-6 text-slate-700">
-                            {c.courseName}
-                          </td>
-                          <td className="py-3 px-6 font-sans text-slate-600">
-                            {c.session_count || 0}
-                          </td>
-                          <td className="py-3 px-6 text-right">
-                            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-sans font-medium">
-                              CoursePass Hub
+                <>
+                  {/* Mobile Catalog Cards (<md) */}
+                  <div className="md:hidden divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                    {filteredCourses.slice(0, 100).map((c) => (
+                      <div key={c.courseID || c.id} className="p-3.5 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-sans text-xs font-bold text-slate-900">
+                              {c.courseID}
                             </span>
-                          </td>
+                            <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-sans">
+                              {c.session_count || 0} sessions
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 truncate mt-0.5">
+                            {c.courseName}
+                          </p>
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-[10px] font-sans font-medium shrink-0">
+                          CoursePass
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Catalog Table (md+) */}
+                  <div className="hidden md:block overflow-x-auto max-h-96 overflow-y-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
+                          <th className="py-3 px-6">Course Code</th>
+                          <th className="py-3 px-6">Course Title</th>
+                          <th className="py-3 px-6">Active Sessions</th>
+                          <th className="py-3 px-6 text-right">Source</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-xs">
+                        {filteredCourses.slice(0, 100).map((c) => (
+                          <tr key={c.courseID || c.id} className="hover:bg-slate-50/80">
+                            <td className="py-3 px-6 font-sans font-bold text-slate-900">
+                              {c.courseID}
+                            </td>
+                            <td className="py-3 px-6 text-slate-700">
+                              {c.courseName}
+                            </td>
+                            <td className="py-3 px-6 font-sans text-slate-600">
+                              {c.session_count || 0}
+                            </td>
+                            <td className="py-3 px-6 text-right">
+                              <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-sans font-medium">
+                                CoursePass Hub
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -1517,29 +1746,29 @@ export default function AdminCommandCenter() {
 function Modal({ badge, title, subtitle, onClose, children }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-obsidian-950/60 backdrop-blur-xs p-0 sm:p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative"
+        className="bg-white rounded-t-2xl sm:rounded-2xl border border-slate-200 w-full max-w-lg max-h-[92dvh] overflow-y-auto p-5 sm:p-8 pb-safe shadow-2xl relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition"
         >
           <X className="h-3.5 w-3.5" />
           <span>Cancel</span>
         </button>
         {badge && (
-          <div className="text-[11px] font-sans font-semibold text-blue-600 uppercase tracking-wider mb-1 pr-20">
+          <div className="text-[10px] sm:text-[11px] font-sans font-semibold text-blue-600 uppercase tracking-wider mb-1 pr-20">
             {badge}
           </div>
         )}
-        <h2 className="text-xl font-bold text-slate-900 pr-20">{title}</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 pr-20">{title}</h2>
         {subtitle && (
-          <p className="text-xs text-slate-500 mt-1 mb-6">{subtitle}</p>
+          <p className="text-xs text-slate-500 mt-1 mb-5 sm:mb-6">{subtitle}</p>
         )}
         {children}
       </div>

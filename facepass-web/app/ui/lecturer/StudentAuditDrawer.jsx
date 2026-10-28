@@ -118,20 +118,22 @@ export default function StudentAuditDrawer({
     <div className="fixed inset-0 z-50 flex justify-end bg-obsidian-950/60 backdrop-blur-xs">
       <div className="w-full max-w-xl bg-white h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-200">
         {/* Top Drawer Header */}
-        <div className="px-6 py-5 bg-obsidian-950 text-white flex items-center justify-between border-b border-slate-800">
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-sans text-blue-400 uppercase tracking-wider">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-obsidian-950 text-white flex items-center justify-between gap-3 border-b border-slate-800">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-sans text-blue-400 uppercase tracking-wider truncate">
               <span>BIOMETRIC DOSSIER // STUDENT AUDIT</span>
             </div>
-            <h2 className="text-lg font-bold text-white mt-0.5">{student.name}</h2>
+            <h2 className="text-base sm:text-lg font-bold text-white mt-0.5 truncate">
+              {student.name}
+            </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleDownloadStudentCSV}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold transition shadow-md shadow-blue-500/20"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 min-h-[36px] rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold transition shadow-md shadow-blue-500/20"
             >
               <Download className="w-3.5 h-3.5" />
-              Export CSV
+              <span>Export CSV</span>
             </button>
             <button
               onClick={onClose}
@@ -143,9 +145,9 @@ export default function StudentAuditDrawer({
         </div>
 
         {/* Scrollable Audit Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* Identity & Eligibility Card */}
-          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-200/80">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-xl bg-obsidian-950 text-blue-400 font-sans font-bold text-sm flex items-center justify-center">
@@ -338,11 +340,13 @@ export default function StudentAuditDrawer({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] font-sans text-slate-500">
-          <span>COURSEPASS BIOMETRIC ID: {student.id?.slice(0, 8)}</span>
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 pb-safe bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 text-[11px] font-sans text-slate-500">
+          <span className="truncate">
+            COURSEPASS BIOMETRIC ID: {student.id?.slice(0, 8)}
+          </span>
           <button
             onClick={onClose}
-            className="text-slate-700 font-sans font-semibold hover:text-slate-900"
+            className="text-slate-700 font-sans font-semibold hover:text-slate-900 shrink-0"
           >
             Close Dossier
           </button>
