@@ -6,11 +6,12 @@
   body {
     background-color: #FAFAFA;
     color: #0F172A;
+    font-family: var(--font-roboto), Roboto, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  h1, h2, h3, h4 {
-    font-family: var(--font-montserrat), sans-serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-roboto), Roboto, sans-serif;
     letter-spacing: -0.025em;
   }
 }

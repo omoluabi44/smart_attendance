@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${inter.className} ${montserrat.variable} ${roboto.variable} ${jetbrainsMono.variable} antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900`}
+        className={`${roboto.className} ${roboto.variable} ${montserrat.variable} ${jetbrainsMono.variable} antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900`}
       >
         <StoreProvider>
           {children}
