@@ -16,20 +16,20 @@ export const viewport = {
 
 export const metadata = {
   title: {
-    default: 'FacePass | AI Lecturer Command, Computer Vision Attendance & Classroom Platform',
-    template: '%s | FacePass Lecturer OS',
+    default: 'FacePass | Smart Attendance, Course Materials & Classroom Platform',
+    template: '%s | FacePass Lecturer Portal',
   },
   description:
-    'All-in-one university lecturer platform powered by a precision 1:N Computer Vision Engine: instant classroom attendance, course material distribution, scheduled quizzes, automated grading, and 75% exam eligibility auditing.',
+    'All-in-one university lecturer platform: instant classroom attendance, course material distribution, scheduled quizzes, automated grading, and 75% exam eligibility auditing.',
   icons: {
     icon: '/icon.png',
     shortcut: '/icon.png',
     apple: '/icon.png',
   },
   openGraph: {
-    title: 'FacePass | AI Lecturer Command, Computer Vision Attendance & Classroom Platform',
+    title: 'FacePass | Smart Attendance, Course Materials & Classroom Platform',
     description:
-      'Verify 100+ students in seconds via Computer Vision, share lecture materials directly with enrolled students, schedule quizzes, and audit 75% exam eligibility.',
+      'Verify 100+ students in seconds, share lecture materials directly with enrolled students, schedule quizzes, and audit 75% exam eligibility.',
     siteName: 'FacePass',
     locale: 'en_US',
     type: 'website',

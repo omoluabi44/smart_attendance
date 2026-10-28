@@ -27,87 +27,10 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-
-const SIMULATED_DETECTIONS = [
-  {
-    id: "FP-9041",
-    name: "Adebayo T. Oluwaseun",
-    matric: "210401014",
-    dept: "Computer Engineering",
-    confidence: "99.4%",
-    attendanceRate: "92%",
-    status: "VERIFIED",
-    box: { top: "14%", left: "10%", width: "24%", height: "35%" },
-  },
-  {
-    id: "FP-9088",
-    name: "Chukwuemeka K. Nnadi",
-    matric: "210401049",
-    dept: "Mechanical Engineering",
-    confidence: "98.8%",
-    attendanceRate: "84%",
-    status: "VERIFIED",
-    box: { top: "18%", left: "40%", width: "23%", height: "34%" },
-  },
-  {
-    id: "FP-9102",
-    name: "Zainab M. Ibrahim",
-    matric: "210401082",
-    dept: "Electrical Engineering",
-    confidence: "99.1%",
-    attendanceRate: "71%",
-    status: "AT_RISK",
-    box: { top: "15%", left: "69%", width: "22%", height: "34%" },
-  },
-];
-
-const SIMULATED_MATERIALS = [
-  {
-    id: "MAT-01",
-    title: "GET201_Thermodynamics_Laws_Week4.pdf",
-    type: "PDF • 4.2 MB",
-    delivered: "142 / 142 Students",
-    time: "Published 10m ago",
-  },
-  {
-    id: "MAT-02",
-    title: "Carnot_Cycle_Solved_Problems.docx",
-    type: "DOCX • 1.8 MB",
-    delivered: "142 / 142 Students",
-    time: "Published 2d ago",
-  },
-  {
-    id: "MAT-03",
-    title: "Lab_Safety_&_Steam_Tables_Reference.pdf",
-    type: "PDF • 6.5 MB",
-    delivered: "142 / 142 Students",
-    time: "Published 1w ago",
-  },
-];
-
-const SIMULATED_QUIZZES = [
-  {
-    id: "QZ-104",
-    title: "Mid-Semester Continuous Assessment (CA 1)",
-    duration: "20 Mins • 15 Questions",
-    submissions: "134 / 142 Submitted",
-    avgScore: "82.4%",
-    status: "ACTIVE WINDOW",
-  },
-  {
-    id: "QZ-101",
-    title: "Week 2 Pop Quiz: Zeroth & First Law",
-    duration: "10 Mins • 10 Questions",
-    submissions: "140 / 142 Graded",
-    avgScore: "78.9%",
-    status: "COMPLETED",
-  },
-];
+import FaceMeshScannerHero from "@/app/ui/LandingPage/FaceMeshScannerHero";
 
 export default function FacePassLanding() {
   const isLoggedIn = useAppSelector((state) => state?.user?.isLoggedIn);
-  const [activeHeroFeature, setActiveHeroFeature] = useState("attendance"); // 'attendance' | 'materials' | 'quizzes'
-  const [scanMode, setScanMode] = useState("classroom"); // 'classroom' | 'intruder'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -130,26 +53,17 @@ export default function FacePassLanding() {
               Lecturer Workflow
             </a>
             <a href="#privacy" className="hover:text-blue-500 transition-colors">
-              Biometric Privacy
+              Privacy & Security
             </a>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/80">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-              <span
-                className={`${jetbrainsMono.className} text-[11px] font-medium text-blue-700`}
-              >
-                CV ENGINE • ONLINE
-              </span>
-            </div>
-
             {isLoggedIn ? (
               <Link
                 href="/lecturer"
                 className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold transition-all shadow-md shadow-blue-500/25"
               >
-                <span className="hidden sm:inline">Lecturer Command Center</span>
+                <span className="hidden sm:inline">Lecturer Dashboard</span>
                 <span className="sm:hidden">Dashboard</span>
                 <ArrowRightIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
@@ -182,15 +96,7 @@ export default function FacePassLanding() {
         {/* Mobile Collapsible Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-200/80 bg-white px-4 pt-3 pb-5 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-blue-50/80 border border-blue-200/80">
-              <span className="flex items-center gap-2 text-xs font-semibold text-blue-800">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                1:N Computer Vision Engine
-              </span>
-              <span className={`${jetbrainsMono.className} text-[10px] font-bold text-blue-600`}>
-                ONLINE
-              </span>
-            </div>
+            
             <nav className="grid grid-cols-2 gap-2 text-sm font-semibold text-slate-700">
               <a
                 href="#features"
@@ -218,7 +124,7 @@ export default function FacePassLanding() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-blue-50 hover:text-blue-600 border border-slate-200/70 transition"
               >
-                Biometric Privacy
+                Privacy & Security
               </a>
             </nav>
             <Link
@@ -226,7 +132,7 @@ export default function FacePassLanding() {
               onClick={() => setMobileMenuOpen(false)}
               className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold shadow-sm transition"
             >
-              <span>{isLoggedIn ? "Open Lecturer Command Center" : "Sign In to Lecturer Workspace"}</span>
+              <span>{isLoggedIn ? "Open Lecturer Dashboard" : "Sign In to Lecturer Workspace"}</span>
               <ArrowRightIcon className="w-4 h-4" />
             </Link>
           </div>
@@ -243,19 +149,10 @@ export default function FacePassLanding() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-10 items-center">
             {/* Left Column: Complete Lecturer Value Proposition */}
             <div className="lg:col-span-6 space-y-5 sm:space-y-7">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 shadow-sm max-w-full">
-                <span className="flex h-2 w-2 rounded-full bg-blue-500 shrink-0" />
-                <span
-                  className={`${jetbrainsMono.className} text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-700 truncate`}
-                >
-                  AI Attendance • Course Materials • Live Quizzes
-                </span>
-              </div>
-
               <h1
                 className={`${montserrat.className} text-3xl sm:text-5xl lg:text-[3.35rem] font-extrabold text-slate-950 tracking-tight leading-[1.1] sm:leading-[1.08]`}
               >
-                AI Command Center for{" "}
+                Smart Attendance & Classroom Portal for{" "}
                 <span className="text-blue-500">University Lecturers.</span>
               </h1>
 
@@ -269,7 +166,7 @@ export default function FacePassLanding() {
               {/* Quick Capability Pills */}
               <div className="flex flex-wrap gap-2 pt-1">
                 {[
-                  { icon: CameraIcon, label: "1:N Vision Attendance" },
+                  { icon: CameraIcon, label: "Class Attendance" },
                   { icon: DocumentTextIcon, label: "Course Materials" },
                   { icon: ClipboardDocumentCheckIcon, label: "Auto-Graded Quizzes" },
                   { icon: ChartBarIcon, label: "75% Eligibility Audit" },
@@ -310,7 +207,7 @@ export default function FacePassLanding() {
                     &lt;1.8s
                   </p>
                   <p className="text-[11px] sm:text-xs font-medium text-slate-500 mt-1">
-                    1:N Vision Scan
+                    Classroom Scan
                   </p>
                 </div>
                 <div>
@@ -336,389 +233,9 @@ export default function FacePassLanding() {
               </div>
             </div>
 
-            {/* Right Column: Interactive 3-Tab Lecturer Command HUD */}
+            {/* Right Column: 3D WebGL Human Face Mesh + Horizontal Green Laser Scanner */}
             <div className="lg:col-span-6">
-              <div className="relative rounded-2xl bg-obsidian-950 border border-obsidian-700 shadow-[0_28px_70px_-15px_rgba(0,41,87,0.5)] overflow-hidden text-slate-100">
-                {/* Top HUD Bar */}
-                <div className="px-3.5 sm:px-4 py-3 bg-obsidian-900 border-b border-obsidian-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 shrink-0" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80 shrink-0" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80 shrink-0" />
-                    <span
-                      className={`${jetbrainsMono.className} ml-1.5 text-[10px] sm:text-[11px] text-blue-300 tracking-wider truncate`}
-                    >
-                      SESSION: GET201_2026_SEM1 // 142 ENROLLED
-                    </span>
-                  </div>
-
-                  {/* Interactive 3-Module Switcher */}
-                  <div className="flex items-center bg-obsidian-950 p-1 rounded-lg border border-obsidian-700 text-[11px] font-sans overflow-x-auto no-scrollbar">
-                    <button
-                      type="button"
-                      onClick={() => setActiveHeroFeature("attendance")}
-                      className={`flex-1 sm:flex-initial shrink-0 px-2.5 py-1.5 sm:py-1 rounded-md transition-all whitespace-nowrap ${
-                        activeHeroFeature === "attendance"
-                          ? "bg-blue-500 text-white font-semibold shadow-sm"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      1:N Vision Scan
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveHeroFeature("materials")}
-                      className={`flex-1 sm:flex-initial shrink-0 px-2.5 py-1.5 sm:py-1 rounded-md transition-all whitespace-nowrap ${
-                        activeHeroFeature === "materials"
-                          ? "bg-blue-500 text-white font-semibold shadow-sm"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Course Materials
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveHeroFeature("quizzes")}
-                      className={`flex-1 sm:flex-initial shrink-0 px-2.5 py-1.5 sm:py-1 rounded-md transition-all whitespace-nowrap ${
-                        activeHeroFeature === "quizzes"
-                          ? "bg-blue-500 text-white font-semibold shadow-sm"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Live Quizzes
-                    </button>
-                  </div>
-                </div>
-
-                {/* TAB 1: COMPUTER VISION ATTENDANCE */}
-                {activeHeroFeature === "attendance" && (
-                  <>
-                    <div className="relative h-[320px] sm:h-[305px] bg-vision-grid-dark overflow-hidden p-3.5 sm:p-5 flex flex-col justify-between">
-                      {/* Animated Laser Scanline */}
-                      <div className="pointer-events-none absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_16px_#3395FF] animate-scanline z-20" />
-
-                      {/* Sub-Header Telemetry & Intruder Toggle */}
-                      <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] font-sans text-slate-400">
-                        <span className="inline-flex items-center gap-1.5 text-blue-400">
-                          <CpuChipIcon className="w-4 h-4 shrink-0" />
-                          <span className="truncate">CV_ENGINE: MULTI-FACE MATCH</span>
-                        </span>
-                        <div className="flex items-center gap-1 bg-obsidian-900/90 border border-obsidian-700 rounded-md p-0.5">
-                          <button
-                            type="button"
-                            onClick={() => setScanMode("classroom")}
-                            className={`px-2 py-0.5 rounded text-[10px] ${
-                              scanMode === "classroom"
-                                ? "bg-blue-500/25 text-blue-300 border border-blue-400/40"
-                                : "text-slate-400 hover:text-white"
-                            }`}
-                          >
-                            Roster Match
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setScanMode("intruder")}
-                            className={`px-2 py-0.5 rounded text-[10px] ${
-                              scanMode === "intruder"
-                                ? "bg-rose-500/25 text-rose-300 border border-rose-400/40"
-                                : "text-slate-400 hover:text-white"
-                            }`}
-                          >
-                            Intruder Alert
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Bounding Box Detection Simulation */}
-                      <div className="relative my-auto h-[185px] w-full">
-                        {SIMULATED_DETECTIONS.map((det) => (
-                          <div
-                            key={det.id}
-                            style={det.box}
-                            className={`absolute rounded-xl border ${
-                              det.status === "AT_RISK"
-                                ? "border-amber-400/80 bg-amber-500/10"
-                                : "border-emerald-400/80 bg-emerald-500/10"
-                            } p-1.5 sm:p-2.5 flex flex-col justify-between backdrop-blur-[2px] transition-all duration-300`}
-                          >
-                            <div className="flex items-center justify-between gap-1">
-                              <span
-                                className={`${jetbrainsMono.className} text-[8px] sm:text-[10px] font-bold px-1 sm:px-1.5 py-0.5 rounded ${
-                                  det.status === "AT_RISK"
-                                    ? "bg-amber-400/20 text-amber-300"
-                                    : "bg-emerald-400/20 text-emerald-300"
-                                }`}
-                              >
-                                {det.confidence}
-                              </span>
-                              <span
-                                className={`${jetbrainsMono.className} hidden sm:inline text-[10px] text-slate-300 truncate`}
-                              >
-                                {det.matric}
-                              </span>
-                            </div>
-
-                            <div className="my-auto flex items-center justify-center">
-                              <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-dashed border-blue-400/50 flex items-center justify-center">
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                              </div>
-                            </div>
-
-                            <div>
-                              <p className="text-[9px] sm:text-[11px] font-semibold text-white truncate">
-                                {det.name}
-                              </p>
-                              <div className="flex items-center justify-between text-[8px] sm:text-[10px] font-sans mt-0.5">
-                                <span className="text-slate-400">{det.attendanceRate}</span>
-                                <span
-                                  className={
-                                    det.status === "AT_RISK"
-                                      ? "text-amber-300 font-semibold"
-                                      : "text-emerald-300 font-semibold"
-                                  }
-                                >
-                                  {det.status === "AT_RISK" ? "RISK" : "OK"}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-
-                        {scanMode === "intruder" && (
-                          <div
-                            style={{ top: "52%", left: "18%", width: "64%", height: "44%" }}
-                            className="absolute rounded-xl border-2 border-rose-500 bg-rose-950/85 p-2 sm:p-2.5 flex flex-col justify-between shadow-[0_0_25px_rgba(244,63,94,0.35)] animate-pulse"
-                          >
-                            <div className="flex items-center justify-between gap-1">
-                              <span
-                                className={`${jetbrainsMono.className} text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/30 text-rose-200`}
-                              >
-                                UNREGISTERED FACE
-                              </span>
-                              <span
-                                className={`${jetbrainsMono.className} text-[9px] sm:text-[10px] text-rose-300`}
-                              >
-                                NO MATCH
-                              </span>
-                            </div>
-                            <p className="text-[11px] sm:text-xs font-semibold text-rose-100 truncate">
-                              Excluded from GET201 Register
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Bottom Viewfinder Telemetry */}
-                      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400 pt-2 border-t border-obsidian-700/80">
-                        <span className="truncate">COLLECTION: facepass_course_get201</span>
-                        <span className="text-emerald-400 truncate">
-                          COURSEPASS WEBHOOK: DISPATCHED (200 OK)
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Bottom Live Roster Strip */}
-                    <div className="p-3.5 sm:p-4 bg-obsidian-900 border-t border-obsidian-700 space-y-2">
-                      <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
-                        <span
-                          className={`${jetbrainsMono.className} text-slate-400 uppercase tracking-wider text-[10px] sm:text-[11px]`}
-                        >
-                          Live Verification Log
-                        </span>
-                        <span
-                          className={`${jetbrainsMono.className} text-blue-400 text-[10px] sm:text-[11px]`}
-                        >
-                          3 Enrolled Matched • {scanMode === "intruder" ? "1 Excluded" : "0 Excluded"}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        {SIMULATED_DETECTIONS.map((student) => (
-                          <div
-                            key={student.id}
-                            className="px-3 py-2 rounded-lg bg-obsidian-950 border border-obsidian-700 flex items-center justify-between"
-                          >
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-white truncate">
-                                {student.name}
-                              </p>
-                              <p
-                                className={`${jetbrainsMono.className} text-[10px] text-slate-400`}
-                              >
-                                {student.matric}
-                              </p>
-                            </div>
-                            <span
-                              className={`${jetbrainsMono.className} text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                                student.status === "AT_RISK"
-                                  ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                                  : "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                              }`}
-                            >
-                              {student.attendanceRate}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* TAB 2: COURSE MATERIALS & LECTURE NOTES HUB */}
-                {activeHeroFeature === "materials" && (
-                  <div className="p-4 sm:p-5 bg-vision-grid-dark min-h-[415px] flex flex-col justify-between space-y-4">
-                    <div className="flex flex-wrap items-start justify-between gap-2 border-b border-obsidian-700 pb-3">
-                      <div>
-                        <span
-                          className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-wider`}
-                        >
-                          MATERIAL BROADCAST
-                        </span>
-                        <h3 className="text-sm sm:text-base font-bold text-white mt-0.5">
-                          Share Slides, PDFs & Notes
-                        </h3>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[11px] font-sans shrink-0">
-                        142 Synced
-                      </span>
-                    </div>
-
-                    {/* Simulated Upload Dropzone */}
-                    <div className="rounded-xl bg-obsidian-900/90 border border-dashed border-blue-400/40 p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 shrink-0">
-                          <CloudArrowUpIcon className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-semibold text-white">
-                            Publish Material to GET201
-                          </p>
-                          <p className="text-[11px] text-slate-400">
-                            PDF, PPTX, DOCX • Instant student notification
-                          </p>
-                        </div>
-                      </div>
-                      <span className="w-full sm:w-auto text-center px-3 py-2 sm:py-1.5 rounded-lg bg-blue-500 text-white text-xs font-semibold shrink-0">
-                        + Upload
-                      </span>
-                    </div>
-
-                    {/* Published Materials List */}
-                    <div className="space-y-2.5">
-                      {SIMULATED_MATERIALS.map((mat) => (
-                        <div
-                          key={mat.id}
-                          className="p-3 sm:p-3.5 rounded-xl bg-obsidian-900 border border-obsidian-700 flex items-center justify-between gap-2 sm:gap-3"
-                        >
-                          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-500/15 border border-blue-400/25 flex items-center justify-center text-blue-400 shrink-0">
-                              <DocumentTextIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-white truncate">
-                                {mat.title}
-                              </p>
-                              <p
-                                className={`${jetbrainsMono.className} text-[10px] text-slate-400 mt-0.5 truncate`}
-                              >
-                                {mat.type} • {mat.time}
-                              </p>
-                            </div>
-                          </div>
-                          <span
-                            className={`${jetbrainsMono.className} text-[10px] px-2 sm:px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0`}
-                          >
-                            {mat.delivered}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="pt-2 border-t border-obsidian-700 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400">
-                      <span>ENCRYPTED CLOUD VAULT</span>
-                      <span className="text-blue-400">PORTAL SYNC: LIVE</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 3: SCHEDULED QUIZZES & AUTOMATED GRADING */}
-                {activeHeroFeature === "quizzes" && (
-                  <div className="p-4 sm:p-5 bg-vision-grid-dark min-h-[415px] flex flex-col justify-between space-y-4">
-                    <div className="flex flex-wrap items-start justify-between gap-2 border-b border-obsidian-700 pb-3">
-                      <div>
-                        <span
-                          className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-wider`}
-                        >
-                          TIMED ASSESSMENTS
-                        </span>
-                        <h3 className="text-sm sm:text-base font-bold text-white mt-0.5">
-                          Live Quizzes & Auto-Grading
-                        </h3>
-                      </div>
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[11px] font-sans shrink-0">
-                        Auto-Graded
-                      </span>
-                    </div>
-
-                    {/* Active Scheduled Quiz Card */}
-                    <div className="space-y-3">
-                      {SIMULATED_QUIZZES.map((qz) => (
-                        <div
-                          key={qz.id}
-                          className="p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-3"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <span
-                                className={`${jetbrainsMono.className} text-[10px] px-2 py-0.5 rounded font-semibold ${
-                                  qz.status === "ACTIVE WINDOW"
-                                    ? "bg-blue-500/20 text-blue-300 border border-blue-400/30"
-                                    : "bg-emerald-500/20 text-emerald-300 border border-emerald-400/30"
-                                }`}
-                              >
-                                {qz.status}
-                              </span>
-                              <h4 className="text-sm font-bold text-white mt-1.5">{qz.title}</h4>
-                              <p
-                                className={`${jetbrainsMono.className} text-[11px] text-slate-400 mt-0.5`}
-                              >
-                                {qz.duration}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p
-                                className={`${jetbrainsMono.className} text-lg font-bold text-blue-400`}
-                              >
-                                {qz.avgScore}
-                              </p>
-                              <p className="text-[10px] text-slate-400">Mean</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-[11px] font-sans">
-                              <span className="text-slate-400">Submissions</span>
-                              <span className="text-white">{qz.submissions}</span>
-                            </div>
-                            <div className="w-full h-2 rounded-full bg-obsidian-950 overflow-hidden">
-                              <div
-                                className="h-full bg-blue-500 rounded-full"
-                                style={{
-                                  width: qz.status === "ACTIVE WINDOW" ? "94%" : "98.5%",
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="pt-2 border-t border-obsidian-700 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] sm:text-[11px] font-sans text-slate-400">
-                      <span>INSTANT SCORE MATRIX</span>
-                      <span className="text-emerald-400">CSV / EXCEL EXPORT</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <FaceMeshScannerHero />
             </div>
           </div>
         </div>
@@ -746,7 +263,7 @@ export default function FacePassLanding() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6">
-          {/* Card 1: 1:N Computer Vision Attendance (7 cols) */}
+          {/* Card 1: Smart Classroom Attendance (7 cols) */}
           <div className="md:col-span-7 rounded-2xl bg-white border border-slate-200/90 p-5 sm:p-7 shadow-sm hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4 sm:mb-5">
@@ -756,23 +273,23 @@ export default function FacePassLanding() {
                 <span
                   className={`${jetbrainsMono.className} text-[11px] font-semibold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200`}
                 >
-                  1:N VISION ENGINE
+                  SMART ATTENDANCE
                 </span>
               </div>
               <h3 className={`${montserrat.className} text-lg sm:text-xl font-bold text-slate-950 mb-2`}>
-                Instant Photo, Video & Live Attendance
+                Live In-App Attendance, Photo & Video
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
-                Snap a classroom photo or video to verify 100+ enrolled faces simultaneously while
-                blocking proxy sign-ins.
+                Take attendance live from the app as it automatically detects recognition-ready faces
+                and tracks total face captures in real time—with photo and video uploads as a fallback.
               </p>
             </div>
 
             <div className="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {[
-                { code: "GROUP PHOTO", desc: "100+ faces per frame" },
-                { code: "CLASS VIDEO", desc: "Frame deduplication" },
-                { code: "INTRUDER SHIELD", desc: "Blocks proxy sign-ins" },
+                { code: "LIVE AUTO-DETECT", desc: "Captures recognition-ready faces" },
+                { code: "FACE COUNTER", desc: "Tracks total faces captured live" },
+                { code: "PHOTO & VIDEO", desc: "Fallback batch upload option" },
               ].map((item) => (
                 <div
                   key={item.code}
@@ -947,14 +464,14 @@ export default function FacePassLanding() {
                     <span
                       className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] text-blue-400 uppercase tracking-wider`}
                     >
-                      WEBHOOK SYNC
+                      INSTANT SYNC
                     </span>
                     <h3 className={`${montserrat.className} text-base sm:text-lg font-bold text-white mt-0.5`}>
                       FacePass Lecturer &harr; Student Portal
                     </h3>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[11px] font-sans shrink-0">
-                    LIVE WEBHOOKS
+                    LIVE SYNC
                   </span>
                 </div>
 
@@ -965,7 +482,7 @@ export default function FacePassLanding() {
                     >
                       CHANNEL 01
                     </span>
-                    <p className="text-sm font-bold text-white">CV Attendance</p>
+                    <p className="text-sm font-bold text-white">Face Attendance</p>
                     <p className="text-xs text-slate-400">
                       Marks attendance & updates 75% standing live.
                     </p>
@@ -1016,7 +533,7 @@ export default function FacePassLanding() {
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 text-slate-300">
                     <span className="truncate">
-                      [CV_ENGINE] 1:N Classroom Frame Verified
+                      [ATTENDANCE] Classroom Scan Verified
                     </span>
                     <span className="text-emerald-400 text-[11px] sm:text-xs shrink-0">136 Present</span>
                   </div>
@@ -1050,13 +567,13 @@ export default function FacePassLanding() {
             {
               step: "01",
               title: "Create Session",
-              desc: "Select your course, set total lectures, and initialize its face collection.",
+              desc: "Select your course, set total lectures, and set up your class roster.",
               icon: AcademicCapIcon,
             },
             {
               step: "02",
               title: "Scan Classroom",
-              desc: "Capture a live frame, photo, or video to verify enrolled students in seconds.",
+              desc: "Scan live from the app to auto-detect clear faces and track total captures—or upload a photo or video as a backup.",
               icon: VideoCameraIcon,
             },
             {
@@ -1104,19 +621,18 @@ export default function FacePassLanding() {
               <span
                 className={`${jetbrainsMono.className} text-[10px] sm:text-xs uppercase tracking-wider font-semibold`}
               >
-                Zero-Local-Biometrics
+                Privacy Protected
               </span>
             </div>
 
             <h2
               className={`${montserrat.className} text-2xl sm:text-3xl font-extrabold tracking-tight`}
             >
-              Strict Biometric Privacy. Zero Local Storage.
+              Strict Privacy. Zero Local Storage.
             </h2>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              Classroom captures are processed in-memory over TLS 1.3 inside isolated per-course
-              collections and are never stored on lecturer devices.
+              Classroom attendance is securely processed in the cloud. Photos and personal data are never stored on your device.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -1137,7 +653,7 @@ export default function FacePassLanding() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <FacePassLogo theme="light" size="sm" showBadge={true} />
           <p className={`${jetbrainsMono.className} text-[10px] sm:text-xs text-slate-500`}>
-            FACEPASS • AI ATTENDANCE, MATERIALS & QUIZZES
+            FACEPASS • SMART ATTENDANCE, MATERIALS & QUIZZES
           </p>
         </div>
       </footer>

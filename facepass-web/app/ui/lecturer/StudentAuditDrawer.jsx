@@ -39,7 +39,7 @@ export default function StudentAuditDrawer({
             date: dayGroup.date,
             time: entry.time || "—",
             status: entry.status,
-            recorded_by: entry.recorded_by || "Computer Vision Engine",
+            recorded_by: entry.recorded_by || "Face Scan",
           });
         }
       });
@@ -121,7 +121,7 @@ export default function StudentAuditDrawer({
         <div className="px-4 sm:px-6 py-4 sm:py-5 bg-obsidian-950 text-white flex items-center justify-between gap-3 border-b border-slate-800">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-sans text-blue-400 uppercase tracking-wider truncate">
-              <span>BIOMETRIC DOSSIER // STUDENT AUDIT</span>
+              <span>STUDENT ATTENDANCE RECORD</span>
             </div>
             <h2 className="text-base sm:text-lg font-bold text-white mt-0.5 truncate">
               {student.name}
@@ -256,7 +256,7 @@ export default function StudentAuditDrawer({
 
           {loadingAudit ? (
             <div className="py-12 text-center text-xs font-sans text-slate-400 animate-pulse">
-              RETRIEVING CHRONOLOGICAL BIOMETRIC LOGS...
+              RETRIEVING ATTENDANCE RECORDS...
             </div>
           ) : (
             <>
@@ -286,7 +286,7 @@ export default function StudentAuditDrawer({
                           </div>
                           <div className="text-[11px] text-slate-500">
                             Time: {rec.time || "Logged"} • Verified by{" "}
-                            {rec.recorded_by || "Computer Vision"}
+                            {rec.recorded_by || "Face Scan"}
                           </div>
                         </div>
                         <span
@@ -348,7 +348,7 @@ export default function StudentAuditDrawer({
             onClick={onClose}
             className="text-slate-700 font-sans font-semibold hover:text-slate-900 shrink-0"
           >
-            Close Dossier
+            Close Record
           </button>
         </div>
       </div>

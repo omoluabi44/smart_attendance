@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Faculty Sign In | FacePass',
-  description: 'Sign in to the FacePass Lecturer Command Center for AI biometric attendance and course management.',
+  description: 'Sign in to the FacePass Lecturer Portal for smart attendance and course management.',
   robots: {
     index: false,
     follow: true,
@@ -19,7 +19,7 @@ export default function LoginPage() {
         <LoginForm />
       </div>
 
-      {/* Right Side: Dark Obsidian Biometric Telemetry Preview */}
+      {/* Right Side: Dashboard Preview */}
       <div className="hidden lg:flex lg:w-[48%] bg-obsidian-950 border-l border-slate-800">
         <DashboardPreview mode="login" />
       </div>

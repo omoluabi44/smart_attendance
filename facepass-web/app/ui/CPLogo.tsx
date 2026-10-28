@@ -115,7 +115,7 @@ export default function FacePassLogo({
                   : 'bg-blue-50 text-blue-600 border-blue-200'
               }`}
             >
-              CV•AI
+              SMART
             </span>
           )}
         </div>
@@ -124,7 +124,7 @@ export default function FacePassLogo({
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}
         >
-          Lecturer & Classroom OS
+          Lecturer Portal
         </span>
       </div>
     </div>

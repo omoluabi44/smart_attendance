@@ -228,12 +228,12 @@ export default function AdminCommandCenter() {
         send_email: sendWelcomeEmail,
       }).unwrap();
 
-      toast.success(res.message || "Account provisioned!");
+      toast.success(res.message || "Account created!");
       setShowProvisionModal(false);
 
       // Show Credential Handover Card
       setCredentialCard({
-        title: "Account Provisioned Successfully",
+        title: "Account Created Successfully",
         name: res.user.name,
         email: res.user.email,
         matric: res.user.matric,
@@ -251,7 +251,7 @@ export default function AdminCommandCenter() {
       setLecPassword(generateClientPassword(10));
       setForceChangeOnLogin(true);
     } catch (err) {
-      toast.error(err?.data?.error || "Failed to provision lecturer account");
+      toast.error(err?.data?.error || "Failed to create lecturer account");
     }
   };
 
@@ -339,13 +339,13 @@ export default function AdminCommandCenter() {
         session_name: sessionName.trim(),
         total_expected_classes: Number(totalClasses),
       }).unwrap();
-      toast.success("Academic session provisioned!");
+      toast.success("Academic session created!");
       setShowSessionModal(false);
       setSessionCourseID("");
       setSessionName("2025/2026");
       setTotalClasses(13);
     } catch (err) {
-      toast.error(err?.data?.error || "Failed to provision session");
+      toast.error(err?.data?.error || "Failed to create session");
     }
   };
 
@@ -462,7 +462,7 @@ export default function AdminCommandCenter() {
                 className="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-3.5 py-2 rounded-xl font-semibold text-xs transition shadow-sm shadow-blue-500/20"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Provision Lecturer</span>
+                <span className="hidden sm:inline">Add Lecturer</span>
               </button>
             </div>
           }
@@ -573,7 +573,7 @@ export default function AdminCommandCenter() {
                 className="w-full sm:w-auto justify-center inline-flex items-center gap-1.5 bg-obsidian-950 hover:bg-slate-800 text-white px-4 py-2.5 sm:py-2 rounded-xl font-semibold text-xs transition"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Provision Session</span>
+                <span>Add Session</span>
               </button>
             </div>
           )}
@@ -662,13 +662,13 @@ export default function AdminCommandCenter() {
                     No matching accounts found
                   </p>
                   <p className="text-xs text-slate-500 mb-4">
-                    Provision a new lecturer account or clear your search filter.
+                    Add a new lecturer account or clear your search filter.
                   </p>
                   <button
                     onClick={() => setShowProvisionModal(true)}
                     className="px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold"
                   >
-                    + Provision Lecturer Account
+                    + Add Lecturer Account
                   </button>
                 </div>
               ) : (
@@ -938,7 +938,7 @@ export default function AdminCommandCenter() {
                     No Academic Sessions Found
                   </p>
                   <p className="text-xs text-slate-500 mb-4">
-                    Register a course and provision a session to begin.
+                    Register a course and create a session to begin.
                   </p>
                 </div>
               ) : (
@@ -1257,8 +1257,8 @@ export default function AdminCommandCenter() {
          ══════════════════════════════════════════════════════════════════════ */}
       {showProvisionModal && (
         <Modal
-          badge="ADMINISTRATION // ACCOUNT PROVISIONING"
-          title="Provision Lecturer or Admin Account"
+          badge="ADMINISTRATION // NEW ACCOUNT"
+          title="Add Lecturer or Admin Account"
           subtitle="Create a verified institutional account with a temporary password and force password rotation on first login."
           onClose={() => setShowProvisionModal(false)}
         >
@@ -1410,7 +1410,7 @@ export default function AdminCommandCenter() {
                 className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 disabled:bg-slate-300"
               >
                 {creatingLecturer
-                  ? "Provisioning..."
+                  ? "Creating..."
                   : "Create Account & View Credentials"}
               </button>
             </div>
@@ -1590,7 +1590,7 @@ export default function AdminCommandCenter() {
         <Modal
           badge="CATALOG // NEW COURSE"
           title="Register Academic Course"
-          subtitle="Add a course code to the catalog before provisioning an academic session."
+          subtitle="Add a course code to the catalog before creating an academic session."
           onClose={() => setShowCourseModal(false)}
         >
           <form onSubmit={handleCreateCourse} className="space-y-4">
@@ -1615,7 +1615,7 @@ export default function AdminCommandCenter() {
                 type="text"
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
-                placeholder="e.g. Computer Vision & Biometrics"
+                placeholder="e.g. Introduction to Computer Science"
                 required
                 className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 outline-none"
               />
@@ -1656,9 +1656,9 @@ export default function AdminCommandCenter() {
          ══════════════════════════════════════════════════════════════════════ */}
       {showSessionModal && (
         <Modal
-          badge="PROVISIONING // ACADEMIC SESSION"
-          title="Provision Course Session"
-          subtitle="Create a new academic session and isolated per-course Computer Vision collection."
+          badge="ADMINISTRATION // ACADEMIC SESSION"
+          title="Create Course Session"
+          subtitle="Create a new academic session to manage classroom attendance."
           onClose={() => setShowSessionModal(false)}
         >
           <form onSubmit={handleCreateSession} className="space-y-4">
@@ -1733,7 +1733,7 @@ export default function AdminCommandCenter() {
                 disabled={creatingSession || allCourses.length === 0}
                 className="px-5 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold disabled:bg-slate-300"
               >
-                {creatingSession ? "Provisioning..." : "Provision Session"}
+                {creatingSession ? "Creating..." : "Provision Session"}
               </button>
             </div>
           </form>

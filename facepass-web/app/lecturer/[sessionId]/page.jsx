@@ -183,7 +183,7 @@ export default function SessionControlRoom() {
         );
         updateJob(jobId, { stage: "done", results: res.data });
         toast.success(
-          `Computer Vision Engine matched ${res.data.unique_faces_recognized} students`
+          `Attendance marked for ${res.data.unique_faces_recognized} students`
         );
         if (res.data.unregistered_alert) {
           setIntruderAlert(res.data.unregistered_alert);
@@ -193,7 +193,7 @@ export default function SessionControlRoom() {
           const diff =
             res.data.total_faces_detected - res.data.unique_faces_recognized;
           setIntruderAlert(
-            `WARNING: ${diff} unmatched face(s) detected in lecture hall frame that are not enrolled in this course collection.`
+            `Notice: ${diff} face(s) in the classroom were not recognized on the enrolled course list.`
           );
         }
         onAttendanceComplete();
@@ -225,7 +225,7 @@ export default function SessionControlRoom() {
               );
               if (poll.data.unknown_faces && poll.data.unknown_faces > 0) {
                 setIntruderAlert(
-                  `WARNING: ${poll.data.unknown_faces} unregistered face track(s) detected in classroom video.`
+                  `Notice: ${poll.data.unknown_faces} unverified face(s) detected in classroom video.`
                 );
               }
               onAttendanceComplete();
@@ -460,7 +460,7 @@ export default function SessionControlRoom() {
             <Link
               href="/lecturer"
               className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition shrink-0 mt-0.5 sm:mt-0"
-              title="Back to Command Center"
+              title="Back to Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
@@ -474,8 +474,7 @@ export default function SessionControlRoom() {
                   {session.total_expected_classes} LECTURES
                 </span>
                 <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-sans text-blue-700">
-                  <ScanFace className="w-3 h-3 text-blue-600" />
-                  COL-{session.courseID}
+                  Course {session.courseID}
                 </span>
               </div>
               <h1 className="text-sm sm:text-lg font-bold text-slate-900 mt-0.5 truncate">
@@ -491,7 +490,7 @@ export default function SessionControlRoom() {
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition w-full sm:w-auto shrink-0"
             >
               <ScanFace className="w-4 h-4 text-white shrink-0" />
-              <span>Launch Vision Scanner</span>
+              <span>Take Attendance</span>
             </button>
 
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar">
@@ -573,7 +572,7 @@ export default function SessionControlRoom() {
               </div>
               <div>
                 <div className="text-[11px] font-sans uppercase tracking-wider text-rose-300 font-bold">
-                  BIOMETRIC ANOMALY // UNREGISTERED CLASSROOM ATTENDEE
+                  ATTENDANCE NOTICE // UNREGISTERED STUDENT
                 </div>
                 <p className="text-xs sm:text-sm text-rose-100 mt-0.5">
                   {intruderAlert}
@@ -716,7 +715,7 @@ export default function SessionControlRoom() {
 
               <div className="flex items-center justify-between md:justify-end gap-2">
                 <span className="text-[10px] sm:text-[11px] font-sans text-slate-400">
-                  TAP ANY STUDENT TO OPEN BIOMETRIC DOSSIER
+                  TAP ANY STUDENT TO VIEW DETAILED ATTENDANCE
                 </span>
                 <button
                   onClick={handleExportCSV}
@@ -738,7 +737,7 @@ export default function SessionControlRoom() {
                 </p>
                 <p className="text-xs text-slate-500">
                   {studentsList.length === 0
-                    ? "Students enroll and register their facial biometrics via the CoursePass portal."
+                    ? "Students enroll and complete their profile via the CoursePass portal."
                     : "Try clearing your search query or switching back to All Departments."}
                 </p>
               </div>
@@ -853,7 +852,7 @@ export default function SessionControlRoom() {
                             </div>
                             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600">
                               <Eye className="w-3.5 h-3.5" />
-                              Audit Dossier
+                              View Record
                             </span>
                           </div>
                         </div>
@@ -872,7 +871,7 @@ export default function SessionControlRoom() {
                             <th className="py-3.5 px-6">Missed</th>
                             <th className="py-3.5 px-6">75% Threshold Gauge</th>
                             <th className="py-3.5 px-6">Eligibility</th>
-                            <th className="py-3.5 px-6 text-right">Dossier</th>
+                            <th className="py-3.5 px-6 text-right">Record</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-xs">
@@ -948,7 +947,7 @@ export default function SessionControlRoom() {
                               <td className="py-3.5 px-6 text-right">
                                 <span className="inline-flex items-center gap-1 text-[11px] font-sans text-slate-400 group-hover:text-slate-900">
                                   <Eye className="w-3.5 h-3.5" />
-                                  Audit
+                                  View
                                 </span>
                               </td>
                             </tr>
@@ -969,16 +968,16 @@ export default function SessionControlRoom() {
               <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center">
                 <Clock className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <p className="text-sm font-bold text-slate-800 mb-1">
-                  No Biometric Attendance Logs Recorded Yet
+                  No Attendance Records Saved Yet
                 </p>
                 <p className="text-xs text-slate-500 mb-4">
-                  Launch the Vision Scanner to capture a classroom group photo, live snapshot, or walkthrough video.
+                  Take attendance to capture a classroom photo, live snapshot, or video.
                 </p>
                 <button
                   onClick={() => setShowScannerModal(true)}
                   className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20"
                 >
-                  Launch Vision Scanner
+                  Take Attendance
                 </button>
               </div>
             ) : (
@@ -1231,7 +1230,7 @@ export default function SessionControlRoom() {
                             }}
                             className="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-sans text-[11px] font-semibold hover:bg-slate-700"
                           >
-                            Audit Dossier
+                            View Record
                           </button>
                         </div>
                       </div>
@@ -1297,7 +1296,7 @@ export default function SessionControlRoom() {
                                 }}
                                 className="px-3 py-1 rounded-lg bg-slate-900 text-white font-sans text-[11px] hover:bg-slate-700"
                               >
-                                Audit Dossier
+                                View Record
                               </button>
                             </td>
                           </tr>
@@ -1363,7 +1362,7 @@ export default function SessionControlRoom() {
       {/* ── Co-Lecturer Modal ── */}
       {showCoLecturerModal && (
         <Modal
-          badge="ACCESS CONTROL // CO-LECTURER"
+          badge="CO-LECTURER ACCESS"
           title="Assign Co-Lecturer"
           onClose={() => setShowCoLecturerModal(false)}
         >
@@ -1479,7 +1478,7 @@ function SettingsModal({
   };
   return (
     <Modal
-      badge="CONFIGURATION // THRESHOLD CALIBRATION"
+      badge="SESSION SETTINGS"
       title="Session Settings"
       onClose={onClose}
     >
@@ -1535,22 +1534,22 @@ function AttendanceProgressBanner({ jobs, onRemove }) {
   const stageConfig = {
     uploading: {
       icon: CloudUpload,
-      label: "STREAMING TO ENCRYPTED CLOUD BUCKET",
+      label: "UPLOADING TO CLOUD",
       color: "text-blue-400",
     },
     processing: {
       icon: Cpu,
-      label: "COMPUTER VISION 1:N VECTOR EXTRACTION",
+      label: "MATCHING ATTENDANCE",
       color: "text-blue-400",
     },
     done: {
       icon: CheckCircle2,
-      label: "BIOMETRIC MATCH COMPLETE",
+      label: "ATTENDANCE VERIFIED",
       color: "text-emerald-400",
     },
     error: {
       icon: XCircle,
-      label: "PIPELINE INTERRUPTED",
+      label: "ATTENDANCE FAILED",
       color: "text-rose-400",
     },
   };

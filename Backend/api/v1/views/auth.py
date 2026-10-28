@@ -309,7 +309,7 @@ def verify():
 
 
 @app_views.route('/auth/refresh', methods=['POST'])
-@jwt_required(refresh=True, locations=['cookies'])
+@jwt_required(refresh=True, locations=['cookies', 'headers'])
 def refresh_token():
     current_user_id = get_jwt_identity()
     # Create a new, short-lived access token

@@ -4,9 +4,9 @@ import { ScanFace, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function EmptyActionState({
-  title = "No Biometric Records Found",
-  description = "Provision a course session or run a Computer Vision classroom scan to populate this view.",
-  buttonLabel = "Return to Command Center",
+  title = "No Attendance Records Found",
+  description = "Start a course session or take attendance to view records here.",
+  buttonLabel = "Return to Dashboard",
   onClick,
 }) {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function EmptyActionState({
       </div>
 
       <span className="text-[10px] font-sans uppercase tracking-wider text-blue-600 font-semibold mb-1">
-        TELEMETRY // EMPTY STATE
+        ATTENDANCE // EMPTY STATE
       </span>
       <h3 className="text-base font-bold text-slate-900 tracking-tight text-center">
         {title}

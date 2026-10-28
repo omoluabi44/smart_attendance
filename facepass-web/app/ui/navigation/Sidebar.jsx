@@ -84,7 +84,7 @@ export default function Sidebar({
 
         <div className="mt-3 flex items-center gap-1.5">
           <span className="px-2 py-0.5 rounded-md bg-obsidian-950 text-white text-[10px] font-sans font-semibold tracking-wider">
-            {isAdmin ? "ADMIN // GOVERNANCE" : "FACULTY // OPERATIONS"}
+            {isAdmin ? "ADMINISTRATION" : "LECTURER"}
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200/80 text-[10px] font-sans font-medium text-emerald-700">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -237,7 +237,7 @@ export default function Sidebar({
               className="w-full mt-1 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100/80 transition"
             >
               <UserPlus className="w-4 h-4" />
-              <span>Provision Lecturer</span>
+              <span>Add Lecturer</span>
             </button>
           )}
 
@@ -274,9 +274,9 @@ export default function Sidebar({
         <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/60 flex items-center justify-between text-[10px] font-sans text-slate-500">
           <span className="flex items-center gap-1.5">
             <Server className="w-3 h-3 text-emerald-500" />
-            ENGINE
+            STATUS
           </span>
-          <span className="text-emerald-600 font-semibold">CONNECTED</span>
+          <span className="text-emerald-600 font-semibold">ONLINE</span>
         </div>
 
         <button

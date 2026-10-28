@@ -134,14 +134,14 @@ export default function LecturerDashboard() {
         session_name: sessionName.trim(),
         total_expected_classes: Number(totalClasses),
       }).unwrap();
-      toast.success("Session & isolated Computer Vision collection provisioned!");
+      toast.success("Course session created successfully!");
       setShowSessionModal(false);
       setSessionCourseID("");
       setSessionName("2025/2026");
       setTotalClasses(13);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.error || "Failed to provision session");
+      toast.error(err?.data?.error || "Failed to create session");
     }
   };
 
@@ -241,7 +241,7 @@ export default function LecturerDashboard() {
           <div className="bg-obsidian-950 text-white rounded-2xl p-3.5 sm:p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-vision-grid-dark opacity-30 pointer-events-none" />
             <div className="relative z-10 flex items-center justify-between text-[10px] sm:text-[11px] font-sans text-blue-400 uppercase gap-1">
-              <span className="truncate">CV FACE COLLECTIONS</span>
+              <span className="truncate">ACTIVE COURSES</span>
               <ScanFace className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
             </div>
             <div className="relative z-10 mt-3 sm:mt-4 flex flex-wrap items-baseline justify-between gap-1">
@@ -249,7 +249,7 @@ export default function LecturerDashboard() {
                 {sessions.length}
               </span>
               <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-1.5 sm:px-2 py-0.5 rounded">
-                ISOLATED 1:N
+                ACTIVE
               </span>
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function LecturerDashboard() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-sans uppercase tracking-wider text-slate-500 font-semibold">
-              PROVISIONED COURSE SESSIONS ({filteredSessions.length})
+              COURSE SESSIONS ({filteredSessions.length})
             </h2>
           </div>
 
@@ -322,12 +322,12 @@ export default function LecturerDashboard() {
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">
                 {sessions.length === 0
-                  ? "No Course Sessions Provisioned"
+                  ? "No Course Sessions Created"
                   : "No matching sessions found"}
               </h3>
               <p className="text-sm text-slate-500 mb-6">
                 {sessions.length === 0
-                  ? "Select an existing course from the CoursePass Central Hub to provision an isolated Computer Vision collection, share lecture materials, and schedule quizzes."
+                  ? "Select an existing course from CoursePass to start taking attendance, sharing lecture materials, and scheduling quizzes."
                   : "Try clearing your search query or switching the course filter pill above."}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
@@ -335,7 +335,7 @@ export default function LecturerDashboard() {
                   onClick={() => setShowSessionModal(true)}
                   className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold transition shadow-md shadow-blue-500/20"
                 >
-                  Provision Course Session
+                  Create Course Session
                 </button>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function LecturerDashboard() {
                     {/* Computer Vision Collection Tag */}
                     <div className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-400 mb-6">
                       <ScanFace className="w-3.5 h-3.5 text-blue-500" />
-                      <span>CV ENGINE SCOPE: CV-{session.courseID}</span>
+                      <span>Course: {session.courseID}</span>
                     </div>
                   </div>
 
@@ -413,7 +413,7 @@ export default function LecturerDashboard() {
         <Modal
           badge="CATALOG // NEW COURSE"
           title="Register Academic Course"
-          subtitle="Add a course code to your lecturer catalog before provisioning an academic session."
+          subtitle="Add a course code to your lecturer catalog before starting an academic session."
           onClose={() => setShowCourseModal(false)}
         >
           <form onSubmit={handleCreateCourse} className="space-y-4">
@@ -438,7 +438,7 @@ export default function LecturerDashboard() {
                 type="text"
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
-                placeholder="e.g. Artificial Intelligence & Computer Vision"
+                placeholder="e.g. Introduction to Computer Science"
                 className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-base sm:text-sm text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                 required
               />
@@ -478,9 +478,9 @@ export default function LecturerDashboard() {
       {/* ── Create Session Modal ── */}
       {showSessionModal && (
         <Modal
-          badge="PROVISIONING // COMPUTER VISION SESSION"
-          title="Provision Course Session"
-          subtitle="Creates an academic session and provisions an isolated per-course Computer Vision collection."
+          badge="NEW ACADEMIC SESSION"
+          title="Create Course Session"
+          subtitle="Create an academic session to manage classroom attendance, materials, and quizzes."
           onClose={() => setShowSessionModal(false)}
         >
           <form onSubmit={handleCreateSession} className="space-y-4">
@@ -576,7 +576,7 @@ export default function LecturerDashboard() {
                 disabled={creatingSession || courses.length === 0}
                 className="px-5 py-2.5 min-h-[42px] bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:bg-slate-300 transition shadow-sm shadow-blue-500/20"
               >
-                {creatingSession ? "Provisioning..." : "Provision Session"}
+                {creatingSession ? "Creating..." : "Create Session"}
               </button>
             </div>
           </form>

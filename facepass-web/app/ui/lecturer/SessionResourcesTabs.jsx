@@ -379,13 +379,13 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90">
         <div>
           <span className="text-[11px] font-sans text-emerald-600 font-semibold uppercase tracking-wider">
-            ASSESSMENT & GRADEBOOK TELEMETRY
+            ASSESSMENTS & GRADEBOOK
           </span>
           <h3 className="text-base font-bold text-slate-900">
             Scheduled Quizzes & CoursePass Grades ({quizzes.length})
           </h3>
           <p className="text-xs text-slate-500">
-            Schedule timed assessments and inspect student performance synced via CoursePass webhooks.
+            Schedule timed assessments and view student performance synced directly with CoursePass.
           </p>
         </div>
         <button
@@ -472,7 +472,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
           </button>
           {loadingAnalytics ? (
             <div className="py-6 text-center text-xs font-sans text-blue-400 animate-pulse">
-              COMPUTING GRADEBOOK TELEMETRY...
+              LOADING GRADEBOOK...
             </div>
           ) : (
             <div>
@@ -504,7 +504,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
                     SYNC CHANNEL
                   </span>
                   <span className="text-sm font-sans font-bold text-blue-400">
-                    WEBHOOK ACTIVE
+                    SYNC ACTIVE
                   </span>
                 </div>
               </div>

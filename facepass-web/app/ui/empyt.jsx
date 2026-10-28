@@ -4,9 +4,9 @@ import { ScanFace, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function EmptyActionState({
-  title = "No Active Sessions Provisioned",
-  description = "Initialize a course session to provision an isolated Computer Vision collection.",
-  buttonLabel = "Open Lecturer Command Center",
+  title = "No Active Sessions Found",
+  description = "Start a course session to begin taking classroom attendance.",
+  buttonLabel = "Open Lecturer Dashboard",
   redirectUrl = "/lecturer",
   onClick,
 }) {
@@ -27,7 +27,7 @@ export default function EmptyActionState({
       </div>
 
       <span className="text-[10px] font-sans uppercase tracking-wider text-blue-600 font-semibold mb-1">
-        PROVISIONING // READY
+        COURSE SESSIONS
       </span>
       <h3 className="text-base font-bold text-slate-900 tracking-tight text-center">
         {title}

@@ -70,7 +70,7 @@ export default function ForceChangePasswordPage() {
 
       dispatch(clearMustChangePassword());
       toast.success(
-        "Password updated! Redirecting to your FacePass Command Center."
+        "Password updated! Redirecting to your dashboard."
       );
 
       const targetRole = res?.role || user?.role;
@@ -99,7 +99,7 @@ export default function ForceChangePasswordPage() {
         <div className="mb-4 sm:mb-5 flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-[10px] sm:text-[11px] font-sans font-semibold text-amber-800 uppercase tracking-wider">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span>SECURITY // CREDENTIAL ROTATION</span>
+            <span>ACCOUNT SECURITY</span>
           </span>
           <button
             type="button"
@@ -124,10 +124,10 @@ export default function ForceChangePasswordPage() {
             Update Temporary Password
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
-            Welcome{user?.name ? `, ${user.name}` : ""}. Your institutional
-            account (<span className="font-sans text-slate-800 break-all">{user?.email}</span>) was
-            provisioned by an administrator with a temporary password. Please
-            choose a new personal password to unlock the Command Center.
+            Welcome{user?.name ? `, ${user.name}` : ""}. Your account (
+            <span className="font-sans text-slate-800 break-all">{user?.email}</span>) was
+            created with a temporary password. Please choose a new personal
+            password to continue to your dashboard.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -253,12 +253,12 @@ export default function ForceChangePasswordPage() {
               {isLoading ? (
                 <>
                   <ClipLoader color="#fff" size={16} />
-                  <span>Updating Credentials...</span>
+                  <span>Updating Password...</span>
                 </>
               ) : (
                 <>
                   <ScanFace className="w-4 h-4" />
-                  <span>Save Password &amp; Enter Command Center</span>
+                  <span>Save Password &amp; Continue</span>
                 </>
               )}
             </button>

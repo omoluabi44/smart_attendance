@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 const MIN_GREEN_PIXEL_SIZE = 55; // Minimum 55x55 pixels required for Green box
+const TRACK_RETENTION_MS = 1400; // Keep track memory briefly so detector flicker doesn't double-count
+const VISIBLE_GRACE_MS = 180; // Only draw boxes currently in view
 
 let faceApiModulePromise = null;
 let modelLoadedGlobal = false;
@@ -34,29 +36,59 @@ async function ensureFaceDetectorLoaded() {
 }
 
 /**
- * Real-time face detection hook for the lecturer live camera feed.
- * Draws Green (>= 55x55px) and Red (< 55x55px, move closer) rectangle boxes
- * on the overlay canvas and tracks live face counts.
+ * Real-time face detection & cumulative capture tracker hook for the lecturer live camera feed.
+ * - Draws Green (>= 55x55px) and Red (< 55x55px, move closer) rectangle boxes on the overlay canvas.
+ * - Once a face turns Green while recording is active, the cumulative counter increments and
+ *   NEVER decreases when the lecturer moves the camera past the student.
  */
 export function useLiveFaceDetector({
   videoRef,
   overlayCanvasRef,
   enabled = false,
+  isRecording = false,
   minPixelSize = MIN_GREEN_PIXEL_SIZE,
   mirrored = false,
+  onGreenFaceCaptured,
 }) {
   const [modelReady, setModelReady] = useState(modelLoadedGlobal);
   const [modelError, setModelError] = useState(null);
   const [faceStats, setFaceStats] = useState({
+    capturedGreenFaces: 0,
     totalFaces: 0,
     greenFaces: 0,
     redFaces: 0,
     faces: [],
   });
 
-  const smoothedBoxesRef = useRef([]);
+  const tracksRef = useRef([]);
+  const nextTrackIdRef = useRef(1);
+  const capturedCountRef = useRef(0);
+  const isRecordingRef = useRef(isRecording);
+  const onGreenFaceCapturedRef = useRef(onGreenFaceCaptured);
   const isDetectingRef = useRef(false);
   const rafIdRef = useRef(null);
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+
+  useEffect(() => {
+    onGreenFaceCapturedRef.current = onGreenFaceCaptured;
+  }, [onGreenFaceCaptured]);
+
+  const resetCaptureCount = useCallback(() => {
+    capturedCountRef.current = 0;
+    tracksRef.current = tracksRef.current.map((t) => ({
+      ...t,
+      captured: false,
+      captureNumber: null,
+      bestArea: 0,
+    }));
+    setFaceStats((prev) => ({
+      ...prev,
+      capturedGreenFaces: 0,
+    }));
+  }, []);
 
   const clearOverlay = useCallback(() => {
     const canvas = overlayCanvasRef?.current;
@@ -66,13 +98,14 @@ export function useLiveFaceDetector({
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
     }
-    smoothedBoxesRef.current = [];
-    setFaceStats({
+    tracksRef.current = [];
+    setFaceStats((prev) => ({
+      capturedGreenFaces: capturedCountRef.current,
       totalFaces: 0,
       greenFaces: 0,
       redFaces: 0,
       faces: [],
-    });
+    }));
   }, [overlayCanvasRef]);
 
   useEffect(() => {
@@ -130,10 +163,10 @@ export function useLiveFaceDetector({
         const drawW = face.width * scale;
         const drawH = face.height * scale;
 
-        const isGreen = face.isGoodPixel;
+        const isGreen = face.isGoodPixel || face.captured;
         const strokeColor = isGreen ? "#22c55e" : "#ef4444"; // Emerald-500 vs Red-500
         const fillColor = isGreen
-          ? "rgba(34, 197, 94, 0.12)"
+          ? "rgba(34, 197, 94, 0.14)"
           : "rgba(239, 68, 68, 0.16)";
         const badgeBg = isGreen ? "#15803d" : "#dc2626";
 
@@ -177,9 +210,14 @@ export function useLiveFaceDetector({
         ctx.stroke();
 
         // 4. Pixel resolution & status label pill above (or below) the rectangle
-        const labelText = isGreen
-          ? `#${idx + 1} GOOD • ${face.widthPx}×${face.heightPx}px`
-          : `#${idx + 1} MOVE CLOSER • ${face.widthPx}×${face.heightPx}px`;
+        let labelText;
+        if (face.captured && face.captureNumber) {
+          labelText = `✓ CAPTURED #${face.captureNumber} • ${face.widthPx}×${face.heightPx}px`;
+        } else if (isGreen) {
+          labelText = `#${idx + 1} GOOD • ${face.widthPx}×${face.heightPx}px`;
+        } else {
+          labelText = `MOVE CLOSER • ${face.widthPx}×${face.heightPx}px`;
+        }
 
         ctx.font = "bold 11px ui-monospace, SFMono-Regular, Menlo, monospace";
         const textMetrics = ctx.measureText(labelText);
@@ -210,66 +248,223 @@ export function useLiveFaceDetector({
       ctx.restore();
     };
 
-    const smoothDetections = (rawDetections) => {
-      const prev = smoothedBoxesRef.current;
-      const alpha = 0.65; // responsiveness weight
-      const usedPrev = new Set();
+    const updateTracksWithDetections = (rawDetections, videoEl) => {
+      const now = performance.now();
+      const alpha = 0.65;
 
-      const nextSmoothed = rawDetections.map((det) => {
-        const cx = det.x + det.width / 2;
-        const cy = det.y + det.height / 2;
+      // Prune expired tracks that left the camera view more than TRACK_RETENTION_MS ago
+      const activeTracks = tracksRef.current.filter(
+        (t) => now - t.lastSeenAt <= TRACK_RETENTION_MS
+      );
 
-        let bestIdx = -1;
-        let bestDist = Infinity;
+      // Build all candidate (trackIdx, detIdx) pairs with distance score
+      const candidatePairs = [];
+      for (let tIdx = 0; tIdx < activeTracks.length; tIdx++) {
+        const t = activeTracks[tIdx];
+        const tcx = t.x + t.width / 2;
+        const tcy = t.y + t.height / 2;
+        const predCx = tcx + (t.vx || 0);
+        const predCy = tcy + (t.vy || 0);
 
-        for (let i = 0; i < prev.length; i++) {
-          if (usedPrev.has(i)) continue;
-          const p = prev[i];
-          const pcx = p.x + p.width / 2;
-          const pcy = p.y + p.height / 2;
-          const dist = Math.hypot(cx - pcx, cy - pcy);
-          const maxThreshold = Math.max(det.width, det.height, p.width, p.height) * 0.85;
-          if (dist < maxThreshold && dist < bestDist) {
-            bestDist = dist;
-            bestIdx = i;
+        for (let dIdx = 0; dIdx < rawDetections.length; dIdx++) {
+          const d = rawDetections[dIdx];
+          const dcx = d.x + d.width / 2;
+          const dcy = d.y + d.height / 2;
+
+          const distRaw = Math.hypot(dcx - tcx, dcy - tcy);
+          const distPred = Math.hypot(dcx - predCx, dcy - predCy);
+          const dist = Math.min(distRaw, distPred);
+
+          const refSize = Math.max(d.width, d.height, t.width, t.height);
+          const maxAllowedDist = Math.max(refSize * 1.85, 140);
+
+          if (dist <= maxAllowedDist) {
+            candidatePairs.push({ tIdx, dIdx, dist });
           }
         }
+      }
 
-        if (bestIdx !== -1) {
-          usedPrev.add(bestIdx);
-          const p = prev[bestIdx];
-          const sx = p.x * (1 - alpha) + det.x * alpha;
-          const sy = p.y * (1 - alpha) + det.y * alpha;
-          const sw = p.width * (1 - alpha) + det.width * alpha;
-          const sh = p.height * (1 - alpha) + det.height * alpha;
+      // Greedy global nearest-neighbor matching
+      candidatePairs.sort((a, b) => a.dist - b.dist);
+      const matchedTrackIndices = new Set();
+      const matchedDetIndices = new Set();
+      const trackToDetMap = new Map();
+
+      for (const pair of candidatePairs) {
+        if (
+          matchedTrackIndices.has(pair.tIdx) ||
+          matchedDetIndices.has(pair.dIdx)
+        ) {
+          continue;
+        }
+        matchedTrackIndices.add(pair.tIdx);
+        matchedDetIndices.add(pair.dIdx);
+        trackToDetMap.set(pair.tIdx, pair.dIdx);
+      }
+
+      const updatedTracks = [];
+
+      // 1. Update matched and unmatched existing tracks
+      for (let tIdx = 0; tIdx < activeTracks.length; tIdx++) {
+        const prevTrack = activeTracks[tIdx];
+        if (trackToDetMap.has(tIdx)) {
+          const det = rawDetections[trackToDetMap.get(tIdx)];
+          const prevCx = prevTrack.x + prevTrack.width / 2;
+          const prevCy = prevTrack.y + prevTrack.height / 2;
+
+          const sx = prevTrack.x * (1 - alpha) + det.x * alpha;
+          const sy = prevTrack.y * (1 - alpha) + det.y * alpha;
+          const sw = prevTrack.width * (1 - alpha) + det.width * alpha;
+          const sh = prevTrack.height * (1 - alpha) + det.height * alpha;
+
+          const newCx = sx + sw / 2;
+          const newCy = sy + sh / 2;
+
           const widthPx = Math.round(sw);
           const heightPx = Math.round(sh);
-          return {
+          const isGoodPixel =
+            widthPx >= minPixelSize && heightPx >= minPixelSize;
+          const area = widthPx * heightPx;
+
+          let captured = prevTrack.captured;
+          let captureNumber = prevTrack.captureNumber;
+          let bestArea = prevTrack.bestArea || 0;
+
+          if (isRecordingRef.current && isGoodPixel) {
+            if (!captured) {
+              captured = true;
+              capturedCountRef.current += 1;
+              captureNumber = capturedCountRef.current;
+              bestArea = area;
+              if (onGreenFaceCapturedRef.current) {
+                onGreenFaceCapturedRef.current(
+                  {
+                    trackId: prevTrack.trackId,
+                    captureNumber,
+                    x: det.x,
+                    y: det.y,
+                    width: det.width,
+                    height: det.height,
+                    widthPx,
+                    heightPx,
+                    isNew: true,
+                  },
+                  videoEl
+                );
+              }
+            } else if (area > bestArea * 1.1) {
+              bestArea = area;
+              if (onGreenFaceCapturedRef.current) {
+                onGreenFaceCapturedRef.current(
+                  {
+                    trackId: prevTrack.trackId,
+                    captureNumber,
+                    x: det.x,
+                    y: det.y,
+                    width: det.width,
+                    height: det.height,
+                    widthPx,
+                    heightPx,
+                    isNew: false,
+                  },
+                  videoEl
+                );
+              }
+            }
+          }
+
+          updatedTracks.push({
+            trackId: prevTrack.trackId,
             x: sx,
             y: sy,
             width: sw,
             height: sh,
+            vx: (newCx - prevCx) * 0.5,
+            vy: (newCy - prevCy) * 0.5,
             widthPx,
             heightPx,
-            isGoodPixel: widthPx >= minPixelSize && heightPx >= minPixelSize,
+            isGoodPixel,
+            captured,
+            captureNumber,
+            bestArea,
             score: det.score,
-          };
+            lastSeenAt: now,
+            missedFrames: 0,
+          });
+        } else {
+          updatedTracks.push({
+            ...prevTrack,
+            missedFrames: (prevTrack.missedFrames || 0) + 1,
+          });
         }
+      }
 
+      // 2. Register newly detected faces
+      for (let dIdx = 0; dIdx < rawDetections.length; dIdx++) {
+        if (matchedDetIndices.has(dIdx)) continue;
+        const det = rawDetections[dIdx];
         const widthPx = Math.round(det.width);
         const heightPx = Math.round(det.height);
-        return {
-          ...det,
+        const isGoodPixel =
+          widthPx >= minPixelSize && heightPx >= minPixelSize;
+        const area = widthPx * heightPx;
+        const trackId = nextTrackIdRef.current++;
+
+        let captured = false;
+        let captureNumber = null;
+        let bestArea = 0;
+
+        if (isRecordingRef.current && isGoodPixel) {
+          captured = true;
+          capturedCountRef.current += 1;
+          captureNumber = capturedCountRef.current;
+          bestArea = area;
+          if (onGreenFaceCapturedRef.current) {
+            onGreenFaceCapturedRef.current(
+              {
+                trackId,
+                captureNumber,
+                x: det.x,
+                y: det.y,
+                width: det.width,
+                height: det.height,
+                widthPx,
+                heightPx,
+                isNew: true,
+              },
+              videoEl
+            );
+          }
+        }
+
+        updatedTracks.push({
+          trackId,
+          x: det.x,
+          y: det.y,
+          width: det.width,
+          height: det.height,
+          vx: 0,
+          vy: 0,
           widthPx,
           heightPx,
-          isGoodPixel: widthPx >= minPixelSize && heightPx >= minPixelSize,
-        };
-      });
+          isGoodPixel,
+          captured,
+          captureNumber,
+          bestArea,
+          score: det.score,
+          lastSeenAt: now,
+          missedFrames: 0,
+        });
+      }
 
-      // Sort left-to-right for stable face numbering (#1, #2, ...)
-      nextSmoothed.sort((a, b) => a.x - b.x);
-      smoothedBoxesRef.current = nextSmoothed;
-      return nextSmoothed;
+      tracksRef.current = updatedTracks;
+
+      // Return only currently visible tracks for drawing on the live viewfinder
+      const visibleTracks = updatedTracks.filter(
+        (t) => t.missedFrames === 0 || now - t.lastSeenAt <= VISIBLE_GRACE_MS
+      );
+      visibleTracks.sort((a, b) => a.x - b.x);
+      return visibleTracks;
     };
 
     const runLoop = async () => {
@@ -302,21 +497,29 @@ export function useLiveFaceDetector({
               score: r.score,
             }));
 
-            const smoothed = smoothDetections(rawBoxes);
-            drawBoxesOnOverlay(smoothed, videoEl);
+            const visibleFaces = updateTracksWithDetections(rawBoxes, videoEl);
+            drawBoxesOnOverlay(visibleFaces, videoEl);
 
-            let greenCount = 0;
-            let redCount = 0;
-            smoothed.forEach((f) => {
-              if (f.isGoodPixel) greenCount += 1;
-              else redCount += 1;
+            let liveGreenCount = 0;
+            let liveRedCount = 0;
+            visibleFaces.forEach((f) => {
+              if (f.isGoodPixel || f.captured) liveGreenCount += 1;
+              else liveRedCount += 1;
             });
 
+            const cumulativeGreen = capturedCountRef.current;
+
             setFaceStats({
-              totalFaces: smoothed.length,
-              greenFaces: greenCount,
-              redFaces: redCount,
-              faces: smoothed,
+              capturedGreenFaces: cumulativeGreen,
+              totalFaces: isRecordingRef.current
+                ? Math.max(cumulativeGreen, visibleFaces.length)
+                : visibleFaces.length,
+              greenFaces: isRecordingRef.current
+                ? cumulativeGreen
+                : liveGreenCount,
+              liveGreenFaces: liveGreenCount,
+              redFaces: liveRedCount,
+              faces: visibleFaces,
             });
           }
         } catch (err) {
@@ -365,9 +568,12 @@ export function useLiveFaceDetector({
   return {
     modelReady,
     modelError,
+    capturedGreenFaces: faceStats.capturedGreenFaces,
     totalFaces: faceStats.totalFaces,
     greenFaces: faceStats.greenFaces,
+    liveGreenFaces: faceStats.liveGreenFaces || 0,
     redFaces: faceStats.redFaces,
     faces: faceStats.faces,
+    resetCaptureCount,
   };
 }

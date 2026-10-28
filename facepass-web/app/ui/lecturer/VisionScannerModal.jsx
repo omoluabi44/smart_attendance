@@ -14,6 +14,9 @@ import {
   Aperture,
   Users,
   SwitchCamera,
+  Play,
+  Square,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useLiveFaceDetector } from "@/app/lib/useLiveFaceDetector";
@@ -27,21 +30,25 @@ export default function VisionScannerModal({
   sessionName,
   onStartScan,
 }) {
-  const [scanTab, setScanTab] = useState("photo"); // "photo" | "video" | "webcam"
+  // Default to "webcam" (Live Attendance) as the first option; Photo & Video are fallback options
+  const [scanTab, setScanTab] = useState("webcam"); // "webcam" | "photo" | "video"
   const [dragActive, setDragActive] = useState(false);
 
-  // Webcam state
+  // Webcam & manual live recording state
   const videoRef = useRef(null);
-  const canvasRef = useRef(null); // Offscreen clean frame capture canvas
+  const canvasRef = useRef(null); // Offscreen composite/frame capture canvas
   const overlayCanvasRef = useRef(null); // Live HUD bounding-box overlay canvas
   const streamRef = useRef(null);
   const isRequestingCameraRef = useRef(false);
+  const capturedFaceTilesRef = useRef(new Map()); // captureNumber -> HTMLCanvasElement tile
+
   const [cameraActive, setCameraActive] = useState(false);
+  const [isRecording, setIsRecording] = useState(false); // Lecturer initiates live recording manually
   const [isStartingCamera, setIsStartingCamera] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [cameraErrorCode, setCameraErrorCode] = useState(null);
-  const [permissionState, setPermissionState] = useState("unknown"); // "prompt" | "granted" | "denied" | "system_blocked" | "unknown"
-  const [facingMode, setFacingMode] = useState("user"); // Default "user" for laptop/desktop compatibility, can flip to "environment"
+  const [permissionState, setPermissionState] = useState("unknown");
+  const [facingMode, setFacingMode] = useState("user");
   const [videoDevices, setVideoDevices] = useState([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [capturedBlob, setCapturedBlob] = useState(null);
@@ -51,21 +58,65 @@ export default function VisionScannerModal({
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
+  // Store a padded high-res portrait tile whenever a green face is captured during live recording
+  const handleGreenFaceCaptured = useCallback((faceInfo, videoEl) => {
+    if (!videoEl || !videoEl.videoWidth || !videoEl.videoHeight) return;
+
+    const vw = videoEl.videoWidth;
+    const vh = videoEl.videoHeight;
+
+    // Generous head-and-shoulders padding so AWS Rekognition detect_faces detects the face in the tile
+    const padW = faceInfo.width * 0.85;
+    const padH = faceInfo.height * 0.85;
+
+    const sx = Math.max(0, Math.floor(faceInfo.x - padW));
+    const sy = Math.max(0, Math.floor(faceInfo.y - padH));
+    const ex = Math.min(vw, Math.ceil(faceInfo.x + faceInfo.width + padW));
+    const ey = Math.min(vh, Math.ceil(faceInfo.y + faceInfo.height + padH));
+    const sw = Math.max(1, ex - sx);
+    const sh = Math.max(1, ey - sy);
+
+    const tileSize = 360;
+    const tileCanvas = document.createElement("canvas");
+    tileCanvas.width = tileSize;
+    tileCanvas.height = tileSize;
+    const tCtx = tileCanvas.getContext("2d");
+    if (!tCtx) return;
+
+    tCtx.fillStyle = "#0f172a";
+    tCtx.fillRect(0, 0, tileSize, tileSize);
+
+    // Preserve aspect ratio inside the 360x360 tile
+    const scale = Math.min(tileSize / sw, tileSize / sh);
+    const dw = Math.round(sw * scale);
+    const dh = Math.round(sh * scale);
+    const dx = Math.round((tileSize - dw) / 2);
+    const dy = Math.round((tileSize - dh) / 2);
+
+    tCtx.drawImage(videoEl, sx, sy, sw, sh, dx, dy, dw, dh);
+    capturedFaceTilesRef.current.set(faceInfo.captureNumber, tileCanvas);
+  }, []);
+
   // Real-time client-side face detector on live camera stream
   const {
     modelReady,
     modelError,
+    capturedGreenFaces,
     totalFaces,
     greenFaces,
+    liveGreenFaces,
     redFaces,
+    resetCaptureCount,
   } = useLiveFaceDetector({
     videoRef,
     overlayCanvasRef,
     enabled: Boolean(
       isOpen && scanTab === "webcam" && cameraActive && !capturedBlob
     ),
+    isRecording,
     minPixelSize: MIN_GREEN_PIXELS,
     mirrored: false,
+    onGreenFaceCaptured: handleGreenFaceCaptured,
   });
 
   const stopCamera = useCallback(() => {
@@ -118,7 +169,6 @@ export default function VisionScannerModal({
         const targetDeviceId =
           overrideDeviceId !== undefined ? overrideDeviceId : selectedDeviceId;
 
-        // Progressive constraint fallback so strict constraints never block camera startup
         const constraintCandidates = [
           targetDeviceId
             ? {
@@ -160,7 +210,6 @@ export default function VisionScannerModal({
             setPermissionState("granted");
             setCameraActive(true);
 
-            // Populate available camera devices once permission is granted
             try {
               const devices = await navigator.mediaDevices.enumerateDevices();
               const cams = devices.filter((d) => d.kind === "videoinput");
@@ -171,7 +220,6 @@ export default function VisionScannerModal({
             return;
           } catch (err) {
             lastErr = err;
-            // If the user or browser explicitly denied permission, don't re-prompt in a loop
             if (
               err?.name === "NotAllowedError" ||
               err?.name === "PermissionDeniedError" ||
@@ -182,7 +230,6 @@ export default function VisionScannerModal({
           }
         }
 
-        // Use console.warn instead of console.error so Next.js 15 Dev Overlay does not crash the UI
         const errName = lastErr?.name || "CameraError";
         const errMsg = lastErr?.message || "";
         console.warn("Camera access unavailable:", errName, errMsg);
@@ -312,47 +359,89 @@ export default function VisionScannerModal({
     setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
   };
 
-  const handleCaptureFrame = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    if (greenFaces < 1) {
-      toast.warn(
-        `At least 1 green face (≥${MIN_GREEN_PIXELS}×${MIN_GREEN_PIXELS}px) is required to capture. Move the camera closer.`
-      );
+  // Lecturer manually initiates live recording without waiting for green faces first
+  const handleStartLiveRecording = () => {
+    capturedFaceTilesRef.current.clear();
+    resetCaptureCount();
+    setIsRecording(true);
+  };
+
+  const handleResetLiveCounter = () => {
+    capturedFaceTilesRef.current.clear();
+    resetCaptureCount();
+  };
+
+  // Build composite image from all green faces captured during live recording (or current frame fallback)
+  const buildCaptureAndFinish = (autoSubmit = false) => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const tiles = Array.from(capturedFaceTilesRef.current.values());
+    const finalGreenCount =
+      tiles.length > 0 ? tiles.length : capturedGreenFaces;
+
+    if (tiles.length > 0) {
+      // Stitch all captured green face tiles into a clean composite grid for AWS Rekognition
+      const cols = Math.ceil(Math.sqrt(tiles.length));
+      const rows = Math.ceil(tiles.length / cols);
+      const tileSize = 360;
+      const gap = 16;
+
+      canvas.width = cols * tileSize + (cols + 1) * gap;
+      canvas.height = rows * tileSize + (rows + 1) * gap;
+
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      tiles.forEach((tileCanvas, index) => {
+        const col = index % cols;
+        const row = Math.floor(index / cols);
+        const x = gap + col * (tileSize + gap);
+        const y = gap + row * (tileSize + gap);
+        ctx.drawImage(tileCanvas, x, y, tileSize, tileSize);
+      });
+    } else if (videoRef.current) {
+      // Fallback: capture current full video frame if lecturer finishes with 0 auto-captured tiles
+      const video = videoRef.current;
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    } else {
       return;
     }
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
     const snapshotSummary = {
-      totalFaces,
-      greenFaces,
+      totalFaces: Math.max(finalGreenCount, totalFaces),
+      greenFaces: finalGreenCount,
       redFaces,
     };
 
     canvas.toBlob(
       (blob) => {
         if (!blob) {
-          toast.error("Failed to capture frame");
+          toast.error("Failed to finalize live capture");
           return;
         }
         const fileName = `live_scan_${courseID}_${Date.now()}.jpg`;
         const fileObj = new File([blob], fileName, { type: "image/jpeg" });
+
+        setIsRecording(false);
+        stopCamera();
+
+        if (autoSubmit) {
+          onStartScan(fileObj, "image");
+          capturedFaceTilesRef.current.clear();
+          resetCaptureCount();
+          onClose();
+          return;
+        }
+
         const preview = URL.createObjectURL(blob);
         setCapturedBlob(fileObj);
         setCapturedPreviewUrl(preview);
         setCapturedStats(snapshotSummary);
-        stopCamera();
-
-        if (snapshotSummary.redFaces > 0) {
-          toast.warn(
-            `Captured ${snapshotSummary.greenFaces} good face(s), but ${snapshotSummary.redFaces} face(s) were in Red (<${MIN_GREEN_PIXELS}×${MIN_GREEN_PIXELS}px). Move closer and retake if you want to include them.`
-          );
-        }
       },
       "image/jpeg",
       0.92
@@ -363,6 +452,9 @@ export default function VisionScannerModal({
     if (capturedPreviewUrl) {
       URL.revokeObjectURL(capturedPreviewUrl);
     }
+    capturedFaceTilesRef.current.clear();
+    resetCaptureCount();
+    setIsRecording(false);
     setCapturedBlob(null);
     setCapturedPreviewUrl(null);
     setCapturedStats(null);
@@ -401,7 +493,18 @@ export default function VisionScannerModal({
     onClose();
   };
 
-  const canCapture = cameraActive && greenFaces >= 1;
+  // Displayed counters: while recording, never decrease after moving past a student
+  const displayedGreenCount = capturedStats
+    ? capturedStats.greenFaces
+    : isRecording
+    ? capturedGreenFaces
+    : liveGreenFaces;
+
+  const displayedTotalCount = capturedStats
+    ? capturedStats.totalFaces
+    : isRecording
+    ? Math.max(capturedGreenFaces, totalFaces)
+    : totalFaces;
 
   return (
     <div
@@ -452,9 +555,21 @@ export default function VisionScannerModal({
           </button>
         </div>
 
-        {/* Mode Selector Tabs */}
+        {/* Mode Selector Tabs — Live Attendance is First Option, Photo & Video are Last */}
         <div className="relative z-10 px-4 sm:px-6 pt-3 sm:pt-4 shrink-0">
           <div className="grid grid-cols-3 gap-1.5 sm:gap-2 p-1 rounded-xl bg-obsidian-950 border border-slate-800">
+            <button
+              type="button"
+              onClick={() => setScanTab("webcam")}
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-sans font-semibold transition ${
+                scanTab === "webcam"
+                  ? "bg-cyan-400 text-slate-950 shadow-xs"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Aperture className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">LIVE SCAN</span>
+            </button>
             <button
               type="button"
               onClick={() => setScanTab("photo")}
@@ -466,18 +581,6 @@ export default function VisionScannerModal({
             >
               <Camera className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">GROUP PHOTO</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setScanTab("webcam")}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-3 rounded-lg text-[11px] sm:text-xs font-sans font-semibold transition ${
-                scanTab === "webcam"
-                  ? "bg-cyan-400 text-slate-950 shadow-xs"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Aperture className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">LIVE SNAPSHOT</span>
             </button>
             <button
               type="button"
@@ -727,25 +830,20 @@ export default function VisionScannerModal({
                     <img
                       src={capturedPreviewUrl}
                       alt="Captured Classroom Snapshot"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain bg-obsidian-950"
                     />
                     {capturedStats && (
                       <div className="absolute inset-x-3 top-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
                         <div className="flex items-center gap-2 bg-obsidian-950/90 border border-slate-700 px-3 py-1.5 rounded-xl">
                           <Users className="w-4 h-4 text-cyan-400" />
                           <span className="font-sans text-xs font-bold text-white">
-                            CAPTURED FACES: {capturedStats.totalFaces}
+                            TOTAL CAPTURED: {capturedStats.greenFaces}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-sans text-[11px] font-bold text-emerald-300">
-                            ✓ {capturedStats.greenFaces} GOOD (≥55×55px)
+                            ✓ {capturedStats.greenFaces} GREEN (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}px)
                           </span>
-                          {capturedStats.redFaces > 0 && (
-                            <span className="px-2.5 py-1 rounded-lg bg-rose-950/90 border border-rose-500/60 font-sans text-[11px] font-bold text-rose-300">
-                              ⚠ {capturedStats.redFaces} TOO SMALL (&lt;55×55px)
-                            </span>
-                          )}
                         </div>
                       </div>
                     )}
@@ -760,23 +858,35 @@ export default function VisionScannerModal({
 
                     {/* Live HUD Overlay (Face Counter + Resolution Legend + Guidance) */}
                     <div className="absolute inset-3 z-20 pointer-events-none flex flex-col justify-between">
-                      {/* Top HUD Bar: Live Face Counter & Camera Controls */}
+                      {/* Top HUD Bar: Cumulative Face Counter & Camera Controls */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex flex-wrap items-center gap-1.5">
                           {/* Primary Live Face Count Badge */}
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-950/90 border border-cyan-400/50 shadow-lg">
-                            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                          <div
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-950/90 border shadow-lg ${
+                              isRecording
+                                ? "border-emerald-400/70"
+                                : "border-cyan-400/50"
+                            }`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                isRecording
+                                  ? "bg-emerald-400 animate-ping"
+                                  : "bg-amber-400"
+                              }`}
+                            />
                             <span className="font-sans text-xs font-bold text-white tracking-wide">
-                              FACES DETECTED:{" "}
-                              <span className="text-cyan-300 text-sm">
-                                {totalFaces}
+                              {isRecording ? "FACES CAPTURED: " : "READY TO START • "}
+                              <span className="text-emerald-300 text-sm">
+                                {displayedGreenCount}
                               </span>
                             </span>
                           </div>
 
-                          {/* Green Box Counter (>= 55x55 px) */}
+                          {/* Green Box Counter (>= 55x55 px) — Never decreases during recording */}
                           <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-sans text-[11px] font-bold text-emerald-300">
-                            ● {greenFaces} GREEN (≥{MIN_GREEN_PIXELS}×
+                            ● {displayedGreenCount} GREEN (≥{MIN_GREEN_PIXELS}×
                             {MIN_GREEN_PIXELS}px)
                           </span>
 
@@ -798,9 +908,11 @@ export default function VisionScannerModal({
                           <span className="hidden sm:inline-block px-2 py-1 rounded-lg bg-obsidian-950/85 border border-slate-700 text-[10px] font-sans text-slate-300">
                             {modelError
                               ? "DETECTOR ERROR"
-                              : modelReady
-                              ? "AI TRACKING ACTIVE"
-                              : "LOADING DETECTOR..."}
+                              : !modelReady
+                              ? "LOADING DETECTOR..."
+                              : isRecording
+                              ? "LIVE RECORDING ACTIVE"
+                              : "PREVIEW MODE"}
                           </span>
                           {videoDevices.length > 1 && (
                             <select
@@ -832,31 +944,23 @@ export default function VisionScannerModal({
                         </div>
                       </div>
 
-                      {/* Bottom Dynamic Distance & Pixel Quality Guidance Banner */}
+                      {/* Bottom Dynamic Distance & Recording Guidance Banner */}
                       <div className="flex justify-center">
-                        {redFaces > 0 && greenFaces === 0 ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500 text-rose-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            ⚠ RED BOX: FACE CLEAR BUT TOO SMALL (&lt;
-                            {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX) — MOVE
-                            CAMERA CLOSER
+                        {!isRecording ? (
+                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/90 border border-cyan-400/50 text-cyan-200 font-sans text-[11px] font-bold text-center shadow-lg">
+                            TAP &ldquo;START LIVE RECORDING&rdquo; BELOW TO BEGIN LOCKING IN GREEN FACES
                           </div>
-                        ) : redFaces > 0 && greenFaces > 0 ? (
+                        ) : redFaces > 0 ? (
                           <div className="px-3.5 py-1.5 rounded-xl bg-amber-950/95 border border-amber-400 text-amber-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            ⚠ {greenFaces} GREEN (GOOD PIXEL) • MOVE CAMERA
-                            CLOSER FOR {redFaces} RED FACE(S) (&lt;
-                            {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX)
+                            ✓ {capturedGreenFaces} CAPTURED SO FAR • MOVE CLOSER FOR {redFaces} RED FACE(S) (&lt;{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX)
                           </div>
-                        ) : greenFaces > 0 ? (
+                        ) : capturedGreenFaces > 0 ? (
                           <div className="px-3.5 py-1.5 rounded-xl bg-emerald-950/95 border border-emerald-400 text-emerald-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            ✓ {greenFaces} FACE(S) AT GOOD PIXEL RESOLUTION (≥
-                            {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX) — READY TO
-                            CAPTURE
+                            ✓ {capturedGreenFaces} GREEN FACE(S) LOCKED IN — KEEP PANNING OR COMPLETE SCAN
                           </div>
                         ) : (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/85 border border-slate-700 text-slate-300 font-sans text-[10px] text-center">
-                            HOLD CAMERA OVER CLASSROOM • GREEN BOX = GOOD PIXEL
-                            (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX) • RED BOX
-                            = MOVE CLOSER
+                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/85 border border-emerald-500/40 text-emerald-200 font-sans text-[10px] text-center">
+                            RECORDING ACTIVE • PAN ACROSS STUDENTS TO AUTO-LOCK GREEN FACES (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX)
                           </div>
                         )}
                       </div>
@@ -872,18 +976,18 @@ export default function VisionScannerModal({
               <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
                 <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
                   <span className="text-[9px] sm:text-[10px] font-sans text-slate-400 uppercase leading-tight">
-                    TOTAL DETECTED
+                    {isRecording || capturedStats ? "TOTAL CAPTURED" : "IN VIEW"}
                   </span>
                   <span className="font-sans text-sm sm:text-base font-bold text-white">
-                    {capturedStats ? capturedStats.totalFaces : totalFaces}
+                    {displayedTotalCount}
                   </span>
                 </div>
                 <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
                   <span className="text-[9px] sm:text-[10px] font-sans text-emerald-400 uppercase leading-tight">
-                    GREEN (≥{MIN_GREEN_PIXELS}px)
+                    GREEN LOCKED (≥{MIN_GREEN_PIXELS}px)
                   </span>
                   <span className="font-sans text-sm sm:text-base font-bold text-emerald-400">
-                    {capturedStats ? capturedStats.greenFaces : greenFaces}
+                    {displayedGreenCount}
                   </span>
                 </div>
                 <div className="p-2 sm:p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
@@ -905,6 +1009,7 @@ export default function VisionScannerModal({
                 >
                   Cancel
                 </button>
+
                 {capturedBlob ? (
                   <>
                     <button
@@ -913,7 +1018,7 @@ export default function VisionScannerModal({
                       className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
-                      Retake Snapshot
+                      Restart Live Scan
                     </button>
                     <button
                       type="button"
@@ -922,42 +1027,53 @@ export default function VisionScannerModal({
                     >
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>
-                        Run Rekognition Scan (
-                        {capturedStats?.greenFaces ?? 0} Good Face
+                        Run Rekognition Scan ({capturedStats?.greenFaces ?? 0}{" "}
+                        Captured Face
                         {(capturedStats?.greenFaces ?? 0) === 1 ? "" : "s"})
                       </span>
                     </button>
                   </>
-                ) : (
+                ) : !isRecording ? (
                   <button
                     type="button"
-                    disabled={!canCapture}
-                    onClick={handleCaptureFrame}
-                    className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] rounded-xl text-xs font-bold transition text-center ${
-                      canCapture
-                        ? "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20"
-                        : redFaces > 0
-                        ? "bg-rose-950/80 border border-rose-500/50 text-rose-300 cursor-not-allowed"
-                        : "bg-slate-800 text-slate-400 cursor-not-allowed"
-                    }`}
+                    disabled={!cameraActive}
+                    onClick={handleStartLiveRecording}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-5 min-h-[44px] rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800 disabled:text-slate-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-emerald-500/20"
                   >
-                    <Aperture className="w-4 h-4 shrink-0" />
+                    <Play className="w-4 h-4 fill-current shrink-0" />
                     <span>
-                      {canCapture
-                        ? `Capture Frame (${greenFaces} Green Face${
-                            greenFaces === 1 ? "" : "s"
-                          }${
-                            redFaces > 0
-                              ? ` • ${redFaces} Red`
-                              : ""
-                          })`
-                        : redFaces > 0
-                        ? `Move Camera Closer — ${redFaces} Face${
-                            redFaces === 1 ? "" : "s"
-                          } in Red (<${MIN_GREEN_PIXELS}px)`
-                        : "Waiting for Faces in Live Feed..."}
+                      {cameraActive
+                        ? "Start Live Recording"
+                        : "Starting Camera..."}
                     </span>
                   </button>
+                ) : (
+                  <>
+                    {capturedGreenFaces > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleResetLiveCounter}
+                        className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Reset ({capturedGreenFaces})</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => buildCaptureAndFinish(false)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold transition shadow-lg shadow-cyan-400/20"
+                    >
+                      <Square className="w-3.5 h-3.5 fill-current shrink-0" />
+                      <span>
+                        {capturedGreenFaces > 0
+                          ? `Finish & Review (${capturedGreenFaces} Green Face${
+                              capturedGreenFaces === 1 ? "" : "s"
+                            } Locked)`
+                          : "Capture Current Frame"}
+                      </span>
+                    </button>
+                  </>
                 )}
               </div>
             </div>

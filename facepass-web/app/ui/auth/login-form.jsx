@@ -58,10 +58,10 @@ export default function LoginForm() {
         toast.info("Security requirement: Please update your temporary password to continue.");
         router.push("/change-password");
       } else if (response.user.role === "admin") {
-        toast.success("Authenticated as Administrator. Opening Admin Command Center.");
+        toast.success("Signed in as Administrator.");
         router.push("/admin");
       } else {
-        toast.success("Authentication verified. Welcome to FacePass.");
+        toast.success("Signed in! Welcome to FacePass.");
         router.push("/lecturer");
       }
     } catch (err) {
@@ -84,7 +84,7 @@ export default function LoginForm() {
             Back to overview
           </Link>
           <span className="text-[10px] sm:text-[11px] font-sans text-blue-600 font-semibold uppercase tracking-wider">
-            AUTH // FACULTY &amp; ADMIN
+            FACULTY &amp; ADMIN
           </span>
         </div>
 
@@ -101,7 +101,7 @@ export default function LoginForm() {
               Faculty &amp; Admin Sign In
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Enter your institutional credentials to access the FacePass Command Center.
+              Enter your university email and password to access your FacePass dashboard.
             </p>
           </div>
 
@@ -201,33 +201,33 @@ export default function LoginForm() {
                 {isLoading ? (
                   <>
                     <ClipLoader color="#fff" size={16} />
-                    <span>Authenticating...</span>
+                    <span>Signing in...</span>
                   </>
                 ) : (
-                  "Sign In to Command Center"
+                  "Sign In to Dashboard"
                 )}
               </button>
             </div>
           </form>
 
-          {/* Institutional Provisioning Notice */}
+          {/* Institutional Notice */}
           <div className="mt-6 pt-5 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-500">
-              Lecturer credentials are provisioned by your university administration.
+              Lecturer accounts are created by your university administration.
             </p>
           </div>
         </div>
 
-        {/* Mobile Biometric Architecture Strip (Visible on <lg where right preview is hidden) */}
+        {/* Mobile Strip (Visible on <lg where right preview is hidden) */}
         <div className="mt-4 lg:hidden rounded-xl bg-obsidian-950 border border-slate-800 p-3.5 text-slate-300 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <span className="text-[11px] font-medium truncate">
-              AWS Rekognition 1:N • CoursePass Sync
+              Smart Face Attendance • Student Portal Sync
             </span>
           </div>
           <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider shrink-0">
-            TLS 1.3
+            SECURE
           </span>
         </div>
 
