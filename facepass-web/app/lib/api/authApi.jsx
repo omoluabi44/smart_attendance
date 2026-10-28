@@ -12,9 +12,6 @@ export const authApi = createApi({
      updateUser: builder.mutation({
       query: ({id, ...credentials}) => ({ url:  `/user/${id}`, method: 'PUT', body: credentials }),
     }),
-      register: builder.mutation({
-      query: (credentials) => ({ url:  'auth/register', method: 'POST', body: credentials }),
-    }),
     code: builder.mutation({
       query: (credentials) => ({ url:  'auth/verify', method: 'POST', body: credentials }),
     }),
@@ -24,4 +21,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginsMutation, useUpdateUserMutation, useRegisterMutation, useCodeMutation, useResendCodeMutation} = authApi;
+export const { useLoginsMutation, useUpdateUserMutation, useCodeMutation, useResendCodeMutation} = authApi;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
@@ -23,6 +23,7 @@ import {
   X,
   ScanFace,
   ShieldAlert,
+  ShieldCheck,
   Search,
   BookOpen,
   Award,
@@ -53,6 +54,12 @@ export default function SessionControlRoom() {
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((s) => s.user);
+
+  useEffect(() => {
+    if (user?.must_change_password) {
+      router.replace("/change-password");
+    }
+  }, [user?.must_change_password, router]);
 
   const {
     data: dashboard,
@@ -436,6 +443,15 @@ export default function SessionControlRoom() {
 
           {/* Right Action Controls */}
           <div className="flex flex-wrap items-center gap-2">
+            {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-1.5 bg-obsidian-950 hover:bg-slate-800 text-white px-3.5 py-2.5 rounded-xl font-semibold text-xs transition"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                <span className="hidden sm:inline">Admin Console</span>
+              </Link>
+            )}
             <button
               onClick={() => setShowScannerModal(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition"
@@ -1109,12 +1125,12 @@ export default function SessionControlRoom() {
               >
                 Cancel
               </button>
-                              <button
-                                type="submit"
-                                className="px-5 py-2 bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 transition shadow-md shadow-blue-500/20"
-                              >
-                                Grant Access
-                              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 bg-blue-500 text-white rounded-xl text-xs font-semibold hover:bg-blue-600 transition shadow-md shadow-blue-500/20"
+              >
+                Grant Access
+              </button>
             </div>
           </form>
         </Modal>

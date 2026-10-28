@@ -11,15 +11,17 @@ from flask_mail import Mail, Message
 from os import environ
 from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required
+from api.v1.utils.roles import role_required
 from os.path import join, dirname
 
 
 @app_views.route('auth/university/<user_id>', methods=["POST"], strict_slashes=False)
+@jwt_required()
+@role_required('admin')
 @swag_from(join(dirname(__file__), 'documentation/university/post_uni.yml'))
-
 def post_university(user_id):
     """
-       regester university for student
+       register university for user (Super Admin only)
     """
     if not request.get_json():
         abort(400, description="Not a JSON")
@@ -31,21 +33,24 @@ def post_university(user_id):
             return make_response(jsonify({"error": f"Missing required field {i}"}), 404)
     
     user = storage.get_id(User, user_id)
+    if not user:
+        abort(404)
     if user.university:
         return make_response(jsonify({"error": "User already has a university assigned"}), 400)
 
     instance = University(**data)
     instance.save()
    
-    if not user:
-        abort(404)
     user.university = instance
     user.save()
 
     return make_response(jsonify({"message":"university Profile created succesfully"}), 201)
+
+
 @app_views.route('/university/<university_id>', methods=['DELETE'], strict_slashes=False)
+@jwt_required()
+@role_required('admin')
 @swag_from(join(dirname(__file__), 'documentation/user/delete_user.yml'))
-# @jwt_required()
 def del_uni(university_id):
     """
     Deletes user by its ID.

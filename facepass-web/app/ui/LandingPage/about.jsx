@@ -26,10 +26,10 @@ export default function AboutPage() {
           {/* CTA Buttons */}
           <div className="flex justify-center gap-4">
             <Link 
-              href="/auth/register" 
+              href="/login" 
               className="bg-white text-blue-700 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors shadow-lg"
             >
-              Get Started
+              Sign In
             </Link>
             <Link 
               href="/contact" 

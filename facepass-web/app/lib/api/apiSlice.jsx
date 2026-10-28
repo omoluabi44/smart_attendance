@@ -57,6 +57,10 @@ export const baseApi = createApi({
     'StudentSessions',
     'StudentAttendance',
     'Notifications',
+    'AdminOverview',
+    'AdminUsers',
+    'AdminCourses',
+    'AdminSessions',
   ],
   endpoints: () => ({}),
 });

@@ -14,6 +14,7 @@ from flask_jwt_extended import (
                                 get_jwt_identity, get_jwt
 
                                  )
+from api.v1.utils.roles import role_required
 from flask_mail import Mail, Message
 from os import environ
 from os.path import join, dirname
@@ -25,24 +26,33 @@ import bcrypt
 ses = storage._DBStorage__session
 
 @app_views.route('/auth/register', methods=["POST"], strict_slashes=False)
+@jwt_required()
+@role_required('admin')
 # @swag_from(join(dirname(__file__), 'documentation/user/register_user.yml'))
-
 def post_user():
     """
-        CREATE  a new user
+        CREATE a new user (Super Admin only)
     """
     if not request.get_json():
         abort(400, description="Not a JSON")
     data = request.get_json()
-    requiredField = ["matric", "password", "email","name"]
+    requiredField = ["password", "email", "name"]
     for i in requiredField:
-        if i not in data:
+        if i not in data or not str(data[i]).strip():
             abort(400, description=f"Missing {i}")
-    
 
+    email = data.get("email", "").strip()
+    role = data.get("role", "lecturer")
+    if role not in ("student", "lecturer", "admin"):
+        return make_response(jsonify({"error": "Invalid role. Must be 'student', 'lecturer', or 'admin'"}), 400)
 
-    email = data.get("email")
-    
+    matric = data.get("matric")
+    if not matric or not str(matric).strip():
+        prefix = "ADM" if role == "admin" else ("LEC" if role == "lecturer" else "STU")
+        matric = f"{prefix}-{random.randint(1000, 9999)}"
+
+    must_change_password = bool(data.get("must_change_password", True))
+
     verification_code = str(random.randint(100000, 999999))
     expires_at = datetime.utcnow() + timedelta(hours=2)
     
@@ -75,14 +85,16 @@ def post_user():
 
 
 
-    user_data ={
-    "matric": data["matric"],
-    "email": data["email"],
-    "name": data["name"],
-    "verification_code":None,
-    "is_verified":True,
-    "code_expires_at": expires_at, 
-   }
+    user_data = {
+        "matric": matric,
+        "email": email,
+        "name": data["name"].strip(),
+        "role": role,
+        "verification_code": None,
+        "is_verified": True,
+        "must_change_password": must_change_password,
+        "code_expires_at": expires_at,
+    }
     user_instance = User(**user_data)
     user_instance.save()
     
@@ -92,13 +104,17 @@ def post_user():
     auth_provi_data={
     "password" : data["password"], 
     "provider": "Local",
-    "provider_id": data["email"],
+    "provider_id": email,
     "userID": user.id
     }
     provider_instance = AuthProvider(**auth_provi_data)
     provider_instance.save()
    
-    return make_response(jsonify({"userID":user.id}), 201)
+    return make_response(jsonify({
+        "userID": user.id,
+        "role": user.role,
+        "must_change_password": bool(user.must_change_password),
+    }), 201)
 
 
 @app_views.route('/auth/login', methods=["POST"], strict_slashes=False)
@@ -144,8 +160,10 @@ def login_user():
         "user": {
             "id": user.id,
             "email": user.email,
+            "matric": user.matric,
             "role": user.role or "student",
             "name": user.name,
+            "must_change_password": bool(getattr(user, "must_change_password", False)),
             "profile_url": user.profile.profile_image if user.profile else "default_url_here"
         }
     }
@@ -164,7 +182,52 @@ def login_user():
     
     return response, 200
 
-    
+
+@app_views.route('/auth/change-password', methods=["POST"], strict_slashes=False)
+@jwt_required()
+def change_authenticated_password():
+    """
+    Allow an authenticated user (e.g., a lecturer on first login with a temporary password)
+    to change their password and clear must_change_password.
+    Body: { "current_password": "...", "new_password": "..." }
+    """
+    data = request.get_json()
+    if not data:
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+
+    current_password = (data.get("current_password") or "").strip()
+    new_password = (data.get("new_password") or "").strip()
+
+    if not current_password or not new_password:
+        return make_response(jsonify({"error": "Both current_password and new_password are required"}), 400)
+
+    if len(new_password) < 8:
+        return make_response(jsonify({"error": "New password must be at least 8 characters long"}), 400)
+
+    if current_password == new_password:
+        return make_response(jsonify({"error": "New password must be different from your temporary/current password"}), 400)
+
+    user_id = get_jwt_identity()
+    user = storage.get_id(User, user_id)
+    if not user:
+        return make_response(jsonify({"error": "User not found"}), 404)
+
+    auth_prov = ses.query(AuthProvider).filter_by(userID=user.id).first()
+    if not auth_prov:
+        return make_response(jsonify({"error": "Authentication provider not found"}), 404)
+
+    if not auth_prov.check_password(current_password):
+        return make_response(jsonify({"error": "Current password is incorrect"}), 401)
+
+    auth_prov.password = _hash_password(new_password)
+    user.must_change_password = False
+    storage.save()
+
+    return make_response(jsonify({
+        "message": "Password updated successfully",
+        "must_change_password": False,
+        "role": user.role or "lecturer",
+    }), 200)
 
 
 @app_views.route('/auth/resend_code', methods=["POST"], strict_slashes=False)
@@ -321,6 +384,7 @@ def reset_password():
     
     
     user.password_reset_code = None
+    user.must_change_password = False
     hashed_password = _hash_password(data["password"])
     print("before ",local_provider.password)
     local_provider.password = hashed_password  

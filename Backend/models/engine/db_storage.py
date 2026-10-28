@@ -27,7 +27,7 @@ from models.quiz import Quiz, QuizResult
 
 from os import getenv
 import sqlalchemy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 classes = {
@@ -98,6 +98,15 @@ class DBStorage:
     def reload(self):
         """reloads data from the database"""
         Base.metadata.create_all(self.__engine)
+        try:
+            inspector = inspect(self.__engine)
+            if "users" in inspector.get_table_names():
+                cols = [c["name"] for c in inspector.get_columns("users")]
+                if "must_change_password" not in cols:
+                    with self.__engine.begin() as conn:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT 0"))
+        except Exception as e:
+            print(f"[DBStorage] Schema check warning: {e}")
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(sess_factory)
         self.__session = Session

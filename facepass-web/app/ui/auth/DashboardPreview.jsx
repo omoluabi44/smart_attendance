@@ -18,18 +18,6 @@ export default function DashboardPreview({ mode = "login" }) {
       subtitle:
         "Sign in to run 1:N Computer Vision attendance scans, broadcast lecture materials to enrolled students, schedule timed quizzes, and audit 75% exam eligibility.",
     },
-    signup: {
-      badge: "PROVISIONING // LECTURER ONBOARDING",
-      title: "Initialize your AI Lecturer & Classroom Command Center.",
-      subtitle:
-        "Create your faculty credentials to provision isolated Computer Vision collections per course, share lecture notes with enrolled students, and automate continuous assessment quizzes.",
-    },
-    profile: {
-      badge: "STEP 02 // INSTITUTIONAL MAPPING",
-      title: "Bind your account to your academic department.",
-      subtitle:
-        "Linking your University, College, and Department scopes your course registry and synchronizes enrolled student rosters directly from the student portal.",
-    },
   };
 
   const activeCopy = modeCopy[mode] || modeCopy.login;

@@ -32,14 +32,17 @@ export default function LoginForm() {
     e.preventDefault();
     try {
       const response = await loginMutation({ email, password }).unwrap();
+      const mustChange = Boolean(response.user.must_change_password);
 
       dispatch(
         login({
           id: response.user.id,
+          name: response.user.name,
           access_token: response.tokens.access,
           email: response.user.email,
           profile_url: response.user.profile_url,
           role: response.user.role,
+          must_change_password: mustChange,
           isLoggedIn: true,
         })
       );
@@ -51,11 +54,14 @@ export default function LoginForm() {
         sameSite: "strict",
       });
 
-      toast.success("Authentication verified. Welcome to FacePass.");
-
-      if (response.user.role === "lecturer") {
-        router.push("/lecturer");
+      if (mustChange) {
+        toast.info("Security requirement: Please update your temporary password to continue.");
+        router.push("/change-password");
+      } else if (response.user.role === "admin") {
+        toast.success("Authenticated as Administrator. Opening Admin Command Center.");
+        router.push("/admin");
       } else {
+        toast.success("Authentication verified. Welcome to FacePass.");
         router.push("/lecturer");
       }
     } catch (err) {
@@ -78,7 +84,7 @@ export default function LoginForm() {
             Back to overview
           </Link>
           <span className="text-[11px] font-mono text-blue-600 font-semibold uppercase tracking-wider">
-            AUTH // LECTURER ACCESS
+            AUTH // FACULTY &amp; ADMIN
           </span>
         </div>
 
@@ -92,10 +98,10 @@ export default function LoginForm() {
           {/* Header */}
           <div className="mb-7">
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Faculty Sign In
+              Faculty &amp; Admin Sign In
             </h1>
             <p className="mt-1.5 text-sm text-slate-600">
-              Enter your institutional credentials to access the Lecturer Command Center.
+              Enter your institutional credentials to access the FacePass Command Center.
             </p>
           </div>
 
@@ -204,16 +210,10 @@ export default function LoginForm() {
             </div>
           </form>
 
-          {/* Footer link */}
+          {/* Institutional Provisioning Notice */}
           <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-600">
-              New lecturer on FacePass?{" "}
-              <Link
-                href="/signup"
-                className="text-blue-500 font-semibold hover:text-blue-600 underline underline-offset-4 transition-colors"
-              >
-                Provision Lecturer Account
-              </Link>
+            <p className="text-xs text-slate-500">
+              Lecturer credentials are provisioned by your university administration.
             </p>
           </div>
         </div>

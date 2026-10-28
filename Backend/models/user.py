@@ -21,11 +21,8 @@ class User(BaseModel, Base):
     resend_attempts = Column(Integer, nullable=False, server_default=text("0"))
     password_reset_code = Column(String(6), nullable=True)
     name =  Column(String(128), nullable=False)
-    
+    must_change_password = Column(Boolean, default=False, nullable=False, server_default=text("0"))
 
-  
-
-    
     university = relationship("University", back_populates="student")
     courses = relationship("Courses", secondary="enrollments", overlaps="enrollment", back_populates="students")
     enrollment = relationship("Enrollment", cascade="all, delete-orphan",overlaps="courses", back_populates="user")
@@ -39,5 +36,3 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initialize user"""
         super().__init__(*args, **kwargs)
-
-

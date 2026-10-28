@@ -39,7 +39,7 @@ const Navbar = () => {
                             Features
                         </Link> */}
                         <Link
-                            href={id ? "/lecturer" : "/signup"}
+                            href={id ? "/lecturer" : "/login"}
                             prefetch={false}
                             className="text-sm font-medium text-slate-600 hover:text-blue-500 transition-colors flex items-center gap-2">
                             OmoluabiGPT
@@ -58,9 +58,9 @@ const Navbar = () => {
                     {/* CTA Button */}
                     <div className="hidden md:block">
                         <Link 
-                        href={id ? "/lecturer" : "/signup"}
+                        href={id ? "/lecturer" : "/login"}
                         className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl transition-all hover:scale-105">
-                            {id ? "Dashboard" : " Get Started"}
+                            {id ? "Dashboard" : "Sign In"}
                         </Link>
                     </div>
 
@@ -85,10 +85,10 @@ const Navbar = () => {
                 <div className="md:hidden bg-white border-b border-slate-100 p-4 absolute w-full shadow-xl">
                     <div className="flex flex-col gap-4">
                         <Link href="#" className="text-slate-600 font-medium">Features</Link>
-                        <Link prefetch={false}  href={id ? "/lecturer" : "/signup"} className="text-slate-600 font-medium">OmoluabiGPT</Link>
+                        <Link prefetch={false}  href={id ? "/lecturer" : "/login"} className="text-slate-600 font-medium">OmoluabiGPT</Link>
                         <Link href="#" className="text-slate-600 font-medium">Pricing</Link>
-                        <Link prefetch={false}  href={id ? "/lecturer" : "/signup"} className="text-center py-3 bg-blue-500 text-white font-bold rounded-xl">
-                           {id?"Dashboard":" Get Started"}
+                        <Link prefetch={false}  href={id ? "/lecturer" : "/login"} className="text-center py-3 bg-blue-500 text-white font-bold rounded-xl">
+                           {id?"Dashboard":"Sign In"}
                         </Link>
                     </div>
                 </div>

@@ -150,21 +150,13 @@ export default function FacePassLanding() {
                 <ArrowRightIcon className="w-4 h-4" />
               </Link>
             ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/60 transition-colors"
-                >
-                  Lecturer Sign In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition-all shadow-md shadow-blue-500/25"
-                >
-                  Initialize Course
-                  <ArrowRightIcon className="w-4 h-4" />
-                </Link>
-              </>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition-all shadow-md shadow-blue-500/25"
+              >
+                Lecturer Sign In
+                <ArrowRightIcon className="w-4 h-4" />
+              </Link>
             )}
           </div>
         </div>
@@ -229,10 +221,10 @@ export default function FacePassLanding() {
               {/* Action CTAs */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <Link
-                  href={isLoggedIn ? "/lecturer" : "/signup"}
+                  href={isLoggedIn ? "/lecturer" : "/login"}
                   className="inline-flex items-center justify-center gap-3 px-7 py-4 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-base transition-all shadow-lg shadow-blue-500/25 group"
                 >
-                  <span>{isLoggedIn ? "Open Lecturer Dashboard" : "Deploy Lecturer Workspace"}</span>
+                  <span>{isLoggedIn ? "Open Lecturer Dashboard" : "Sign In to Lecturer Workspace"}</span>
                   <ArrowRightIcon className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>
                 <a
@@ -1081,17 +1073,11 @@ export default function FacePassLanding() {
 
             <div className="pt-4 flex flex-wrap items-center gap-4">
               <Link
-                href={isLoggedIn ? "/lecturer" : "/signup"}
+                href={isLoggedIn ? "/lecturer" : "/login"}
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm transition-all shadow-lg shadow-blue-500/25"
               >
-                {isLoggedIn ? "Go to Lecturer Command Center" : "Create Lecturer Account"}
+                {isLoggedIn ? "Go to Lecturer Command Center" : "Sign In to Lecturer Command Center"}
                 <ArrowRightIcon className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 text-slate-200 border border-obsidian-700 font-semibold text-sm transition-all"
-              >
-                Sign In to Existing Session
               </Link>
             </div>
           </div>

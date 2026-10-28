@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/app/lib/features/user/userStore";
 import { useRouter } from "next/navigation";
@@ -32,6 +32,13 @@ export default function LecturerDashboard() {
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (user?.must_change_password) {
+      router.replace("/change-password");
+    }
+  }, [user?.must_change_password, router]);
+
   const { data: sessionsData, isLoading, refetch } = useGetLecturerSessionsQuery();
   const { data: coursesData } = useGetLecturerCoursesQuery();
   const [createCourse, { isLoading: creatingCourse }] = useLecturerCreateCourseMutation();
@@ -168,6 +175,15 @@ export default function LecturerDashboard() {
               <span className="hidden lg:inline-block text-xs font-mono text-slate-500 mr-2">
                 {user.email}
               </span>
+            )}
+            {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-1.5 bg-obsidian-950 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-semibold text-xs transition"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                <span>Admin Console</span>
+              </Link>
             )}
             <button
               onClick={() => setShowCourseModal(true)}
