@@ -98,7 +98,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/90">
         <div>
-          <span className="text-[11px] font-mono text-blue-600 font-semibold uppercase tracking-wider">
+          <span className="text-[11px] font-sans text-blue-600 font-semibold uppercase tracking-wider">
             COURSEPASS RESOURCE SYNC
           </span>
           <h3 className="text-base font-bold text-slate-900">
@@ -118,7 +118,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center text-xs font-mono text-slate-400 animate-pulse">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center text-xs font-sans text-slate-400 animate-pulse">
           LOADING COURSE MATERIALS...
         </div>
       ) : materials.length === 0 ? (
@@ -146,7 +146,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
             >
               <div>
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <span className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 font-mono text-[10px] uppercase font-bold text-blue-700">
+                  <span className="px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 font-sans text-[10px] uppercase font-bold text-blue-700">
                     {mat.material_type || "DOCUMENT"}
                   </span>
                   <button
@@ -168,7 +168,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="font-mono text-[11px] text-slate-400">
+                <span className="font-sans text-[11px] text-slate-400">
                   {mat.created_at
                     ? new Date(mat.created_at).toLocaleDateString()
                     : "Synced"}
@@ -184,7 +184,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 ) : (
-                  <span className="text-slate-400 text-[11px] font-mono">
+                  <span className="text-slate-400 text-[11px] font-sans">
                     CATALOG ITEM
                   </span>
                 )}
@@ -203,7 +203,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
             >
               <X className="w-4 h-4" />
             </button>
-            <div className="text-[11px] font-mono text-blue-600 font-semibold uppercase mb-1">
+            <div className="text-[11px] font-sans text-blue-600 font-semibold uppercase mb-1">
               COURSE MATERIALS // UPLOAD
             </div>
             <h3 className="text-lg font-bold text-slate-900 mb-5">
@@ -250,7 +250,7 @@ export function CourseMaterialsPanel({ sessionId, accessToken }) {
                   value={fileUrl}
                   onChange={(e) => setFileUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-sm font-mono outline-none focus:border-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-sm font-sans outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -372,7 +372,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/90">
         <div>
-          <span className="text-[11px] font-mono text-emerald-600 font-semibold uppercase tracking-wider">
+          <span className="text-[11px] font-sans text-emerald-600 font-semibold uppercase tracking-wider">
             ASSESSMENT & GRADEBOOK TELEMETRY
           </span>
           <h3 className="text-base font-bold text-slate-900">
@@ -392,7 +392,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center text-xs font-mono text-slate-400 animate-pulse">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-12 text-center text-xs font-sans text-slate-400 animate-pulse">
           LOADING ASSESSMENT SCHEDULE...
         </div>
       ) : quizzes.length === 0 ? (
@@ -420,10 +420,10 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono text-[10px] uppercase font-bold">
+                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-[10px] uppercase font-bold">
                     {quiz.status || "SCHEDULED"}
                   </span>
-                  <span className="text-xs font-mono text-slate-500 flex items-center gap-1">
+                  <span className="text-xs font-sans text-slate-500 flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
                     {quiz.duration_minutes || 30} mins
                   </span>
@@ -431,7 +431,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
                 <h4 className="text-sm font-bold text-slate-900 mb-1">
                   {quiz.title}
                 </h4>
-                <p className="text-xs font-mono text-slate-400 mb-4">
+                <p className="text-xs font-sans text-slate-400 mb-4">
                   {quiz.scheduled_at
                     ? `Scheduled: ${new Date(quiz.scheduled_at).toLocaleString()}`
                     : "Flexible window • Graded via CoursePass"}
@@ -439,7 +439,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] font-mono text-slate-500">
+                <span className="text-[11px] font-sans text-slate-500">
                   {quiz.is_graded ? "GRADED ASSESSMENT" : "PRACTICE QUIZ"}
                 </span>
                 <button
@@ -465,12 +465,12 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
             <X className="w-4 h-4" />
           </button>
           {loadingAnalytics ? (
-            <div className="py-6 text-center text-xs font-mono text-blue-400 animate-pulse">
+            <div className="py-6 text-center text-xs font-sans text-blue-400 animate-pulse">
               COMPUTING GRADEBOOK TELEMETRY...
             </div>
           ) : (
             <div>
-              <span className="text-[10px] font-mono text-blue-400 uppercase tracking-wider">
+              <span className="text-[10px] font-sans text-blue-400 uppercase tracking-wider">
                 QUIZ ANALYTICS // COURSEPASS SYNC
               </span>
               <h4 className="text-lg font-bold text-white mt-0.5 mb-4">
@@ -478,26 +478,26 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                 <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="block text-[10px] font-mono text-slate-400">
+                  <span className="block text-[10px] font-sans text-slate-400">
                     TOTAL SUBMISSIONS
                   </span>
-                  <span className="text-xl font-mono font-bold text-white">
+                  <span className="text-xl font-sans font-bold text-white">
                     {selectedQuizAnalytics.total_submissions}
                   </span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="block text-[10px] font-mono text-slate-400">
+                  <span className="block text-[10px] font-sans text-slate-400">
                     AVERAGE SCORE
                   </span>
-                  <span className="text-xl font-mono font-bold text-emerald-400">
+                  <span className="text-xl font-sans font-bold text-emerald-400">
                     {Number(selectedQuizAnalytics.average_score || 0).toFixed(1)}%
                   </span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="block text-[10px] font-mono text-slate-400">
+                  <span className="block text-[10px] font-sans text-slate-400">
                     SYNC CHANNEL
                   </span>
-                  <span className="text-sm font-mono font-bold text-blue-400">
+                  <span className="text-sm font-sans font-bold text-blue-400">
                     WEBHOOK ACTIVE
                   </span>
                 </div>
@@ -517,7 +517,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
             >
               <X className="w-4 h-4" />
             </button>
-            <div className="text-[11px] font-mono text-blue-600 font-semibold uppercase mb-1">
+            <div className="text-[11px] font-sans text-blue-600 font-semibold uppercase mb-1">
               ASSESSMENT // SCHEDULE QUIZ
             </div>
             <h3 className="text-lg font-bold text-slate-900 mb-5">
@@ -551,7 +551,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
                     required
                     value={durationMinutes}
                     onChange={(e) => setDurationMinutes(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-sm font-mono outline-none focus:border-blue-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-sm font-sans outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -577,7 +577,7 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
                   type="datetime-local"
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-sm font-mono outline-none focus:border-blue-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-sm font-sans outline-none focus:border-blue-500"
                 />
               </div>
 

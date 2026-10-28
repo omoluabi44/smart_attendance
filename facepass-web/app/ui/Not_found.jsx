@@ -25,7 +25,7 @@ export default function EmptyActionState({
         <ScanFace className="w-6 h-6" />
       </div>
 
-      <span className="text-[10px] font-mono uppercase tracking-wider text-blue-600 font-semibold mb-1">
+      <span className="text-[10px] font-sans uppercase tracking-wider text-blue-600 font-semibold mb-1">
         TELEMETRY // EMPTY STATE
       </span>
       <h3 className="text-base font-bold text-slate-900 tracking-tight text-center">

@@ -45,7 +45,7 @@ const FeatureAI = () => {
                <div className="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(79,70,229,0.5)] animate-pulse">
                  <Bot className="text-white w-10 h-10" />
                </div>
-               <div className="mt-4 text-indigo-400 font-mono text-xs text-center">
+               <div className="mt-4 text-indigo-400 font-sans text-xs text-center">
                  Analyzing Context...<br/>Solving PQs...
                </div>
             </div>

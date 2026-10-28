@@ -287,7 +287,7 @@ export default function FacePassLanding() {
                   </div>
 
                   {/* Interactive 3-Module Switcher */}
-                  <div className="flex items-center bg-obsidian-950 p-1 rounded-lg border border-obsidian-700 text-[11px] font-mono">
+                  <div className="flex items-center bg-obsidian-950 p-1 rounded-lg border border-obsidian-700 text-[11px] font-sans">
                     <button
                       type="button"
                       onClick={() => setActiveHeroFeature("attendance")}
@@ -332,7 +332,7 @@ export default function FacePassLanding() {
                       <div className="pointer-events-none absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_16px_#3395FF] animate-scanline z-20" />
 
                       {/* Sub-Header Telemetry & Intruder Toggle */}
-                      <div className="relative z-10 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                      <div className="relative z-10 flex items-center justify-between text-[11px] font-sans text-slate-400">
                         <span className="inline-flex items-center gap-1.5 text-blue-400">
                           <CpuChipIcon className="w-4 h-4" />
                           CV_ENGINE: MULTI-FACE VECTOR MATCH
@@ -402,7 +402,7 @@ export default function FacePassLanding() {
                               <p className="text-[11px] font-semibold text-white truncate">
                                 {det.name}
                               </p>
-                              <div className="flex items-center justify-between text-[10px] font-mono mt-0.5">
+                              <div className="flex items-center justify-between text-[10px] font-sans mt-0.5">
                                 <span className="text-slate-400">ATT: {det.attendanceRate}</span>
                                 <span
                                   className={
@@ -443,7 +443,7 @@ export default function FacePassLanding() {
                       </div>
 
                       {/* Bottom Viewfinder Telemetry */}
-                      <div className="relative z-10 flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-obsidian-700/80">
+                      <div className="relative z-10 flex items-center justify-between text-[11px] font-sans text-slate-400 pt-2 border-t border-obsidian-700/80">
                         <span>COLLECTION: facepass_course_get201</span>
                         <span className="text-emerald-400">
                           COURSEPASS WEBHOOK: DISPATCHED (200 OK)
@@ -511,7 +511,7 @@ export default function FacePassLanding() {
                           Share Lecture Slides, PDFs & Study Guides
                         </h3>
                       </div>
-                      <span className="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-mono">
+                      <span className="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-sans">
                         142 Enrolled Synced
                       </span>
                     </div>
@@ -567,7 +567,7 @@ export default function FacePassLanding() {
                       ))}
                     </div>
 
-                    <div className="pt-2 border-t border-obsidian-700 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <div className="pt-2 border-t border-obsidian-700 flex items-center justify-between text-[11px] font-sans text-slate-400">
                       <span>STORAGE: ENCRYPTED CLOUD VAULT</span>
                       <span className="text-blue-400">STUDENT PORTAL SYNC: REAL-TIME</span>
                     </div>
@@ -588,7 +588,7 @@ export default function FacePassLanding() {
                           Schedule Quizzes & Track Live Class Performance
                         </h3>
                       </div>
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-mono">
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-sans">
                         Auto-Graded
                       </span>
                     </div>
@@ -629,7 +629,7 @@ export default function FacePassLanding() {
                           </div>
 
                           <div className="space-y-1">
-                            <div className="flex items-center justify-between text-[11px] font-mono">
+                            <div className="flex items-center justify-between text-[11px] font-sans">
                               <span className="text-slate-400">Student Submissions</span>
                               <span className="text-white">{qz.submissions}</span>
                             </div>
@@ -646,7 +646,7 @@ export default function FacePassLanding() {
                       ))}
                     </div>
 
-                    <div className="pt-2 border-t border-obsidian-700 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <div className="pt-2 border-t border-obsidian-700 flex items-center justify-between text-[11px] font-sans text-slate-400">
                       <span>GRADING: INSTANT SCORE MATRIX</span>
                       <span className="text-emerald-400">CSV / EXCEL GRADE EXPORT READY</span>
                     </div>
@@ -751,7 +751,7 @@ export default function FacePassLanding() {
             </div>
 
             <div className="mt-8 p-4 rounded-xl bg-obsidian-900 border border-obsidian-700 space-y-2">
-              <div className="flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center justify-between text-xs font-sans">
                 <span className="text-blue-400">BROADCAST CHANNEL</span>
                 <span className="text-emerald-400">100% DELIVERED</span>
               </div>
@@ -784,7 +784,7 @@ export default function FacePassLanding() {
               </p>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-600">
+            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-sans text-slate-600">
               <span className="inline-flex items-center gap-1.5 text-blue-600 font-semibold">
                 <ClockIcon className="w-4 h-4" /> Timed Quiz Windows
               </span>
@@ -815,7 +815,7 @@ export default function FacePassLanding() {
               </p>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-600">
+            <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-sans text-slate-600">
               <span className="text-emerald-600 font-semibold">ELIGIBLE &ge; 75%</span>
               <span className="text-amber-600 font-semibold">AT-RISK &lt; 75%</span>
               <span className="text-blue-600 font-semibold">1-CLICK XLSX/CSV</span>
@@ -899,7 +899,7 @@ export default function FacePassLanding() {
                       FacePass Lecturer Command &harr; Enrolled Student Portal
                     </h3>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-mono">
+                  <span className="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-sans">
                     LIVE WEBHOOKS
                   </span>
                 </div>
@@ -946,7 +946,7 @@ export default function FacePassLanding() {
                 </div>
 
                 {/* Simulated Live Event Stream */}
-                <div className="rounded-xl bg-obsidian-900/90 border border-obsidian-700 p-4 space-y-2.5 font-mono text-xs">
+                <div className="rounded-xl bg-obsidian-900/90 border border-obsidian-700 p-4 space-y-2.5 font-sans text-xs">
                   <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-obsidian-700 pb-2">
                     <span>LIVE ACADEMIC EVENT STREAM // GET201</span>
                     <span className="text-emerald-400">● ACTIVE</span>

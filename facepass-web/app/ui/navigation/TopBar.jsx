@@ -28,7 +28,7 @@ export default function TopBar({
               </span>
             </div>
             {subtitle && (
-              <span className="text-[11px] font-mono text-slate-500 hidden sm:inline-block">
+              <span className="text-[11px] font-sans text-slate-500 hidden sm:inline-block">
                 {subtitle}
               </span>
             )}

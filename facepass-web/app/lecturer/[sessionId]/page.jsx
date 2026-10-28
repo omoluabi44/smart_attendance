@@ -274,7 +274,7 @@ export default function SessionControlRoom() {
         <div className="w-10 h-10 rounded-xl bg-obsidian-950 text-blue-400 flex items-center justify-center animate-pulse">
           <ScanFace className="w-5 h-5" />
         </div>
-        <div className="text-xs font-mono uppercase tracking-wider text-slate-500">
+        <div className="text-xs font-sans uppercase tracking-wider text-slate-500">
           SYNCHRONIZING SESSION CONTROL ROOM...
         </div>
       </div>
@@ -423,14 +423,14 @@ export default function SessionControlRoom() {
             </Link>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-obsidian-950 text-white font-mono text-xs font-bold">
+                <span className="px-2 py-0.5 rounded bg-obsidian-950 text-white font-sans text-xs font-bold">
                   {session.courseID}
                 </span>
-                <span className="text-xs font-mono text-slate-500">
+                <span className="text-xs font-sans text-slate-500">
                   SESSION {session.session_name} •{" "}
                   {session.total_expected_classes} LECTURES
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-mono text-blue-700">
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px] font-sans text-blue-700">
                   <ScanFace className="w-3 h-3 text-blue-600" />
                   COL-{session.courseID}
                 </span>
@@ -498,7 +498,7 @@ export default function SessionControlRoom() {
         {/* Co-Lecturers Bar */}
         {lecturers && lecturers.length > 0 && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 border-t border-slate-100 flex items-center gap-2 text-xs">
-            <span className="font-mono text-[11px] uppercase text-slate-400">
+            <span className="font-sans text-[11px] uppercase text-slate-400">
               ASSIGNED FACULTY:
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -525,7 +525,7 @@ export default function SessionControlRoom() {
                 <ShieldAlert className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-[11px] font-mono uppercase tracking-wider text-rose-300 font-bold">
+                <div className="text-[11px] font-sans uppercase tracking-wider text-rose-300 font-bold">
                   BIOMETRIC ANOMALY // UNREGISTERED CLASSROOM ATTENDEE
                 </div>
                 <p className="text-xs sm:text-sm text-rose-100 mt-0.5">
@@ -545,62 +545,62 @@ export default function SessionControlRoom() {
         {/* ── 4 Precision KPI Telemetry Cards ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>ENROLLED ROSTER</span>
               <Users className="w-4 h-4 text-slate-700" />
             </div>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono text-slate-900">
+              <span className="text-3xl font-bold font-sans text-slate-900">
                 {stats.total_enrolled}
               </span>
-              <span className="text-[11px] font-mono text-slate-500">
+              <span className="text-[11px] font-sans text-slate-500">
                 STUDENTS
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>MEAN ATTENDANCE</span>
               <BarChart3 className="w-4 h-4 text-blue-600" />
             </div>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono text-slate-900">
+              <span className="text-3xl font-bold font-sans text-slate-900">
                 {stats.average_attendance}%
               </span>
-              <span className="text-[11px] font-mono text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
                 TARGET ≥75%
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>EXAM ELIGIBLE (≥75%)</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono text-emerald-600">
+              <span className="text-3xl font-bold font-sans text-emerald-600">
                 {stats.eligible_count}
               </span>
-              <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                 CLEARED
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>AT-RISK WATCHLIST (&lt;75%)</span>
               <AlertTriangle className="w-4 h-4 text-amber-500" />
             </div>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono text-rose-600">
+              <span className="text-3xl font-bold font-sans text-rose-600">
                 {stats.at_risk_count}
               </span>
               <button
                 onClick={() => setActiveTab("at-risk")}
-                className="text-[11px] font-mono text-rose-600 hover:underline"
+                className="text-[11px] font-sans text-rose-600 hover:underline"
               >
                 INSPECT →
               </button>
@@ -668,7 +668,7 @@ export default function SessionControlRoom() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono text-slate-400 hidden lg:inline">
+                <span className="text-[11px] font-sans text-slate-400 hidden lg:inline">
                   CLICK ANY STUDENT ROW TO OPEN BIOMETRIC AUDIT DOSSIER
                 </span>
                 <button
@@ -706,11 +706,11 @@ export default function SessionControlRoom() {
                     <div className="px-6 py-3.5 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-obsidian-950" />
-                        <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-800">
+                        <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
                           DEPARTMENT // {dept}
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono font-semibold text-slate-600 bg-white border border-slate-200 px-2.5 py-0.5 rounded-md">
+                      <span className="text-[11px] font-sans font-semibold text-slate-600 bg-white border border-slate-200 px-2.5 py-0.5 rounded-md">
                         {groupedByDept[dept].length} Students
                       </span>
                     </div>
@@ -718,7 +718,7 @@ export default function SessionControlRoom() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                          <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                             <th className="py-3.5 px-6">#</th>
                             <th className="py-3.5 px-6">Student Name</th>
                             <th className="py-3.5 px-6">Matric No.</th>
@@ -736,16 +736,16 @@ export default function SessionControlRoom() {
                               onClick={() => handleOpenStudentAudit(s)}
                               className="hover:bg-slate-50/90 cursor-pointer transition group"
                             >
-                              <td className="py-3.5 px-6 font-mono text-slate-400">
+                              <td className="py-3.5 px-6 font-sans text-slate-400">
                                 {String(i + 1).padStart(2, "0")}
                               </td>
                               <td className="py-3.5 px-6 font-semibold text-slate-900 group-hover:text-blue-600">
                                 {s.name}
                               </td>
-                              <td className="py-3.5 px-6 font-mono text-slate-600">
+                              <td className="py-3.5 px-6 font-sans text-slate-600">
                                 {s.matric}
                               </td>
-                              <td className="py-3.5 px-6 font-mono">
+                              <td className="py-3.5 px-6 font-sans">
                                 <span className="font-bold text-emerald-600">
                                   {s.days_attended}
                                 </span>
@@ -755,7 +755,7 @@ export default function SessionControlRoom() {
                                   </span>
                                 )}
                               </td>
-                              <td className="py-3.5 px-6 font-mono font-bold text-rose-600">
+                              <td className="py-3.5 px-6 font-sans font-bold text-rose-600">
                                 {s.days_missed}
                               </td>
                               <td className="py-3.5 px-6 w-48">
@@ -777,14 +777,14 @@ export default function SessionControlRoom() {
                                       }}
                                     />
                                   </div>
-                                  <span className="font-mono font-bold text-slate-800 w-12 text-right">
+                                  <span className="font-sans font-bold text-slate-800 w-12 text-right">
                                     {s.percentage}%
                                   </span>
                                 </div>
                               </td>
                               <td className="py-3.5 px-6">
                                 <span
-                                  className={`inline-flex px-2.5 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase border ${
+                                  className={`inline-flex px-2.5 py-0.5 rounded-md font-sans text-[10px] font-bold uppercase border ${
                                     s.eligible
                                       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                       : s.percentage >= 65
@@ -800,7 +800,7 @@ export default function SessionControlRoom() {
                                 </span>
                               </td>
                               <td className="py-3.5 px-6 text-right">
-                                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-400 group-hover:text-slate-900">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-sans text-slate-400 group-hover:text-slate-900">
                                   <Eye className="w-3.5 h-3.5" />
                                   Audit
                                 </span>
@@ -843,10 +843,10 @@ export default function SessionControlRoom() {
                 >
                   <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <span className="px-2.5 py-1 rounded-lg bg-obsidian-950 text-white font-mono text-xs font-bold">
+                      <span className="px-2.5 py-1 rounded-lg bg-obsidian-950 text-white font-sans text-xs font-bold">
                         {day.date}
                       </span>
-                      <span className="text-xs font-mono text-slate-600">
+                      <span className="text-xs font-sans text-slate-600">
                         {day.total_present} / {day.total_records} PRESENT
                       </span>
                     </div>
@@ -890,7 +890,7 @@ export default function SessionControlRoom() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                        <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                           <th className="py-3 px-6">Student Name</th>
                           <th className="py-3 px-6">Matric No.</th>
                           <th className="py-3 px-6">Timestamp</th>
@@ -910,10 +910,10 @@ export default function SessionControlRoom() {
                             <td className="py-3 px-6 font-semibold text-slate-900">
                               {entry.student_name}
                             </td>
-                            <td className="py-3 px-6 font-mono text-slate-600">
+                            <td className="py-3 px-6 font-sans text-slate-600">
                               {entry.student_matric}
                             </td>
-                            <td className="py-3 px-6 font-mono text-slate-500">
+                            <td className="py-3 px-6 font-sans text-slate-500">
                               {entry.time || "—"}
                             </td>
                             <td className="py-3 px-6 text-slate-500">
@@ -921,7 +921,7 @@ export default function SessionControlRoom() {
                             </td>
                             <td className="py-3 px-6">
                               <span
-                                className={`inline-flex px-2.5 py-0.5 rounded-md font-mono text-[10px] font-bold uppercase border ${
+                                className={`inline-flex px-2.5 py-0.5 rounded-md font-sans text-[10px] font-bold uppercase border ${
                                   entry.status === "present"
                                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                     : entry.status === "excused"
@@ -938,7 +938,7 @@ export default function SessionControlRoom() {
                                 onChange={(e) =>
                                   handleOverride(entry.log_id, e.target.value)
                                 }
-                                className="text-xs font-mono border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 bg-white hover:border-slate-400 focus:border-slate-900 outline-none cursor-pointer"
+                                className="text-xs font-sans border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 bg-white hover:border-slate-400 focus:border-slate-900 outline-none cursor-pointer"
                               >
                                 <option value="present">PRESENT</option>
                                 <option value="excused">EXCUSED</option>
@@ -961,7 +961,7 @@ export default function SessionControlRoom() {
           <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
             <div className="px-6 py-4 bg-rose-50/70 border-b border-rose-200/70 flex flex-wrap items-center justify-between gap-2">
               <div>
-                <span className="text-[11px] font-mono text-rose-700 font-bold uppercase tracking-wider">
+                <span className="text-[11px] font-sans text-rose-700 font-bold uppercase tracking-wider">
                   COMPLIANCE WATCHLIST // BELOW 75% THRESHOLD
                 </span>
                 <h3 className="text-sm font-bold text-slate-900">
@@ -969,7 +969,7 @@ export default function SessionControlRoom() {
                   {at_risk_students?.length || 0})
                 </h3>
               </div>
-              <span className="text-xs font-mono text-rose-700">
+              <span className="text-xs font-sans text-rose-700">
                 REQUIRED: ≥{" "}
                 {Math.ceil((session.total_expected_classes || 13) * 0.75)}{" "}
                 LECTURES
@@ -980,7 +980,7 @@ export default function SessionControlRoom() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                    <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                       <th className="py-3.5 px-6">Student Name</th>
                       <th className="py-3.5 px-6">Matric No.</th>
                       <th className="py-3.5 px-6">Department</th>
@@ -1008,20 +1008,20 @@ export default function SessionControlRoom() {
                           <td className="py-3.5 px-6 font-semibold text-slate-900">
                             {s.name}
                           </td>
-                          <td className="py-3.5 px-6 font-mono text-slate-600">
+                          <td className="py-3.5 px-6 font-sans text-slate-600">
                             {s.matric}
                           </td>
                           <td className="py-3.5 px-6 text-slate-500">
                             {s.department || "N/A"}
                           </td>
-                          <td className="py-3.5 px-6 font-mono font-bold text-slate-800">
+                          <td className="py-3.5 px-6 font-sans font-bold text-slate-800">
                             {eff} / {session.total_expected_classes}
                           </td>
-                          <td className="py-3.5 px-6 font-mono font-bold text-rose-600">
+                          <td className="py-3.5 px-6 font-sans font-bold text-rose-600">
                             {s.percentage}%
                           </td>
                           <td className="py-3.5 px-6">
-                            <span className="px-2.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 font-mono text-[11px] font-semibold text-rose-700">
+                            <span className="px-2.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 font-sans text-[11px] font-semibold text-rose-700">
                               +{needed} lecture{needed === 1 ? "" : "s"} needed
                             </span>
                           </td>
@@ -1032,7 +1032,7 @@ export default function SessionControlRoom() {
                                 e.stopPropagation();
                                 handleOpenStudentAudit(s);
                               }}
-                              className="px-3 py-1 rounded-lg bg-slate-900 text-white font-mono text-[11px] hover:bg-slate-700"
+                              className="px-3 py-1 rounded-lg bg-slate-900 text-white font-sans text-[11px] hover:bg-slate-700"
                             >
                               Audit Dossier
                             </button>
@@ -1169,7 +1169,7 @@ function Modal({ badge, title, onClose, children }) {
           <X className="h-4 w-4" />
         </button>
         {badge && (
-          <div className="text-[11px] font-mono text-blue-600 font-semibold uppercase mb-1">
+          <div className="text-[11px] font-sans text-blue-600 font-semibold uppercase mb-1">
             {badge}
           </div>
         )}
@@ -1221,7 +1221,7 @@ function SettingsModal({
             type="text"
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
-            className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono outline-none focus:border-slate-900"
+            className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans outline-none focus:border-slate-900"
           />
         </div>
         <div>
@@ -1233,9 +1233,9 @@ function SettingsModal({
             value={totalClasses}
             onChange={(e) => setTotalClasses(e.target.value)}
             min={1}
-            className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono outline-none focus:border-slate-900"
+            className="w-full border border-slate-200 bg-slate-50/50 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans outline-none focus:border-slate-900"
           />
-          <p className="mt-1.5 text-[11px] font-mono text-slate-500">
+          <p className="mt-1.5 text-[11px] font-sans text-slate-500">
             75% Eligibility = {Math.ceil((Number(totalClasses) || 0) * 0.75)}{" "}
             lectures required.
           </p>
@@ -1309,10 +1309,10 @@ function AttendanceProgressBanner({ jobs, onRemove }) {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-mono font-bold text-white truncate">
+                <p className="text-xs font-sans font-bold text-white truncate">
                   {job.fileName}
                 </p>
-                <p className={`text-[10px] font-mono ${cfg.color}`}>
+                <p className={`text-[10px] font-sans ${cfg.color}`}>
                   {cfg.label}
                 </p>
               </div>
@@ -1363,28 +1363,28 @@ function AttendanceProgressBanner({ jobs, onRemove }) {
               {job.stage === "done" && job.results && (
                 <div className="grid grid-cols-3 gap-2 text-center pt-1">
                   <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                    <span className="block text-[9px] font-mono text-slate-400">
+                    <span className="block text-[9px] font-sans text-slate-400">
                       DETECTED
                     </span>
-                    <span className="font-mono text-xs font-bold text-white">
+                    <span className="font-sans text-xs font-bold text-white">
                       {job.results.total_faces_detected ??
                         job.results.unique_faces_recognized ??
                         0}
                     </span>
                   </div>
                   <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                    <span className="block text-[9px] font-mono text-slate-400">
+                    <span className="block text-[9px] font-sans text-slate-400">
                       MATCHED
                     </span>
-                    <span className="font-mono text-xs font-bold text-emerald-400">
+                    <span className="font-sans text-xs font-bold text-emerald-400">
                       {job.results.unique_faces_recognized ?? 0}
                     </span>
                   </div>
                   <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
-                    <span className="block text-[9px] font-mono text-slate-400">
+                    <span className="block text-[9px] font-sans text-slate-400">
                       NEW LOGS
                     </span>
-                    <span className="font-mono text-xs font-bold text-blue-400">
+                    <span className="font-sans text-xs font-bold text-blue-400">
                       {job.results.new_records ??
                         job.results.unique_faces_recognized ??
                         0}
@@ -1394,7 +1394,7 @@ function AttendanceProgressBanner({ jobs, onRemove }) {
               )}
 
               {job.stage === "error" && job.error && (
-                <p className="text-xs font-mono text-rose-400 bg-rose-950/60 border border-rose-500/30 px-3 py-2 rounded-lg">
+                <p className="text-xs font-sans text-rose-400 bg-rose-950/60 border border-rose-500/30 px-3 py-2 rounded-lg">
                   {job.error}
                 </p>
               )}
@@ -1409,7 +1409,7 @@ function AttendanceProgressBanner({ jobs, onRemove }) {
                       <span className="font-medium text-slate-200 truncate">
                         {s.name}
                       </span>
-                      <span className="font-mono text-[10px] text-emerald-400">
+                      <span className="font-sans text-[10px] text-emerald-400">
                         {s.matric} ✓
                       </span>
                     </div>

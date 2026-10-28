@@ -83,7 +83,7 @@ export default function LoginForm() {
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to overview
           </Link>
-          <span className="text-[11px] font-mono text-blue-600 font-semibold uppercase tracking-wider">
+          <span className="text-[11px] font-sans text-blue-600 font-semibold uppercase tracking-wider">
             AUTH // FACULTY &amp; ADMIN
           </span>
         </div>
@@ -219,7 +219,7 @@ export default function LoginForm() {
         </div>
 
         {/* Scope Guardrail Note */}
-        <p className="mt-5 text-center text-[11px] font-mono text-slate-400">
+        <p className="mt-5 text-center text-[11px] font-sans text-slate-400">
           STUDENT ENROLLMENT IS HANDLED EXCLUSIVELY VIA STUDENT PORTAL
         </p>
       </div>

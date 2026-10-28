@@ -3,17 +3,36 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  button,
+  input,
+  select,
+  textarea,
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-roboto), 'Roboto', sans-serif !important;
+  }
+
   body {
     background-color: #FAFAFA;
     color: #0F172A;
-    font-family: var(--font-roboto), Roboto, sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: var(--font-roboto), 'Roboto', sans-serif !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-roboto), Roboto, sans-serif;
-    letter-spacing: -0.025em;
+    font-family: var(--font-roboto), 'Roboto', sans-serif !important;
+    letter-spacing: -0.02em;
   }
+}
+
+.font-mono,
+.font-sans,
+.font-roboto,
+.font-montserrat {
+  font-family: var(--font-roboto), 'Roboto', sans-serif !important;
 }
 
 /* Precision Computer-Vision Grid & Surface Patterns (#007BFF Brand Blue Harmonized) */

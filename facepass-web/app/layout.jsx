@@ -2,7 +2,7 @@ if (typeof window !== 'undefined' && !window.ResizeObserver) {
   window.ResizeObserver = require('resize-observer-polyfill').default;
 }
 import '@/app/ui/global.css';
-import { inter, montserrat, roboto, jetbrainsMono } from '@/app/ui/fonts';
+import { roboto } from '@/app/ui/fonts';
 import StoreProvider from './StoreProvider';
 import ClientToasts from '@/app/ui/ClientToasts';
 import 'katex/dist/katex.min.css';
@@ -31,9 +31,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`scroll-smooth ${roboto.variable}`}>
       <body
-        className={`${roboto.className} ${roboto.variable} ${montserrat.variable} ${jetbrainsMono.variable} antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900`}
+        className={`${roboto.className} ${roboto.variable} font-sans antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900`}
       >
         <StoreProvider>
           {children}

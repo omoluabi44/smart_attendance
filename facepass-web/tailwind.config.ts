@@ -12,8 +12,8 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-roboto)', 'Roboto', 'sans-serif'],
         roboto: ['var(--font-roboto)', 'Roboto', 'sans-serif'],
-        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        montserrat: ['var(--font-montserrat)', 'sans-serif'],
+        mono: ['var(--font-roboto)', 'Roboto', 'sans-serif'],
+        montserrat: ['var(--font-roboto)', 'Roboto', 'sans-serif'],
       },
       gridTemplateColumns: {
         '13': 'repeat(13, minmax(0, 1fr))',

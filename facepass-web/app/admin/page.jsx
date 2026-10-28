@@ -402,7 +402,7 @@ export default function AdminCommandCenter() {
   if (!isAuthorizedAdmin) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-slate-500">
+        <div className="text-xs font-sans uppercase tracking-wider text-slate-500">
           VERIFYING ADMIN CLEARANCE...
         </div>
       </div>
@@ -463,48 +463,48 @@ export default function AdminCommandCenter() {
         {/* ── 4 Executive Telemetry Cards ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>FACULTY &amp; ADMINS</span>
               <ShieldCheck className="w-4 h-4 text-blue-500" />
             </div>
             <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {loadingOverview
                   ? "—"
                   : (overview?.total_lecturers || 0) +
                     (overview?.total_admins || 0)}
               </span>
-              <span className="text-[11px] font-mono text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded">
                 {overview?.total_lecturers || 0} LECTURERS
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>PENDING PASSWORD RESETS</span>
               <KeyRound className="w-4 h-4 text-amber-500" />
             </div>
             <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {loadingOverview ? "—" : overview?.pending_password_changes || 0}
               </span>
-              <span className="text-[11px] font-mono text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-amber-700 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded">
                 FORCE ON LOGIN
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>COURSES &amp; SESSIONS</span>
               <Calendar className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {loadingOverview ? "—" : overview?.total_sessions || 0}
               </span>
-              <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
                 {overview?.total_courses || 0} COURSES
               </span>
             </div>
@@ -512,15 +512,15 @@ export default function AdminCommandCenter() {
 
           <div className="bg-obsidian-950 text-white rounded-2xl p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-vision-grid-dark opacity-30 pointer-events-none" />
-            <div className="relative z-10 flex items-center justify-between text-[11px] font-mono text-blue-400 uppercase">
+            <div className="relative z-10 flex items-center justify-between text-[11px] font-sans text-blue-400 uppercase">
               <span>SYNCED STUDENTS &amp; SCANS</span>
               <ScanFace className="w-4 h-4 text-blue-400" />
             </div>
             <div className="relative z-10 mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-white">
+              <span className="text-3xl font-bold font-sans tracking-tight text-white">
                 {loadingOverview ? "—" : overview?.total_students || 0}
               </span>
-              <span className="text-[10px] font-mono text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
                 {overview?.total_attendance_logs || 0} LOGS
               </span>
             </div>
@@ -584,7 +584,7 @@ export default function AdminCommandCenter() {
             {/* Filter & Search Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
               <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-                <span className="text-[11px] font-mono uppercase text-slate-400 mr-1 shrink-0">
+                <span className="text-[11px] font-sans uppercase text-slate-400 mr-1 shrink-0">
                   ROLE FILTER:
                 </span>
                 {[
@@ -611,7 +611,7 @@ export default function AdminCommandCenter() {
                   <button
                     key={tab.key}
                     onClick={() => setRoleFilter(tab.key)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition shrink-0 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-sans font-semibold transition shrink-0 ${
                       roleFilter === tab.key
                         ? "bg-blue-500 text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600"
@@ -639,17 +639,17 @@ export default function AdminCommandCenter() {
               <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-800">
+                  <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
                     INSTITUTIONAL DIRECTORY ({filteredUsers.length})
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-slate-500">
+                <span className="text-[11px] font-sans text-slate-500">
                   STUDENT BIOMETRIC ENROLLMENT IS MANAGED VIA COURSEPASS
                 </span>
               </div>
 
               {loadingUsers ? (
-                <div className="p-12 text-center text-xs font-mono text-slate-400">
+                <div className="p-12 text-center text-xs font-sans text-slate-400">
                   LOADING DIRECTORY...
                 </div>
               ) : filteredUsers.length === 0 ? (
@@ -672,7 +672,7 @@ export default function AdminCommandCenter() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                      <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                         <th className="py-3.5 px-6">Name &amp; Email</th>
                         <th className="py-3.5 px-6">Staff / Matric ID</th>
                         <th className="py-3.5 px-6">Role</th>
@@ -695,16 +695,16 @@ export default function AdminCommandCenter() {
                               <div className="font-semibold text-slate-900 flex items-center gap-1.5">
                                 <span>{u.name}</span>
                                 {isSelf && (
-                                  <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white font-mono text-[9px]">
+                                  <span className="px-1.5 py-0.5 rounded bg-slate-900 text-white font-sans text-[9px]">
                                     YOU
                                   </span>
                                 )}
                               </div>
-                              <div className="text-slate-500 font-mono text-[11px]">
+                              <div className="text-slate-500 font-sans text-[11px]">
                                 {u.email}
                               </div>
                             </td>
-                            <td className="py-3.5 px-6 font-mono text-slate-600">
+                            <td className="py-3.5 px-6 font-sans text-slate-600">
                               {u.matric || "—"}
                             </td>
                             <td className="py-3.5 px-6">
@@ -714,7 +714,7 @@ export default function AdminCommandCenter() {
                                 onChange={(e) =>
                                   handleRoleChange(u.id, e.target.value)
                                 }
-                                className={`font-mono text-[11px] font-semibold uppercase rounded-lg px-2.5 py-1 border outline-none cursor-pointer ${
+                                className={`font-sans text-[11px] font-semibold uppercase rounded-lg px-2.5 py-1 border outline-none cursor-pointer ${
                                   u.role === "admin"
                                     ? "bg-obsidian-950 text-white border-obsidian-950"
                                     : u.role === "lecturer"
@@ -744,18 +744,18 @@ export default function AdminCommandCenter() {
                             </td>
                             <td className="py-3.5 px-6">
                               {u.must_change_password ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-mono text-[10px] font-bold">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-sans text-[10px] font-bold">
                                   <AlertTriangle className="w-3 h-3 text-amber-600" />
                                   TEMP PASSWORD // FORCE CHANGE
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono text-[10px] font-bold">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-sans text-[10px] font-bold">
                                   <Check className="w-3 h-3 text-emerald-600" />
                                   PERSONAL PASSWORD SET
                                 </span>
                               )}
                             </td>
-                            <td className="py-3.5 px-6 font-mono text-slate-600">
+                            <td className="py-3.5 px-6 font-sans text-slate-600">
                               {u.role === "student"
                                 ? "—"
                                 : `${u.assigned_sessions_count || 0} assigned`}
@@ -826,7 +826,7 @@ export default function AdminCommandCenter() {
             {/* Sessions Table */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
               {loadingSessions ? (
-                <div className="p-12 text-center text-xs font-mono text-slate-400">
+                <div className="p-12 text-center text-xs font-sans text-slate-400">
                   LOADING SESSIONS...
                 </div>
               ) : filteredSessions.length === 0 ? (
@@ -843,7 +843,7 @@ export default function AdminCommandCenter() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                      <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                         <th className="py-3.5 px-6">Course &amp; Session</th>
                         <th className="py-3.5 px-6">Assigned Faculty</th>
                         <th className="py-3.5 px-6">Roster &amp; Logs</th>
@@ -858,13 +858,13 @@ export default function AdminCommandCenter() {
                         >
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="px-2 py-0.5 rounded bg-blue-500 text-white font-mono text-xs font-bold">
+                              <span className="px-2 py-0.5 rounded bg-blue-500 text-white font-sans text-xs font-bold">
                                 {s.courseID}
                               </span>
-                              <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-[11px] text-slate-700">
+                              <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-sans text-[11px] text-slate-700">
                                 {s.session_name}
                               </span>
-                              <span className="text-[11px] font-mono text-slate-400">
+                              <span className="text-[11px] font-sans text-slate-400">
                                 {s.total_expected_classes} lectures
                               </span>
                             </div>
@@ -898,7 +898,7 @@ export default function AdminCommandCenter() {
                                   </span>
                                 ))
                               ) : (
-                                <span className="text-amber-600 font-mono text-[11px]">
+                                <span className="text-amber-600 font-sans text-[11px]">
                                   UNASSIGNED
                                 </span>
                               )}
@@ -915,7 +915,7 @@ export default function AdminCommandCenter() {
                               </button>
                             </div>
                           </td>
-                          <td className="py-4 px-6 font-mono">
+                          <td className="py-4 px-6 font-sans">
                             <div className="text-slate-900 font-bold">
                               {s.enrolled_students || 0} Students
                             </div>
@@ -953,12 +953,12 @@ export default function AdminCommandCenter() {
             {/* Course Catalog Table */}
             <div className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs">
               <div className="px-6 py-4 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between">
-                <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-800">
+                <span className="font-sans text-xs font-bold uppercase tracking-wider text-slate-800">
                   LOCAL COURSE CATALOG ({allCourses.length})
                 </span>
               </div>
               {loadingCourses ? (
-                <div className="p-8 text-center text-xs font-mono text-slate-400">
+                <div className="p-8 text-center text-xs font-sans text-slate-400">
                   LOADING COURSES...
                 </div>
               ) : allCourses.length === 0 ? (
@@ -969,7 +969,7 @@ export default function AdminCommandCenter() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                      <tr className="border-b border-slate-100 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                         <th className="py-3 px-6">Course Code</th>
                         <th className="py-3 px-6">Course Title</th>
                         <th className="py-3 px-6">Active Sessions</th>
@@ -979,13 +979,13 @@ export default function AdminCommandCenter() {
                     <tbody className="divide-y divide-slate-100 text-xs">
                       {allCourses.map((c) => (
                         <tr key={c.id} className="hover:bg-slate-50/80">
-                          <td className="py-3 px-6 font-mono font-bold text-slate-900">
+                          <td className="py-3 px-6 font-sans font-bold text-slate-900">
                             {c.courseID}
                           </td>
                           <td className="py-3 px-6 text-slate-700">
                             {c.courseName}
                           </td>
-                          <td className="py-3 px-6 font-mono text-slate-600">
+                          <td className="py-3 px-6 font-sans text-slate-600">
                             {c.session_count || 0}
                           </td>
                           <td className="py-3 px-6 text-right">
@@ -1060,7 +1060,7 @@ export default function AdminCommandCenter() {
                   value={lecMatric}
                   onChange={(e) => setLecMatric(e.target.value)}
                   placeholder="Auto-generated if blank (e.g. LEC-4821)"
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm font-mono text-slate-900 focus:border-blue-500 outline-none"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm font-sans text-slate-900 focus:border-blue-500 outline-none"
                 />
               </div>
               <div>
@@ -1100,7 +1100,7 @@ export default function AdminCommandCenter() {
                   onChange={(e) => setLecPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="flex-1 border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm font-mono text-slate-900 focus:border-blue-500 outline-none"
+                  className="flex-1 border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm font-sans text-slate-900 focus:border-blue-500 outline-none"
                 />
                 <button
                   type="button"
@@ -1193,17 +1193,17 @@ export default function AdminCommandCenter() {
                   <div className="text-xs font-bold text-white">
                     {credentialCard.name}
                   </div>
-                  <div className="text-[11px] font-mono text-slate-400">
+                  <div className="text-[11px] font-sans text-slate-400">
                     {credentialCard.role?.toUpperCase()} •{" "}
                     {credentialCard.matric || "STAFF"}
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400/40 text-amber-300 font-mono text-[10px]">
+                <span className="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-400/40 text-amber-300 font-sans text-[10px]">
                   MUST CHANGE ON LOGIN
                 </span>
               </div>
 
-              <div className="space-y-2 text-xs font-mono">
+              <div className="space-y-2 text-xs font-sans">
                 <div className="flex items-center justify-between bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-800">
                   <div>
                     <span className="text-[10px] text-slate-400 block">
@@ -1362,7 +1362,7 @@ export default function AdminCommandCenter() {
                 onChange={(e) => setCourseID(e.target.value)}
                 placeholder="e.g. CSC401"
                 required
-                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-900 outline-none"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans uppercase text-slate-900 outline-none"
               />
             </div>
             <div>
@@ -1450,7 +1450,7 @@ export default function AdminCommandCenter() {
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
                   required
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 outline-none"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans text-slate-900 outline-none"
                 />
               </div>
               <div>
@@ -1464,7 +1464,7 @@ export default function AdminCommandCenter() {
                   value={totalClasses}
                   onChange={(e) => setTotalClasses(e.target.value)}
                   required
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 outline-none"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans text-slate-900 outline-none"
                 />
               </div>
             </div>
@@ -1502,7 +1502,7 @@ function Modal({ badge, title, subtitle, onClose, children }) {
           <X className="h-4 w-4" />
         </button>
         {badge && (
-          <div className="text-[11px] font-mono font-semibold text-blue-600 uppercase tracking-wider mb-1">
+          <div className="text-[11px] font-sans font-semibold text-blue-600 uppercase tracking-wider mb-1">
             {badge}
           </div>
         )}

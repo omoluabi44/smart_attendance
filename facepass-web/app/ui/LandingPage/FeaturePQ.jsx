@@ -55,7 +55,7 @@ const FeaturePQ = () => {
             <p className="text-slate-400 mb-6 text-sm">Real conditions. Strict timer. No feedback until you submit. Are you actually ready?</p>
             {/* Timer UI */}
             <div className="flex items-center justify-center bg-slate-800 rounded-xl py-3 border border-red-500/30">
-               <span className="font-mono text-red-400 font-bold text-lg animate-pulse">00:45:21</span>
+               <span className="font-sans text-red-400 font-bold text-lg animate-pulse">00:45:21</span>
             </div>
           </div>
 

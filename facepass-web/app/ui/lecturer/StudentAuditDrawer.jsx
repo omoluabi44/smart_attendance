@@ -120,7 +120,7 @@ export default function StudentAuditDrawer({
         {/* Top Drawer Header */}
         <div className="px-6 py-5 bg-obsidian-950 text-white flex items-center justify-between border-b border-slate-800">
           <div>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-blue-400 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-[11px] font-sans text-blue-400 uppercase tracking-wider">
               <span>BIOMETRIC DOSSIER // STUDENT AUDIT</span>
             </div>
             <h2 className="text-lg font-bold text-white mt-0.5">{student.name}</h2>
@@ -148,7 +148,7 @@ export default function StudentAuditDrawer({
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-200/80">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-obsidian-950 text-blue-400 font-mono font-bold text-sm flex items-center justify-center">
+                <div className="w-11 h-11 rounded-xl bg-obsidian-950 text-blue-400 font-sans font-bold text-sm flex items-center justify-center">
                   {(student.name || "ST")
                     .split(" ")
                     .map((n) => n[0])
@@ -160,7 +160,7 @@ export default function StudentAuditDrawer({
                   <div className="text-sm font-bold text-slate-900">
                     {student.name}
                   </div>
-                  <div className="text-xs font-mono text-slate-500 flex items-center gap-2">
+                  <div className="text-xs font-sans text-slate-500 flex items-center gap-2">
                     <span>{student.matric}</span>
                     <span>•</span>
                     <span>{student.department || "N/A"}</span>
@@ -169,7 +169,7 @@ export default function StudentAuditDrawer({
               </div>
 
               <span
-                className={`px-3 py-1 rounded-full text-xs font-mono font-bold border ${
+                className={`px-3 py-1 rounded-full text-xs font-sans font-bold border ${
                   student.eligible
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                     : student.percentage >= 65
@@ -187,7 +187,7 @@ export default function StudentAuditDrawer({
 
             {/* Progress Bar */}
             <div>
-              <div className="flex items-center justify-between text-xs font-mono mb-1.5">
+              <div className="flex items-center justify-between text-xs font-sans mb-1.5">
                 <span className="text-slate-500">
                   ATTENDANCE RATE ({effectiveAttended}/{totalExpected} LECTURES)
                 </span>
@@ -209,7 +209,7 @@ export default function StudentAuditDrawer({
                   }}
                 />
               </div>
-              <div className="mt-2 flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <div className="mt-2 flex items-center justify-between text-[11px] font-sans text-slate-500">
                 <span>75% THRESHOLD = {requiredClasses} LECTURES</span>
                 {deficit > 0 ? (
                   <span className="text-rose-600 font-semibold">
@@ -226,26 +226,26 @@ export default function StudentAuditDrawer({
             {/* Metric Breakdown */}
             <div className="grid grid-cols-3 gap-2 pt-2">
               <div className="bg-white p-3 rounded-xl border border-slate-200/80 text-center">
-                <span className="block text-[10px] font-mono text-slate-400">
+                <span className="block text-[10px] font-sans text-slate-400">
                   PRESENT
                 </span>
-                <span className="font-mono font-bold text-base text-emerald-600">
+                <span className="font-sans font-bold text-base text-emerald-600">
                   {student.days_attended ?? 0}
                 </span>
               </div>
               <div className="bg-white p-3 rounded-xl border border-slate-200/80 text-center">
-                <span className="block text-[10px] font-mono text-slate-400">
+                <span className="block text-[10px] font-sans text-slate-400">
                   EXCUSED
                 </span>
-                <span className="font-mono font-bold text-base text-indigo-600">
+                <span className="font-sans font-bold text-base text-indigo-600">
                   {student.excused ?? 0}
                 </span>
               </div>
               <div className="bg-white p-3 rounded-xl border border-slate-200/80 text-center">
-                <span className="block text-[10px] font-mono text-slate-400">
+                <span className="block text-[10px] font-sans text-slate-400">
                   MISSED
                 </span>
-                <span className="font-mono font-bold text-base text-rose-600">
+                <span className="font-sans font-bold text-base text-rose-600">
                   {student.days_missed ?? 0}
                 </span>
               </div>
@@ -253,7 +253,7 @@ export default function StudentAuditDrawer({
           </div>
 
           {loadingAudit ? (
-            <div className="py-12 text-center text-xs font-mono text-slate-400 animate-pulse">
+            <div className="py-12 text-center text-xs font-sans text-slate-400 animate-pulse">
               RETRIEVING CHRONOLOGICAL BIOMETRIC LOGS...
             </div>
           ) : (
@@ -261,7 +261,7 @@ export default function StudentAuditDrawer({
               {/* Chronological Attendance History */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold flex items-center gap-1.5">
+                  <h3 className="text-xs font-sans uppercase tracking-wider text-slate-500 font-semibold flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
                     Chronological Attendance Log ({chronologicalRecords.length})
                   </h3>
@@ -279,7 +279,7 @@ export default function StudentAuditDrawer({
                         className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-slate-200/90 hover:border-slate-300 transition"
                       >
                         <div>
-                          <div className="text-xs font-mono font-bold text-slate-900">
+                          <div className="text-xs font-sans font-bold text-slate-900">
                             {rec.date}
                           </div>
                           <div className="text-[11px] text-slate-500">
@@ -288,7 +288,7 @@ export default function StudentAuditDrawer({
                           </div>
                         </div>
                         <span
-                          className={`px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold uppercase ${
+                          className={`px-2.5 py-1 rounded-md text-[11px] font-sans font-semibold uppercase ${
                             rec.status === "present"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                               : rec.status === "excused"
@@ -306,7 +306,7 @@ export default function StudentAuditDrawer({
 
               {/* Quiz Performances */}
               <div>
-                <h3 className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold flex items-center gap-1.5 mb-3">
+                <h3 className="text-xs font-sans uppercase tracking-wider text-slate-500 font-semibold flex items-center gap-1.5 mb-3">
                   <Award className="w-3.5 h-3.5 text-slate-400" />
                   Synced CoursePass Quiz Results
                 </h3>
@@ -321,7 +321,7 @@ export default function StudentAuditDrawer({
                         <span className="text-xs font-semibold text-slate-800">
                           {quiz.title}
                         </span>
-                        <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+                        <span className="font-sans text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
                           {quiz.score} / {quiz.total_score}
                         </span>
                       </div>
@@ -338,7 +338,7 @@ export default function StudentAuditDrawer({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] font-mono text-slate-500">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] font-sans text-slate-500">
           <span>COURSEPASS BIOMETRIC ID: {student.id?.slice(0, 8)}</span>
           <button
             onClick={onClose}

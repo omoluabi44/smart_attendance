@@ -97,7 +97,7 @@ export default function ForceChangePasswordPage() {
       <div className="w-full max-w-md">
         {/* Top Status Header */}
         <div className="mb-5 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-[11px] font-mono font-semibold text-amber-800 uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-[11px] font-sans font-semibold text-amber-800 uppercase tracking-wider">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
             SECURITY // MANDATORY CREDENTIAL ROTATION
           </span>
@@ -125,7 +125,7 @@ export default function ForceChangePasswordPage() {
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
             Welcome{user?.name ? `, ${user.name}` : ""}. Your institutional
-            account (<span className="font-mono text-slate-800">{user?.email}</span>) was
+            account (<span className="font-sans text-slate-800">{user?.email}</span>) was
             provisioned by an administrator with a temporary password. Please
             choose a new personal password to unlock the Command Center.
           </p>
@@ -220,7 +220,7 @@ export default function ForceChangePasswordPage() {
 
             {/* Live Security Checklist */}
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5 text-xs">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-1">
+              <div className="text-[10px] font-sans uppercase tracking-wider text-slate-400 font-semibold mb-1">
                 PASSWORD POLICY CHECKS
               </div>
               <RequirementItem

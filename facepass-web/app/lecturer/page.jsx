@@ -200,45 +200,45 @@ export default function LecturerDashboard() {
         {/* ── Executive Summary Strip (4 Metric Cards) ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>ACTIVE SESSIONS</span>
               <Calendar className="w-4 h-4 text-blue-500" />
             </div>
             <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {sessions.length}
               </span>
-              <span className="text-[11px] font-mono text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded">
                 LIVE ROSTERS
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>COURSEPASS CATALOG</span>
               <BookOpen className="w-4 h-4 text-blue-500" />
             </div>
             <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {courses.length}
               </span>
-              <span className="text-[11px] font-mono text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-sans text-blue-600 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded">
                 API SYNCED
               </span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs flex flex-col justify-between">
-            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase">
+            <div className="flex items-center justify-between text-[11px] font-sans text-slate-400 uppercase">
               <span>ENROLLED STUDENTS</span>
               <Users className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-slate-900">
+              <span className="text-3xl font-bold font-sans tracking-tight text-slate-900">
                 {totalEnrolledAcrossSessions}
               </span>
-              <span className="text-[11px] font-mono text-slate-500">
+              <span className="text-[11px] font-sans text-slate-500">
                 PORTAL SYNCED
               </span>
             </div>
@@ -246,15 +246,15 @@ export default function LecturerDashboard() {
 
           <div className="bg-obsidian-950 text-white rounded-2xl p-5 border border-obsidian-700 shadow-sm flex flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-vision-grid-dark opacity-30 pointer-events-none" />
-            <div className="relative z-10 flex items-center justify-between text-[11px] font-mono text-blue-400 uppercase">
+            <div className="relative z-10 flex items-center justify-between text-[11px] font-sans text-blue-400 uppercase">
               <span>CV FACE COLLECTIONS</span>
               <ScanFace className="w-4 h-4 text-blue-400" />
             </div>
             <div className="relative z-10 mt-4 flex items-baseline justify-between">
-              <span className="text-3xl font-bold font-mono tracking-tight text-white">
+              <span className="text-3xl font-bold font-sans tracking-tight text-white">
                 {sessions.length}
               </span>
-              <span className="text-[10px] font-mono text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-sans text-blue-300 bg-blue-500/15 border border-blue-400/30 px-2 py-0.5 rounded">
                 ISOLATED 1:N
               </span>
             </div>
@@ -264,12 +264,12 @@ export default function LecturerDashboard() {
         {/* ── Course Registry Filter Pills & Search Bar ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-            <span className="text-[11px] font-mono uppercase text-slate-400 mr-1 shrink-0">
+            <span className="text-[11px] font-sans uppercase text-slate-400 mr-1 shrink-0">
               FILTER:
             </span>
             <button
               onClick={() => setSelectedCourseFilter("ALL")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition shrink-0 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-sans font-semibold transition shrink-0 ${
                 selectedCourseFilter === "ALL"
                   ? "bg-blue-500 text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600"
@@ -281,7 +281,7 @@ export default function LecturerDashboard() {
               <button
                 key={course.courseID}
                 onClick={() => setSelectedCourseFilter(course.courseID)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold transition shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-sans font-semibold transition shrink-0 ${
                   selectedCourseFilter === course.courseID
                     ? "bg-blue-500 text-white shadow-xs"
                     : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600"
@@ -307,7 +307,7 @@ export default function LecturerDashboard() {
         {/* ── Sessions Grid ── */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-mono uppercase tracking-wider text-slate-500 font-semibold">
+            <h2 className="text-sm font-sans uppercase tracking-wider text-slate-500 font-semibold">
               PROVISIONED COURSE SESSIONS ({filteredSessions.length})
             </h2>
           </div>
@@ -369,10 +369,10 @@ export default function LecturerDashboard() {
                     {/* Top Metadata Row */}
                     <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-blue-500 text-white font-mono text-xs font-bold tracking-wider">
+                        <span className="px-2.5 py-1 rounded-lg bg-blue-500 text-white font-sans text-xs font-bold tracking-wider">
                           {session.courseID}
                         </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-mono text-xs font-medium">
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-sans text-xs font-medium">
                           {session.session_name}
                         </span>
                       </div>
@@ -387,7 +387,7 @@ export default function LecturerDashboard() {
                     </h3>
 
                     {/* Computer Vision Collection Tag */}
-                    <div className="inline-flex items-center gap-1.5 text-[11px] font-mono text-slate-400 mb-6">
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-400 mb-6">
                       <ScanFace className="w-3.5 h-3.5 text-blue-500" />
                       <span>CV ENGINE SCOPE: CV-{session.courseID}</span>
                     </div>
@@ -396,18 +396,18 @@ export default function LecturerDashboard() {
                   {/* Bottom Telemetry Strip */}
                   <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
                     <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100">
-                      <span className="block text-[10px] font-mono text-slate-400 uppercase">
+                      <span className="block text-[10px] font-sans text-slate-400 uppercase">
                         ENROLLED ROSTER
                       </span>
-                      <span className="font-mono font-bold text-slate-900 text-sm">
+                      <span className="font-sans font-bold text-slate-900 text-sm">
                         {session.enrolled_students ?? 0} Students
                       </span>
                     </div>
                     <div className="bg-slate-50/80 rounded-xl p-2.5 border border-slate-100">
-                      <span className="block text-[10px] font-mono text-slate-400 uppercase">
+                      <span className="block text-[10px] font-sans text-slate-400 uppercase">
                         ELIGIBILITY RULE
                       </span>
-                      <span className="font-mono font-bold text-emerald-700 text-sm">
+                      <span className="font-sans font-bold text-emerald-700 text-sm">
                         ≥ 75% Attendance
                       </span>
                     </div>
@@ -438,7 +438,7 @@ export default function LecturerDashboard() {
                 value={courseID}
                 onChange={(e) => setCourseID(e.target.value)}
                 placeholder="e.g. CSC401 or PHY102"
-                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans uppercase text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                 required
               />
             </div>
@@ -555,7 +555,7 @@ export default function LecturerDashboard() {
                   value={sessionName}
                   onChange={(e) => setSessionName(e.target.value)}
                   placeholder="e.g. 2025/2026"
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                   required
                 />
               </div>
@@ -570,7 +570,7 @@ export default function LecturerDashboard() {
                   onChange={(e) => setTotalClasses(e.target.value)}
                   min={1}
                   max={100}
-                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
+                  className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-4 py-2.5 text-sm font-sans text-slate-900 focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 outline-none transition"
                   required
                 />
               </div>
@@ -579,12 +579,12 @@ export default function LecturerDashboard() {
             {/* Live 75% Threshold Calculation Box */}
             <div className="p-3.5 rounded-xl bg-obsidian-950 text-white border border-obsidian-700 flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-mono text-blue-400 uppercase block">
+                <span className="text-[10px] font-sans text-blue-400 uppercase block">
                   75% ATTENDANCE ELIGIBILITY THRESHOLD
                 </span>
                 <span className="text-xs text-slate-300">
                   Students must attend at least{" "}
-                  <strong className="text-white font-mono">
+                  <strong className="text-white font-sans">
                     {requiredLecturesPreview} of {totalClasses || 0}
                   </strong>{" "}
                   lectures to qualify for exams.
@@ -627,7 +627,7 @@ function Modal({ badge, title, subtitle, onClose, children }) {
           <X className="h-4 w-4" />
         </button>
         {badge && (
-          <div className="text-[11px] font-mono font-semibold text-blue-600 uppercase tracking-wider mb-1">
+          <div className="text-[11px] font-sans font-semibold text-blue-600 uppercase tracking-wider mb-1">
             {badge}
           </div>
         )}

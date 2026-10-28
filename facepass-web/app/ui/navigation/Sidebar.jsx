@@ -68,10 +68,10 @@ export default function Sidebar({
         </div>
 
         <div className="mt-3 flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded-md bg-obsidian-950 text-white text-[10px] font-mono font-semibold tracking-wider">
+          <span className="px-2 py-0.5 rounded-md bg-obsidian-950 text-white text-[10px] font-sans font-semibold tracking-wider">
             {isAdmin ? "ADMIN // GOVERNANCE" : "FACULTY // OPERATIONS"}
           </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200/80 text-[10px] font-mono font-medium text-emerald-700">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200/80 text-[10px] font-sans font-medium text-emerald-700">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             {isAdmin ? "SUPER ADMIN" : "ACTIVE"}
           </span>
@@ -88,13 +88,13 @@ export default function Sidebar({
             <p className="text-xs font-semibold text-slate-900 truncate">
               {user?.name || "System Administrator"}
             </p>
-            <p className="text-[11px] font-mono text-slate-500 truncate" title={user?.email}>
+            <p className="text-[11px] font-sans text-slate-500 truncate" title={user?.email}>
               {user?.email || "admin@coursepass.app"}
             </p>
           </div>
         </div>
         {user?.matric && (
-          <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-mono text-slate-500">
+          <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-sans text-slate-500">
             <span>ID / MATRIC</span>
             <span className="font-semibold text-slate-700">{user.matric}</span>
           </div>
@@ -103,7 +103,7 @@ export default function Sidebar({
 
       {/* ── Primary Navigation Links ── */}
       <div className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
-        <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+        <div className="px-3 py-1 text-[10px] font-sans uppercase tracking-wider text-slate-400">
           Navigation
         </div>
 
@@ -123,7 +123,7 @@ export default function Sidebar({
               </div>
               {badges.usersCount !== undefined && (
                 <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                  className={`text-[10px] font-sans px-1.5 py-0.5 rounded ${
                     activeTab === "users"
                       ? "bg-white/20 text-white"
                       : "bg-slate-200/70 text-slate-700"
@@ -148,7 +148,7 @@ export default function Sidebar({
               </div>
               {badges.sessionsCount !== undefined && (
                 <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
+                  className={`text-[10px] font-sans px-1.5 py-0.5 rounded ${
                     activeTab === "sessions"
                       ? "bg-white/20 text-white"
                       : "bg-slate-200/70 text-slate-700"
@@ -160,7 +160,7 @@ export default function Sidebar({
             </button>
 
             <div className="pt-2">
-              <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+              <div className="px-3 py-1 text-[10px] font-sans uppercase tracking-wider text-slate-400">
                 Workspaces
               </div>
               <Link
@@ -210,7 +210,7 @@ export default function Sidebar({
 
         {/* ── Quick Action Triggers ── */}
         <div className="pt-3">
-          <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+          <div className="px-3 py-1 text-[10px] font-sans uppercase tracking-wider text-slate-400">
             Quick Actions
           </div>
           {isAdmin && onProvisionClick && (
@@ -256,7 +256,7 @@ export default function Sidebar({
 
       {/* ── System Status & Sign Out ── */}
       <div className="p-3 border-t border-slate-200/80 space-y-2">
-        <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/60 flex items-center justify-between text-[10px] font-mono text-slate-500">
+        <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200/60 flex items-center justify-between text-[10px] font-sans text-slate-500">
           <span className="flex items-center gap-1.5">
             <Server className="w-3 h-3 text-emerald-500" />
             ENGINE

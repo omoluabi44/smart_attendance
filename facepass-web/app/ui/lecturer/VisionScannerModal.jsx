@@ -417,10 +417,10 @@ export default function VisionScannerModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono text-cyan-400 uppercase tracking-wider">
+                <span className="text-[11px] font-sans text-cyan-400 uppercase tracking-wider">
                   REKOGNITION 1:N SCANNER
                 </span>
-                <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-300">
+                <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-sans text-slate-300">
                   COL-{courseID}
                 </span>
               </div>
@@ -448,7 +448,7 @@ export default function VisionScannerModal({
             <button
               type="button"
               onClick={() => setScanTab("photo")}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-mono font-semibold transition ${
+              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-sans font-semibold transition ${
                 scanTab === "photo"
                   ? "bg-cyan-400 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white"
@@ -460,7 +460,7 @@ export default function VisionScannerModal({
             <button
               type="button"
               onClick={() => setScanTab("webcam")}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-mono font-semibold transition ${
+              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-sans font-semibold transition ${
                 scanTab === "webcam"
                   ? "bg-cyan-400 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white"
@@ -472,7 +472,7 @@ export default function VisionScannerModal({
             <button
               type="button"
               onClick={() => setScanTab("video")}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-mono font-semibold transition ${
+              className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-sans font-semibold transition ${
                 scanTab === "video"
                   ? "bg-cyan-400 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white"
@@ -587,7 +587,7 @@ export default function VisionScannerModal({
                           <span className="font-semibold text-cyan-300">
                             Why the popup didn&apos;t appear on Retry:
                           </span>
-                          <span className="px-2 py-0.5 rounded bg-rose-950/90 border border-rose-500/50 font-mono text-[10px] font-bold text-rose-300 uppercase">
+                          <span className="px-2 py-0.5 rounded bg-rose-950/90 border border-rose-500/50 font-sans text-[10px] font-bold text-rose-300 uppercase">
                             {permissionState === "system_blocked"
                               ? "OS BLOCKED"
                               : permissionState === "denied"
@@ -704,16 +704,16 @@ export default function VisionScannerModal({
                       <div className="absolute inset-x-3 top-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
                         <div className="flex items-center gap-2 bg-obsidian-950/90 border border-slate-700 px-3 py-1.5 rounded-xl">
                           <Users className="w-4 h-4 text-cyan-400" />
-                          <span className="font-mono text-xs font-bold text-white">
+                          <span className="font-sans text-xs font-bold text-white">
                             CAPTURED FACES: {capturedStats.totalFaces}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-mono text-[11px] font-bold text-emerald-300">
+                          <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-sans text-[11px] font-bold text-emerald-300">
                             ✓ {capturedStats.greenFaces} GOOD (≥55×55px)
                           </span>
                           {capturedStats.redFaces > 0 && (
-                            <span className="px-2.5 py-1 rounded-lg bg-rose-950/90 border border-rose-500/60 font-mono text-[11px] font-bold text-rose-300">
+                            <span className="px-2.5 py-1 rounded-lg bg-rose-950/90 border border-rose-500/60 font-sans text-[11px] font-bold text-rose-300">
                               ⚠ {capturedStats.redFaces} TOO SMALL (&lt;55×55px)
                             </span>
                           )}
@@ -737,7 +737,7 @@ export default function VisionScannerModal({
                           {/* Primary Live Face Count Badge */}
                           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-950/90 border border-cyan-400/50 shadow-lg">
                             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                            <span className="font-mono text-xs font-bold text-white tracking-wide">
+                            <span className="font-sans text-xs font-bold text-white tracking-wide">
                               FACES DETECTED:{" "}
                               <span className="text-cyan-300 text-sm">
                                 {totalFaces}
@@ -746,14 +746,14 @@ export default function VisionScannerModal({
                           </div>
 
                           {/* Green Box Counter (>= 55x55 px) */}
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-mono text-[11px] font-bold text-emerald-300">
+                          <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-sans text-[11px] font-bold text-emerald-300">
                             ● {greenFaces} GREEN (≥{MIN_GREEN_PIXELS}×
                             {MIN_GREEN_PIXELS}px)
                           </span>
 
                           {/* Red Box Counter (< 55x55 px - Move Closer) */}
                           <span
-                            className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold border transition ${
+                            className={`px-2.5 py-1 rounded-lg font-sans text-[11px] font-bold border transition ${
                               redFaces > 0
                                 ? "bg-rose-950/95 border-rose-500 text-rose-200 animate-pulse"
                                 : "bg-obsidian-950/85 border-slate-700 text-slate-400"
@@ -766,7 +766,7 @@ export default function VisionScannerModal({
 
                         {/* Right Controls: Detector Status + Camera Selector / Flip */}
                         <div className="flex items-center gap-1.5 pointer-events-auto">
-                          <span className="hidden sm:inline-block px-2 py-1 rounded-lg bg-obsidian-950/85 border border-slate-700 text-[10px] font-mono text-slate-300">
+                          <span className="hidden sm:inline-block px-2 py-1 rounded-lg bg-obsidian-950/85 border border-slate-700 text-[10px] font-sans text-slate-300">
                             {modelError
                               ? "DETECTOR ERROR"
                               : modelReady
@@ -781,7 +781,7 @@ export default function VisionScannerModal({
                                 setSelectedDeviceId(id);
                                 startCamera(id);
                               }}
-                              className="px-2 py-1 rounded-lg bg-obsidian-950/90 border border-slate-700 text-[10px] font-mono text-slate-200 outline-none"
+                              className="px-2 py-1 rounded-lg bg-obsidian-950/90 border border-slate-700 text-[10px] font-sans text-slate-200 outline-none"
                             >
                               <option value="">Default Cam</option>
                               {videoDevices.map((d, idx) => (
@@ -795,7 +795,7 @@ export default function VisionScannerModal({
                             type="button"
                             onClick={handleToggleFacingMode}
                             title="Switch Front/Rear Camera"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-obsidian-950/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-mono font-semibold text-cyan-300 transition"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-obsidian-950/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-sans font-semibold text-cyan-300 transition"
                           >
                             <SwitchCamera className="w-3.5 h-3.5" />
                             <span>FLIP CAM</span>
@@ -806,25 +806,25 @@ export default function VisionScannerModal({
                       {/* Bottom Dynamic Distance & Pixel Quality Guidance Banner */}
                       <div className="flex justify-center">
                         {redFaces > 0 && greenFaces === 0 ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500 text-rose-200 font-mono text-[11px] font-bold text-center shadow-lg">
+                          <div className="px-3.5 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500 text-rose-200 font-sans text-[11px] font-bold text-center shadow-lg">
                             ⚠ RED BOX: FACE CLEAR BUT TOO SMALL (&lt;
                             {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX) — MOVE
                             CAMERA CLOSER
                           </div>
                         ) : redFaces > 0 && greenFaces > 0 ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-amber-950/95 border border-amber-400 text-amber-200 font-mono text-[11px] font-bold text-center shadow-lg">
+                          <div className="px-3.5 py-1.5 rounded-xl bg-amber-950/95 border border-amber-400 text-amber-200 font-sans text-[11px] font-bold text-center shadow-lg">
                             ⚠ {greenFaces} GREEN (GOOD PIXEL) • MOVE CAMERA
                             CLOSER FOR {redFaces} RED FACE(S) (&lt;
                             {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX)
                           </div>
                         ) : greenFaces > 0 ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-emerald-950/95 border border-emerald-400 text-emerald-200 font-mono text-[11px] font-bold text-center shadow-lg">
+                          <div className="px-3.5 py-1.5 rounded-xl bg-emerald-950/95 border border-emerald-400 text-emerald-200 font-sans text-[11px] font-bold text-center shadow-lg">
                             ✓ {greenFaces} FACE(S) AT GOOD PIXEL RESOLUTION (≥
                             {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX) — READY TO
                             CAPTURE
                           </div>
                         ) : (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/85 border border-slate-700 text-slate-300 font-mono text-[10px] text-center">
+                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/85 border border-slate-700 text-slate-300 font-sans text-[10px] text-center">
                             HOLD CAMERA OVER CLASSROOM • GREEN BOX = GOOD PIXEL
                             (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX) • RED BOX
                             = MOVE CLOSER
@@ -842,26 +842,26 @@ export default function VisionScannerModal({
               {/* Live Detection Telemetry Summary Bar */}
               <div className="grid grid-cols-3 gap-2.5">
                 <div className="p-2.5 rounded-xl bg-obsidian-950 border border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-slate-400 uppercase">
+                  <span className="text-[10px] font-sans text-slate-400 uppercase">
                     TOTAL DETECTED
                   </span>
-                  <span className="font-mono text-base font-bold text-white">
+                  <span className="font-sans text-base font-bold text-white">
                     {capturedStats ? capturedStats.totalFaces : totalFaces}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-emerald-400 uppercase">
+                  <span className="text-[10px] font-sans text-emerald-400 uppercase">
                     GREEN (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}px)
                   </span>
-                  <span className="font-mono text-base font-bold text-emerald-400">
+                  <span className="font-sans text-base font-bold text-emerald-400">
                     {capturedStats ? capturedStats.greenFaces : greenFaces}
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-rose-400 uppercase">
+                  <span className="text-[10px] font-sans text-rose-400 uppercase">
                     RED (MOVE CLOSER)
                   </span>
-                  <span className="font-mono text-base font-bold text-rose-400">
+                  <span className="font-sans text-base font-bold text-rose-400">
                     {capturedStats ? capturedStats.redFaces : redFaces}
                   </span>
                 </div>
@@ -925,7 +925,7 @@ export default function VisionScannerModal({
         </div>
 
         {/* Privacy & Architecture Footer */}
-        <div className="relative z-10 px-6 py-3.5 bg-obsidian-950 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400">
+        <div className="relative z-10 px-6 py-3.5 bg-obsidian-950 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans text-slate-400">
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             DIRECT S3 PRESIGNED STREAM • NO LOCAL DEVICE STORAGE
