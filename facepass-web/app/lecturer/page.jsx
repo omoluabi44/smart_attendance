@@ -374,7 +374,7 @@ export default function LecturerDashboard() {
                       {session.course_name}
                     </h3>
 
-                    {/* Computer Vision Collection Tag */}
+                    {/* Course Identifier */}
                     <div className="inline-flex items-center gap-1.5 text-[11px] font-sans text-slate-400 mb-6">
                       <ScanFace className="w-3.5 h-3.5 text-blue-500" />
                       <span>Course: {session.courseID}</span>

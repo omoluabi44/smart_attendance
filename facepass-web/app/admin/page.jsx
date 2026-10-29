@@ -647,7 +647,7 @@ export default function AdminCommandCenter() {
                   </span>
                 </div>
                 <span className="text-[10px] sm:text-[11px] font-sans text-slate-500">
-                  STUDENT BIOMETRIC ENROLLMENT IS MANAGED VIA COURSEPASS
+                  STUDENT ENROLLMENT IS MANAGED VIA COURSEPASS
                 </span>
               </div>
 
@@ -906,11 +906,10 @@ export default function AdminCommandCenter() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 rounded-2xl border border-slate-200/90">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
-                  University-Wide Academic Sessions ({filteredSessions.length})
+                  Academic Sessions ({filteredSessions.length})
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Assign or remove lecturers on any session, or open its live
-                  Biometric Control Room.
+                  Assign or remove lecturers on any session, or view attendance records.
                 </p>
               </div>
               <div className="relative w-full sm:w-72">
@@ -1285,7 +1284,7 @@ export default function AdminCommandCenter() {
                   type="email"
                   value={lecEmail}
                   onChange={(e) => setLecEmail(e.target.value)}
-                  placeholder="lecturer@university.edu"
+                  placeholder="lecturer@institution.edu"
                   required
                   className="w-full border border-slate-200 bg-slate-50/60 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-500 outline-none"
                 />
