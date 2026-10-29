@@ -7,7 +7,6 @@ import {
   Video,
   UploadCloud,
   X,
-  ShieldCheck,
   RefreshCw,
   CheckCircle2,
   AlertTriangle,
@@ -524,16 +523,8 @@ export default function VisionScannerModal({
               <ScanFace className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-[10px] sm:text-[11px] font-sans text-cyan-400 uppercase tracking-wider truncate">
-                  REKOGNITION 1:N SCANNER
-                </span>
-                <span className="px-1.5 sm:px-2 py-0.5 rounded bg-slate-800 text-[10px] font-sans text-slate-300 shrink-0">
-                  COL-{courseID}
-                </span>
-              </div>
               <h2 className="text-sm sm:text-lg font-bold text-white truncate">
-                Capture Attendance ({sessionName})
+                Capture Attendance
               </h2>
             </div>
           </div>
@@ -632,8 +623,8 @@ export default function VisionScannerModal({
                 </h3>
                 <p className="text-xs text-slate-400 max-w-md mx-auto mb-4 sm:mb-5">
                   {scanTab === "photo"
-                    ? "Supports high-resolution JPEG/PNG frames. AWS Rekognition detects and matches up to 100 faces simultaneously against the course collection."
-                    : "Supports MP4/MOV recordings. Runs asynchronous multi-frame face tracking and deduplicates recognized students."}
+                    ? "Upload a photo of the classroom to automatically verify attending students."
+                    : "Upload a classroom video to verify attending students."}
                 </p>
 
                 <span className="inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[42px] w-full sm:w-auto rounded-xl bg-white text-slate-950 text-xs font-semibold hover:bg-cyan-300 transition">
@@ -849,147 +840,24 @@ export default function VisionScannerModal({
                       className="absolute inset-0 w-full h-full pointer-events-none z-10"
                     />
 
-                    {/* Live HUD Overlay (Face Counter + Resolution Legend + Guidance) */}
-                    <div className="absolute inset-3 z-20 pointer-events-none flex flex-col justify-between">
-                      {/* Top HUD Bar: Cumulative Face Counter & Camera Controls */}
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          {/* Primary Live Face Count Badge — Never decreases once Green */}
-                          <div
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-950/90 border shadow-lg ${
-                              isRecording
-                                ? "border-emerald-400/70"
-                                : "border-cyan-400/50"
-                            }`}
-                          >
-                            <span
-                              className={`w-2 h-2 rounded-full ${
-                                isRecording
-                                  ? "bg-emerald-400 animate-ping"
-                                  : "bg-amber-400"
-                              }`}
-                            />
-                            <span className="font-sans text-xs font-bold text-white tracking-wide">
-                              FACES CAPTURED:{" "}
-                              <span className="text-emerald-300 text-sm">
-                                {displayedGreenCount}
-                              </span>
-                            </span>
-                          </div>
-
-                          {/* Clear Face Counter — Never decreases */}
-                          <span className="px-2.5 py-1 rounded-lg bg-emerald-950/90 border border-emerald-500/60 font-sans text-[11px] font-bold text-emerald-300">
-                            ● {displayedGreenCount} CLEAR FACES
+                    {/* Live HUD Overlay (Only Face Tracking Counter Retained) */}
+                    <div className="absolute top-3 left-3 z-20 pointer-events-none">
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-950/90 border border-cyan-400/50 shadow-lg">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="font-sans text-xs font-bold text-white tracking-wide">
+                          FACES DETECTED:{" "}
+                          <span className="text-emerald-300 text-sm">
+                            {displayedGreenCount}
                           </span>
-
-                          {/* Red Box Counter (< 55x55 px - Move Closer) */}
-                          <span
-                            className={`px-2.5 py-1 rounded-lg font-sans text-[11px] font-bold border transition ${
-                              redFaces > 0
-                                ? "bg-rose-950/95 border-rose-500 text-rose-200 animate-pulse"
-                                : "bg-obsidian-950/85 border-slate-700 text-slate-400"
-                            }`}
-                          >
-                            ● {redFaces} RED (&lt;{MIN_GREEN_PIXELS}×
-                            {MIN_GREEN_PIXELS}px)
-                          </span>
-                        </div>
-
-                        {/* Right Controls: Detector Status + Camera Selector / Flip */}
-                        <div className="flex items-center gap-1.5 pointer-events-auto">
-                          <span className="hidden sm:inline-block px-2 py-1 rounded-lg bg-obsidian-950/85 border border-slate-700 text-[10px] font-sans text-slate-300">
-                            {modelError
-                              ? "DETECTOR ERROR"
-                              : !modelReady
-                              ? "LOADING DETECTOR..."
-                              : isRecording
-                              ? "LIVE RECORDING ACTIVE"
-                              : "READY TO START"}
-                          </span>
-                          {videoDevices.length > 1 && (
-                            <select
-                              value={selectedDeviceId}
-                              onChange={(e) => {
-                                const id = e.target.value;
-                                setSelectedDeviceId(id);
-                                startCamera(id);
-                              }}
-                              className="px-2 py-1 rounded-lg bg-obsidian-950/90 border border-slate-700 text-[10px] font-sans text-slate-200 outline-none"
-                            >
-                              <option value="">Default Cam</option>
-                              {videoDevices.map((d, idx) => (
-                                <option key={d.deviceId || idx} value={d.deviceId}>
-                                  {d.label || `Camera ${idx + 1}`}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                          <button
-                            type="button"
-                            onClick={handleToggleFacingMode}
-                            title="Switch Front/Rear Camera"
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-obsidian-950/90 hover:bg-slate-800 border border-slate-700 text-[10px] font-sans font-semibold text-cyan-300 transition"
-                          >
-                            <SwitchCamera className="w-3.5 h-3.5" />
-                            <span>FLIP CAM</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Bottom Dynamic Distance & Recording Guidance Banner */}
-                      <div className="flex justify-center">
-                        {!isRecording ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/90 border border-cyan-400/50 text-cyan-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            TAP &ldquo;START LIVE RECORDING&rdquo; BELOW TO BEGIN CAPTURING FACES
-                          </div>
-                        ) : redFaces > 0 ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-amber-950/95 border border-amber-400 text-amber-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            ✓ {capturedGreenFaces} CAPTURED SO FAR • MOVE CLOSER FOR {redFaces} RED FACE(S) (&lt;{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX)
-                          </div>
-                        ) : capturedGreenFaces > 0 ? (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-emerald-950/95 border border-emerald-400 text-emerald-200 font-sans text-[11px] font-bold text-center shadow-lg">
-                            ✓ {capturedGreenFaces} GREEN FACE(S) LOCKED IN — KEEP PANNING OR RUN SCAN
-                          </div>
-                        ) : (
-                          <div className="px-3.5 py-1.5 rounded-xl bg-obsidian-950/85 border border-emerald-500/40 text-emerald-200 font-sans text-[10px] text-center">
-                            RECORDING ACTIVE • PAN ACROSS STUDENTS TO AUTO-LOCK GREEN FACES (≥{MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX)
-                          </div>
-                        )}
+                        </span>
                       </div>
                     </div>
                   </>
                 )}
 
+
                 {/* Offscreen Clean Capture Canvas (un-annotated for AWS Rekognition) */}
                 <canvas ref={canvasRef} className="hidden" />
-              </div>
-
-              {/* Live Detection Telemetry Summary Bar */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                <div className="p-2 sm:p-2.5 rounded-xl bg-obsidian-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
-                  <span className="text-[9px] sm:text-[10px] font-sans text-slate-400 uppercase leading-tight">
-                    TOTAL CAPTURED
-                  </span>
-                  <span className="font-sans text-sm sm:text-base font-bold text-white">
-                    {displayedGreenCount}
-                  </span>
-                </div>
-                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
-                  <span className="text-[9px] sm:text-[10px] font-sans text-emerald-400 uppercase leading-tight">
-                    GREEN LOCKED (≥{MIN_GREEN_PIXELS}px)
-                  </span>
-                  <span className="font-sans text-sm sm:text-base font-bold text-emerald-400">
-                    {displayedGreenCount}
-                  </span>
-                </div>
-                <div className="p-2 sm:p-2.5 rounded-xl bg-rose-950/30 border border-rose-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
-                  <span className="text-[9px] sm:text-[10px] font-sans text-rose-400 uppercase leading-tight">
-                    RED (CLOSER)
-                  </span>
-                  <span className="font-sans text-sm sm:text-base font-bold text-rose-400">
-                    {capturedStats ? capturedStats.redFaces : redFaces}
-                  </span>
-                </div>
               </div>
 
               {/* Action Buttons */}
@@ -1001,6 +869,18 @@ export default function VisionScannerModal({
                 >
                   Cancel
                 </button>
+
+                {videoDevices.length > 1 && !capturedBlob && (
+                  <button
+                    type="button"
+                    onClick={handleToggleFacingMode}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[44px] rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white transition"
+                    title="Switch Camera"
+                  >
+                    <SwitchCamera className="w-4 h-4 text-cyan-400" />
+                    <span>Switch Camera</span>
+                  </button>
+                )}
 
                 {capturedBlob ? (
                   <>
@@ -1019,7 +899,7 @@ export default function VisionScannerModal({
                     >
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>
-                        Run Rekognition Scan ({capturedStats?.greenFaces ?? 0}{" "}
+                        Run Scan ({capturedStats?.greenFaces ?? 0}{" "}
                         Captured Face
                         {(capturedStats?.greenFaces ?? 0) === 1 ? "" : "s"})
                       </span>
@@ -1078,19 +958,6 @@ export default function VisionScannerModal({
               </div>
             </div>
           )}
-        </div>
-
-        {/* Privacy & Architecture Footer */}
-        <div className="relative z-10 px-4 sm:px-6 py-3 sm:py-3.5 bg-obsidian-950 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] font-sans text-slate-400 shrink-0">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>DIRECT S3 STREAM • NO LOCAL STORAGE</span>
-          </span>
-          <div className="flex items-center gap-3">
-            <span className="text-cyan-400">
-              MIN PIXEL: {MIN_GREEN_PIXELS}×{MIN_GREEN_PIXELS}PX
-            </span>
-          </div>
         </div>
       </div>
     </div>

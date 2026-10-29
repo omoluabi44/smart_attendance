@@ -26,7 +26,7 @@ const PREVIEW_TABS = [
     title: "Classroom Biometric Capture",
     badge: "CONFIDENCE >= 90%",
     description:
-      "Snap a single classroom group photo or walkthrough video. AWS Rekognition isolates up to 60 faces per frame against the per-course collection.",
+      "Snap a classroom photo or walkthrough video to automatically verify attendance for enrolled students.",
     metrics: [
       { label: "Detected Faces", value: "42 / 44", tone: "text-emerald-400" },
       { label: "Mean Confidence", value: "98.7%", tone: "text-blue-400" },
@@ -54,7 +54,7 @@ const PREVIEW_TABS = [
     description:
       "Biometric enrollment happens once on CoursePass. Attendance logs, course materials, and pop quizzes sync back instantaneously.",
     metrics: [
-      { label: "Collection Scope", value: "COL-CSC401", tone: "text-blue-400" },
+      { label: "Course Scope", value: "ECO 201", tone: "text-blue-400" },
       { label: "Device Storage", value: "0 Bytes", tone: "text-emerald-400" },
       { label: "Webhook Latency", value: "140ms", tone: "text-white" },
     ],
@@ -119,9 +119,7 @@ export default function LandingScreen() {
           <Text className="text-blue-500">&amp; Auditing.</Text>
         </Text>
         <Text className="text-sm text-slate-600 mt-3 leading-relaxed">
-          Verify entire lecture halls in seconds with isolated per-course AWS
-          Rekognition collections, automated 75% exam eligibility tracking, and
-          real-time CoursePass synchronization.
+          Verify entire lecture halls in seconds, automate 75% exam eligibility tracking, and sync with CoursePass in real time.
         </Text>
 
         {/* Primary CTA Buttons */}
@@ -220,11 +218,10 @@ export default function LandingScreen() {
             </View>
             <View className="flex-1">
               <Text className="text-xs font-bold text-slate-900">
-                Per-Course Biometric Compartmentalization
+                Course Roster Isolation
               </Text>
               <Text className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Each academic course provisions an isolated Rekognition
-                collection (COL-CourseID) for sub-second O(1) matching accuracy.
+                Each academic course keeps an isolated student roster for fast, private, and accurate verification.
               </Text>
             </View>
           </View>
