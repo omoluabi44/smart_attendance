@@ -34,6 +34,8 @@ import {
   Cpu,
   XCircle,
   Eye,
+  Link2,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -88,6 +90,7 @@ export default function SessionControlRoom() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [coLecturerEmail, setCoLecturerEmail] = useState("");
   const [downloading, setDownloading] = useState(false);
+  const [copiedCoursePassLink, setCopiedCoursePassLink] = useState(false);
 
   // Attendance Scan Jobs & Intruder Alert State
   const [attendanceJobs, setAttendanceJobs] = useState([]);
@@ -423,6 +426,30 @@ export default function SessionControlRoom() {
     toast.success("Signed out of FacePass");
   };
 
+  const handleCopyCoursePassLink = async () => {
+    const baseUrl = (
+      process.env.NEXT_PUBLIC_COURSEPASS_URL || "https://www.coursepass.app"
+    ).replace(/\/$/, "");
+    const courseCode = session?.courseID || "";
+    const courseName = session?.course_name || courseCode;
+    const enrollUrl = `${baseUrl}/dashboard/CourseDetail?course=${encodeURIComponent(
+      courseCode
+    )}&courseName=${encodeURIComponent(
+      courseName
+    )}&sessionId=${encodeURIComponent(session?.id || sessionId)}&autoEnroll=1`;
+
+    try {
+      await navigator.clipboard.writeText(enrollUrl);
+      setCopiedCoursePassLink(true);
+      toast.success(
+        "CoursePass link copied! Students who click it will be auto-enrolled and taken to register their face if needed."
+      );
+      setTimeout(() => setCopiedCoursePassLink(false), 2500);
+    } catch {
+      toast.error("Failed to copy link. Please try again.");
+    }
+  };
+
   const tabs = [
     {
       key: "roster",
@@ -503,6 +530,28 @@ export default function SessionControlRoom() {
                   <span>Admin</span>
                 </Link>
               )}
+
+              <button
+                onClick={handleCopyCoursePassLink}
+                title="Copy CoursePass student auto-enrollment & face registration link"
+                className={`inline-flex items-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl border text-xs font-semibold transition shrink-0 ${
+                  copiedCoursePassLink
+                    ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                    : "border-blue-200 bg-blue-50/70 hover:bg-blue-100/80 text-blue-700"
+                }`}
+              >
+                {copiedCoursePassLink ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Link Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Copy CoursePass Link</span>
+                  </>
+                )}
+              </button>
 
               <button
                 onClick={() => setShowCoLecturerModal(true)}
@@ -735,11 +784,29 @@ export default function SessionControlRoom() {
                     ? "No Students Enrolled in This Session Yet"
                     : "No Students Match Your Search Filter"}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 max-w-md mx-auto">
                   {studentsList.length === 0
-                    ? "Students enroll and complete their profile via the CoursePass portal."
+                    ? "Share the CoursePass enrollment link with your students so they are automatically enrolled in this course and prompted to register their face."
                     : "Try clearing your search query or switching back to All Departments."}
                 </p>
+                {studentsList.length === 0 && (
+                  <button
+                    onClick={handleCopyCoursePassLink}
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow-sm transition"
+                  >
+                    {copiedCoursePassLink ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>CoursePass Link Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Link2 className="w-4 h-4" />
+                        <span>Copy CoursePass Enrollment Link</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
               Object.keys(groupedByDept)
