@@ -397,6 +397,20 @@ export default function FaceMeshScannerHero() {
         {/* Radial Emerald & Blue Ambient Backlight - Softened to blend with parent background */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.06),rgba(0,123,255,0.04)_50%,transparent_80%)]" />
 
+        {/* Accuracy Rate Overlay */}
+        <div className="pointer-events-none absolute top-6 right-6 z-20 hidden sm:flex flex-col items-end gap-0.5 bg-white/40 backdrop-blur-md px-4 py-2 rounded-xl border border-white/60 shadow-sm">
+          <span
+            className={`${jetbrainsMono.className} text-[9px] text-slate-500 font-bold uppercase tracking-widest`}
+          >
+            Accuracy Rate
+          </span>
+          <span
+            className={`${jetbrainsMono.className} text-lg text-emerald-600 font-black`}
+          >
+            99.89%
+          </span>
+        </div>
+
         {/* Trailing Green Laser Glow Wash - horizontally faded so it doesn't create hard edges */}
         <div
           ref={scanGlowRef}
