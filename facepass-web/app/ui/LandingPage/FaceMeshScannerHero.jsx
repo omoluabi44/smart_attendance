@@ -80,11 +80,11 @@ export default function FaceMeshScannerHero() {
     surfaceGeometry.setIndex(FACE_INDICES);
     surfaceGeometry.computeVertexNormals();
 
-    // Inner dark occlusion mesh so back-of-face edges don't clutter front facial features
+    // Inner white occlusion mesh so back-of-face edges don't clutter front facial features
     const occlusionMaterial = new THREE.MeshBasicMaterial({
-      color: 0x060d1a,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.85,
       polygonOffset: true,
       polygonOffsetFactor: 1,
       polygonOffsetUnits: 1,
@@ -105,8 +105,7 @@ export default function FaceMeshScannerHero() {
     const wireframeMaterial = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.92,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.65,
     });
     const wireframeMesh = new THREE.LineSegments(
       wireframeGeometry,
@@ -142,13 +141,12 @@ export default function FaceMeshScannerHero() {
     );
 
     const pointsMaterial = new THREE.PointsMaterial({
-      size: 0.42,
+      size: 0.5,
       map: dotTexture,
       vertexColors: true,
       transparent: true,
       opacity: 0.95,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
     });
     const pointsCloud = new THREE.Points(pointsGeometry, pointsMaterial);
     faceGroup.add(pointsCloud);
@@ -169,13 +167,12 @@ export default function FaceMeshScannerHero() {
     );
     keyGeometry.setAttribute("color", new THREE.BufferAttribute(keyColors, 3));
     const keyMaterial = new THREE.PointsMaterial({
-      size: 0.78,
+      size: 0.85,
       map: dotTexture,
       vertexColors: true,
       transparent: true,
       opacity: 1,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
     });
     const keyPointsCloud = new THREE.Points(keyGeometry, keyMaterial);
     faceGroup.add(keyPointsCloud);
@@ -184,11 +181,10 @@ export default function FaceMeshScannerHero() {
     const scanRingGeometry = new THREE.RingGeometry(8.2, 8.38, 64);
     scanRingGeometry.rotateX(Math.PI / 2);
     const scanRingMaterial = new THREE.MeshBasicMaterial({
-      color: 0x22c55e,
+      color: 0x10b981,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.45,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.55,
     });
     const scanRing = new THREE.Mesh(scanRingGeometry, scanRingMaterial);
     scene.add(scanRing);
@@ -300,21 +296,21 @@ export default function FaceMeshScannerHero() {
           greenIntensity = Math.max(0, greenIntensity);
         }
 
-        // Base cyber-blue wireframe color: R=0.12, G=0.45, B=0.88 scaled by depth
-        const baseR = 0.1 * depthFactor;
-        const baseG = 0.42 * depthFactor;
-        const baseB = 0.85 * depthFactor;
+        // Base brand-blue wireframe color fading to white in depth
+        const baseR = THREE.MathUtils.lerp(1.0, 0.0, depthFactor);
+        const baseG = THREE.MathUtils.lerp(1.0, 0.48, depthFactor);
+        const baseB = 1.0;
 
-        // Active emerald-green scan color: R=0.18, G=0.98, B=0.55
-        wireColors[i * 3] = THREE.MathUtils.lerp(baseR, 0.25, greenIntensity);
+        // Active emerald-green scan color: R=0.06, G=0.72, B=0.5
+        wireColors[i * 3] = THREE.MathUtils.lerp(baseR, 0.06, greenIntensity);
         wireColors[i * 3 + 1] = THREE.MathUtils.lerp(
           baseG,
-          0.98,
+          0.72,
           greenIntensity
         );
         wireColors[i * 3 + 2] = THREE.MathUtils.lerp(
           baseB,
-          0.56,
+          0.5,
           greenIntensity
         );
       }
@@ -335,19 +331,23 @@ export default function FaceMeshScannerHero() {
           greenIntensity = 0.6 * (1.0 - signedDelta / trailLength);
         }
 
+        const baseR = THREE.MathUtils.lerp(1.0, 0.0, depthFactor);
+        const baseG = THREE.MathUtils.lerp(1.0, 0.48, depthFactor);
+        const baseB = 1.0;
+
         pointColors[i * 3] = THREE.MathUtils.lerp(
-          0.2 * depthFactor,
-          0.35,
+          baseR,
+          0.06,
           greenIntensity
         );
         pointColors[i * 3 + 1] = THREE.MathUtils.lerp(
-          0.58 * depthFactor,
-          1.0,
+          baseG,
+          0.72,
           greenIntensity
         );
         pointColors[i * 3 + 2] = THREE.MathUtils.lerp(
-          0.96 * depthFactor,
-          0.62,
+          baseB,
+          0.5,
           greenIntensity
         );
       }
@@ -359,9 +359,9 @@ export default function FaceMeshScannerHero() {
         const dist = Math.abs(vy - scanY);
         const hit = dist < 1.8 ? 1.0 - dist / 1.8 : 0;
 
-        keyColors[i * 3] = THREE.MathUtils.lerp(0.25, 0.45, hit);
-        keyColors[i * 3 + 1] = THREE.MathUtils.lerp(0.75, 1.0, hit);
-        keyColors[i * 3 + 2] = THREE.MathUtils.lerp(1.0, 0.68, hit);
+        keyColors[i * 3] = THREE.MathUtils.lerp(0.0, 0.06, hit);
+        keyColors[i * 3 + 1] = THREE.MathUtils.lerp(0.48, 0.72, hit);
+        keyColors[i * 3 + 2] = THREE.MathUtils.lerp(1.0, 0.5, hit);
       }
       keyGeometry.attributes.color.needsUpdate = true;
 
@@ -391,13 +391,13 @@ export default function FaceMeshScannerHero() {
   }, []);
 
   return (
-    <div className="relative rounded-2xl bg-obsidian-950 border border-obsidian-700 shadow-[0_28px_70px_-15px_rgba(0,41,87,0.55)] overflow-hidden text-slate-100 select-none">
+    <div className="relative rounded-2xl bg-white border border-blue-100 shadow-[0_28px_70px_-15px_rgba(0,123,255,0.15)] overflow-hidden text-slate-800 select-none">
       {/* Top Biometric Scanner HUD Bar */}
-      <div className="px-4 sm:px-5 py-3 bg-obsidian-900/95 border-b border-obsidian-700 flex items-center justify-between gap-3">
+      <div className="px-4 sm:px-5 py-3 bg-slate-50/95 border-b border-blue-100 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 shadow-[0_0_8px_#34d399]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_#10B981]" />
           <span
-            className={`${jetbrainsMono.className} text-[10px] sm:text-xs font-semibold text-emerald-300 tracking-wider truncate`}
+            className={`${jetbrainsMono.className} text-[10px] sm:text-xs font-semibold text-emerald-600 tracking-wider truncate`}
           >
             SMART ATTENDANCE • LIVE SCAN
           </span>
@@ -406,12 +406,12 @@ export default function FaceMeshScannerHero() {
         <div className="flex items-center gap-2 shrink-0">
           <span
             ref={scanReadoutRef}
-            className={`${jetbrainsMono.className} hidden sm:inline-block text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30`}
+            className={`${jetbrainsMono.className} hidden sm:inline-block text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-200`}
           >
             SCAN_Y: +0.00cm
           </span>
           <span
-            className={`${jetbrainsMono.className} text-[10px] px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30`}
+            className={`${jetbrainsMono.className} text-[10px] px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200`}
           >
             {activeNodesCount} NODES
           </span>
@@ -419,25 +419,25 @@ export default function FaceMeshScannerHero() {
       </div>
 
       {/* Main 3D Face Mesh Viewport */}
-      <div className="relative h-[380px] sm:h-[430px] w-full bg-vision-grid-dark overflow-hidden">
+      <div className="relative h-[380px] sm:h-[430px] w-full bg-vision-grid bg-white overflow-hidden">
         {/* Radial Emerald & Blue Ambient Backlight */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.10),rgba(0,123,255,0.08)_45%,transparent_75%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.05),rgba(0,123,255,0.05)_45%,transparent_75%)]" />
 
         {/* Corner Biometric Viewfinder Reticles */}
-        <div className="pointer-events-none absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-emerald-400/70 rounded-tl-md z-20" />
-        <div className="pointer-events-none absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-emerald-400/70 rounded-tr-md z-20" />
-        <div className="pointer-events-none absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-emerald-400/70 rounded-bl-md z-20" />
-        <div className="pointer-events-none absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-emerald-400/70 rounded-br-md z-20" />
+        <div className="pointer-events-none absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-blue-400/50 rounded-tl-md z-20" />
+        <div className="pointer-events-none absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-blue-400/50 rounded-tr-md z-20" />
+        <div className="pointer-events-none absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-blue-400/50 rounded-bl-md z-20" />
+        <div className="pointer-events-none absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-blue-400/50 rounded-br-md z-20" />
 
         {/* Subtle Top-Left & Top-Right Telemetry Overlays */}
         <div className="pointer-events-none absolute top-6 left-7 z-20 hidden sm:flex flex-col gap-1">
           <span
-            className={`${jetbrainsMono.className} text-[10px] text-slate-400 uppercase tracking-widest`}
+            className={`${jetbrainsMono.className} text-[10px] text-slate-500 uppercase tracking-widest`}
           >
             STATUS: SCANNING CLASSROOM
           </span>
           <span
-            className={`${jetbrainsMono.className} text-[10px] text-emerald-400 font-semibold`}
+            className={`${jetbrainsMono.className} text-[10px] text-emerald-600 font-semibold`}
           >
             VERIFICATION: ACTIVE
           </span>
@@ -445,12 +445,12 @@ export default function FaceMeshScannerHero() {
 
         <div className="pointer-events-none absolute top-6 right-7 z-20 hidden sm:flex flex-col items-end gap-1">
           <span
-            className={`${jetbrainsMono.className} text-[10px] text-slate-400 uppercase tracking-widest`}
+            className={`${jetbrainsMono.className} text-[10px] text-slate-500 uppercase tracking-widest`}
           >
             ACCURACY RATE
           </span>
           <span
-            className={`${jetbrainsMono.className} text-xs text-emerald-300 font-bold`}
+            className={`${jetbrainsMono.className} text-xs text-emerald-600 font-bold`}
           >
             99.84%
           </span>
@@ -470,10 +470,10 @@ export default function FaceMeshScannerHero() {
           style={{ top: "15%" }}
         >
           {/* Outer Emerald Laser Glow */}
-          <div className="w-full h-[2.5px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_20px_4px_rgba(16,185,129,0.85),0_0_40px_8px_rgba(34,197,94,0.45)]" />
+          <div className="w-full h-[2.5px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_3px_rgba(16,185,129,0.5)]" />
           {/* Left & Right Laser Edge Markers */}
-          <span className="absolute left-3 w-2 h-2 rounded-full bg-emerald-300 shadow-[0_0_10px_#34d399]" />
-          <span className="absolute right-3 w-2 h-2 rounded-full bg-emerald-300 shadow-[0_0_10px_#34d399]" />
+          <span className="absolute left-3 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
+          <span className="absolute right-3 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]" />
         </div>
 
         {/* Three.js WebGL Canvas Mount */}
@@ -485,16 +485,16 @@ export default function FaceMeshScannerHero() {
       </div>
 
       {/* Bottom Biometric Verification Telemetry Bar */}
-      <div className="px-4 sm:px-5 py-3 bg-obsidian-900/95 border-t border-obsidian-700 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-        <div className="flex items-center gap-2 text-slate-300">
-          <CpuChipIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+      <div className="px-4 sm:px-5 py-3 bg-slate-50/95 border-t border-blue-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+        <div className="flex items-center gap-2 text-slate-600">
+          <CpuChipIcon className="w-4 h-4 text-blue-500 shrink-0" />
           <span className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] truncate`}>
             COURSE: GET201 • APPLIED THERMODYNAMICS
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-emerald-400 font-semibold">
+          <span className="inline-flex items-center gap-1.5 text-emerald-600 font-semibold">
             <ShieldCheckIcon className="w-4 h-4 shrink-0" />
             <span className={`${jetbrainsMono.className} text-[10px] sm:text-[11px]`}>
               ATTENDANCE VERIFIED
