@@ -392,69 +392,10 @@ export default function FaceMeshScannerHero() {
 
   return (
     <div className="relative w-full h-[450px] sm:h-[550px] overflow-hidden text-slate-800 select-none flex flex-col">
-      {/* Top Biometric Scanner HUD Bar */}
-      <div className="absolute top-0 left-0 right-0 px-4 sm:px-6 py-4 flex items-center justify-between gap-3 z-30 pointer-events-none">
-        <div className="flex items-center gap-2 min-w-0 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/40 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_#10B981]" />
-          <span
-            className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] font-bold text-emerald-700 tracking-wider truncate`}
-          >
-            SMART ATTENDANCE • LIVE SCAN
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <span
-            ref={scanReadoutRef}
-            className={`${jetbrainsMono.className} hidden sm:inline-block text-[10px] px-2.5 py-1 rounded-md bg-emerald-50/80 backdrop-blur-sm text-emerald-700 border border-emerald-200/50 shadow-sm`}
-          >
-            SCAN_Y: +0.00cm
-          </span>
-          <span
-            className={`${jetbrainsMono.className} text-[10px] px-3 py-1 rounded-full bg-blue-50/80 backdrop-blur-sm text-blue-700 border border-blue-200/50 shadow-sm`}
-          >
-            {activeNodesCount} NODES
-          </span>
-        </div>
-      </div>
-
       {/* Main 3D Face Mesh Viewport */}
       <div className="relative flex-1 w-full h-full overflow-visible">
         {/* Radial Emerald & Blue Ambient Backlight - Softened to blend with parent background */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.06),rgba(0,123,255,0.04)_50%,transparent_80%)]" />
-
-        {/* Corner Biometric Viewfinder Reticles - Pushed inward slightly */}
-        <div className="pointer-events-none absolute top-16 left-6 w-8 h-8 border-t-[3px] border-l-[3px] border-blue-400/40 rounded-tl-lg z-20" />
-        <div className="pointer-events-none absolute top-16 right-6 w-8 h-8 border-t-[3px] border-r-[3px] border-blue-400/40 rounded-tr-lg z-20" />
-        <div className="pointer-events-none absolute bottom-16 left-6 w-8 h-8 border-b-[3px] border-l-[3px] border-blue-400/40 rounded-bl-lg z-20" />
-        <div className="pointer-events-none absolute bottom-16 right-6 w-8 h-8 border-b-[3px] border-r-[3px] border-blue-400/40 rounded-br-lg z-20" />
-
-        {/* Subtle Top-Left & Top-Right Telemetry Overlays */}
-        <div className="pointer-events-none absolute top-20 left-10 z-20 hidden sm:flex flex-col gap-1.5">
-          <span
-            className={`${jetbrainsMono.className} text-[9px] text-slate-500 font-medium uppercase tracking-widest`}
-          >
-            STATUS: SCANNING CLASSROOM
-          </span>
-          <span
-            className={`${jetbrainsMono.className} text-[10px] text-emerald-600 font-bold`}
-          >
-            VERIFICATION: ACTIVE
-          </span>
-        </div>
-
-        <div className="pointer-events-none absolute top-20 right-10 z-20 hidden sm:flex flex-col items-end gap-1.5">
-          <span
-            className={`${jetbrainsMono.className} text-[9px] text-slate-500 font-medium uppercase tracking-widest`}
-          >
-            ACCURACY RATE
-          </span>
-          <span
-            className={`${jetbrainsMono.className} text-sm text-emerald-600 font-black`}
-          >
-            99.84%
-          </span>
-        </div>
 
         {/* Trailing Green Laser Glow Wash */}
         <div
@@ -482,25 +423,6 @@ export default function FaceMeshScannerHero() {
           className="w-full h-full cursor-grab active:cursor-grabbing relative z-10"
           title="Move cursor to inspect 3D face mesh"
         />
-      </div>
-
-      {/* Bottom Biometric Verification Telemetry Bar */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-2 z-30 pointer-events-none">
-        <div className="flex items-center gap-2 text-slate-700 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/40 shadow-sm">
-          <CpuChipIcon className="w-4 h-4 text-blue-600 shrink-0" />
-          <span className={`${jetbrainsMono.className} text-[10px] sm:text-[11px] font-semibold truncate`}>
-            COURSE: GET201 • APPLIED THERMODYNAMICS
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/40 shadow-sm">
-          <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold">
-            <ShieldCheckIcon className="w-4 h-4 shrink-0" />
-            <span className={`${jetbrainsMono.className} text-[10px] sm:text-[11px]`}>
-              ATTENDANCE VERIFIED
-            </span>
-          </span>
-        </div>
       </div>
     </div>
   );
