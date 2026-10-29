@@ -391,30 +391,36 @@ export default function FaceMeshScannerHero() {
   }, []);
 
   return (
-    <div className="relative w-full h-[450px] sm:h-[550px] overflow-hidden text-slate-800 select-none flex flex-col">
+    <div className="relative w-full h-[450px] sm:h-[550px] overflow-visible text-slate-800 select-none flex flex-col">
       {/* Main 3D Face Mesh Viewport */}
       <div className="relative flex-1 w-full h-full overflow-visible">
         {/* Radial Emerald & Blue Ambient Backlight - Softened to blend with parent background */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.06),rgba(0,123,255,0.04)_50%,transparent_80%)]" />
 
-        {/* Trailing Green Laser Glow Wash */}
+        {/* Trailing Green Laser Glow Wash - horizontally faded so it doesn't create hard edges */}
         <div
           ref={scanGlowRef}
           className="pointer-events-none absolute inset-x-0 h-16 z-20"
-          style={{ top: "15%" }}
+          style={{ 
+            top: "15%",
+            maskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
+            WebkitMaskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)"
+          }}
         />
 
         {/* Horizontal Green Scanning Laser Line Going Up and Down */}
         <div
           ref={scanLineRef}
-          className="pointer-events-none absolute inset-x-0 z-30 flex items-center"
+          className="pointer-events-none absolute inset-x-0 z-30 flex items-center justify-center"
           style={{ top: "15%" }}
         >
-          {/* Outer Emerald Laser Glow */}
-          <div className="w-full h-[3px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_4px_rgba(16,185,129,0.4)]" />
-          {/* Left & Right Laser Edge Markers */}
-          <span className="absolute left-4 w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
-          <span className="absolute right-4 w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+          {/* Outer Emerald Laser Glow - faded at edges */}
+          <div className="w-[85%] h-[3px] relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_4px_rgba(16,185,129,0.4)]" />
+            {/* Left & Right Laser Edge Markers */}
+            <span className="absolute left-0 w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+            <span className="absolute right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
+          </div>
         </div>
 
         {/* Three.js WebGL Canvas Mount */}
