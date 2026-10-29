@@ -35,11 +35,18 @@ export default function FaceMeshScannerHero() {
     const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 100);
     camera.position.set(0, 0, 32);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
-    });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
+    } catch (error) {
+      console.error("WebGL context creation failed:", error);
+      return; // Stop execution if WebGL is unavailable (prevents crash)
+    }
+
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     container.innerHTML = "";
@@ -386,7 +393,14 @@ export default function FaceMeshScannerHero() {
       keyMaterial.dispose();
       scanRingMaterial.dispose();
       dotTexture.dispose();
-      renderer.dispose();
+      
+      if (renderer) {
+        renderer.dispose();
+        renderer.forceContextLoss();
+        if (container && container.contains(renderer.domElement)) {
+          container.removeChild(renderer.domElement);
+        }
+      }
     };
   }, []);
 
