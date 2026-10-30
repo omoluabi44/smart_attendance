@@ -89,6 +89,7 @@ export const apiSlice = createApi({
     "StudentAudit",
     "SessionMaterials",
     "SessionQuizzes",
+    "SessionTimetable",
   ],
   endpoints: () => ({}),
 });

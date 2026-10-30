@@ -105,6 +105,11 @@ class DBStorage:
                 if "must_change_password" not in cols:
                     with self.__engine.begin() as conn:
                         conn.execute(text("ALTER TABLE users ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT 0"))
+            if "session_year" in inspector.get_table_names():
+                session_cols = [c["name"] for c in inspector.get_columns("session_year")]
+                if "timetable" not in session_cols:
+                    with self.__engine.begin() as conn:
+                        conn.execute(text("ALTER TABLE session_year ADD COLUMN timetable JSON NULL"))
         except Exception as e:
             print(f"[DBStorage] Schema check warning: {e}")
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)

@@ -17,6 +17,10 @@ import {
   Video,
   FileCode,
   X,
+  Calendar,
+  Bell,
+  Send,
+  MapPin,
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -613,6 +617,472 @@ export function QuizzesAndGradesPanel({ sessionId, accessToken }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+const DAYS_OF_WEEK = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+export function TimetableAndNotificationsPanel({
+  sessionId,
+  accessToken,
+  courseID,
+  courseName,
+  initialTimetable = [],
+  onTimetableSaved,
+}) {
+  const [slots, setSlots] = useState(() =>
+    Array.isArray(initialTimetable) && initialTimetable.length > 0
+      ? initialTimetable
+      : [{ id: "slot-1", day: "Monday", start_time: "09:00", end_time: "11:00", venue: "" }]
+  );
+  const [notifyOnSave, setNotifyOnSave] = useState(true);
+  const [savingTimetable, setSavingTimetable] = useState(false);
+
+  // Push Notification Broadcast state
+  const [updateType, setUpdateType] = useState("lecture_update");
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushMessage, setPushMessage] = useState("");
+  const [pushVenue, setPushVenue] = useState("");
+  const [pushTime, setPushTime] = useState("");
+  const [sendingPush, setSendingPush] = useState(false);
+
+  const fetchTimetable = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        `${API_URL}lecturer/sessions/${sessionId}/timetable`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      if (Array.isArray(res.data?.timetable) && res.data.timetable.length > 0) {
+        setSlots(res.data.timetable);
+      }
+    } catch {
+      // fallback to initialTimetable
+    }
+  }, [sessionId, accessToken]);
+
+  useEffect(() => {
+    if (sessionId && accessToken) {
+      fetchTimetable();
+    }
+  }, [sessionId, accessToken, fetchTimetable]);
+
+  const handleSetFrequencyPreset = (count) => {
+    if (count === 1) {
+      setSlots((prev) => [
+        prev[0] || { id: "slot-1", day: "Monday", start_time: "09:00", end_time: "11:00", venue: "" },
+      ]);
+    } else if (count === 2) {
+      setSlots((prev) => [
+        prev[0] || { id: "slot-1", day: "Monday", start_time: "09:00", end_time: "11:00", venue: "" },
+        prev[1] || { id: "slot-2", day: "Thursday", start_time: "14:00", end_time: "16:00", venue: "" },
+      ]);
+    }
+  };
+
+  const handleAddSlot = () => {
+    setSlots((prev) => [
+      ...prev,
+      {
+        id: `slot-${Date.now()}`,
+        day: prev.length === 1 ? "Thursday" : "Wednesday",
+        start_time: "10:00",
+        end_time: "12:00",
+        venue: "",
+      },
+    ]);
+  };
+
+  const handleRemoveSlot = (index) => {
+    setSlots((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleSlotChange = (index, field, value) => {
+    setSlots((prev) =>
+      prev.map((slot, idx) => (idx === index ? { ...slot, [field]: value } : slot))
+    );
+  };
+
+  const handleSaveTimetable = async (e) => {
+    e.preventDefault();
+    try {
+      setSavingTimetable(true);
+      const res = await axios.put(
+        `${API_URL}lecturer/sessions/${sessionId}/timetable`,
+        {
+          timetable: slots,
+          notify_students: notifyOnSave,
+        },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      if (Array.isArray(res.data?.timetable)) {
+        setSlots(res.data.timetable);
+      }
+      toast.success(
+        notifyOnSave
+          ? "Timetable saved & pushed to CoursePass mobile users!"
+          : "Course timetable saved!"
+      );
+      if (onTimetableSaved) onTimetableSaved();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || "Failed to save course timetable");
+    } finally {
+      setSavingTimetable(false);
+    }
+  };
+
+  const handleSendPushUpdate = async (e) => {
+    e.preventDefault();
+    if (!pushMessage.trim()) {
+      toast.error("Please enter a notification message for mobile users.");
+      return;
+    }
+    try {
+      setSendingPush(true);
+      await axios.post(
+        `${API_URL}lecturer/sessions/${sessionId}/notify`,
+        {
+          title:
+            pushTitle.trim() ||
+            `📢 ${courseID || "Course"} Lecture Update`,
+          message: pushMessage.trim(),
+          update_type: updateType,
+          slot: {
+            venue: pushVenue.trim() || undefined,
+            start_time: pushTime.trim() || undefined,
+          },
+        },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      toast.success("Push notification sent to enrolled mobile users!");
+      setPushTitle("");
+      setPushMessage("");
+      setPushVenue("");
+      setPushTime("");
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.error || "Failed to push lecture notification"
+      );
+    } finally {
+      setSendingPush(false);
+    }
+  };
+
+  return (
+    <div className="grid lg:grid-cols-12 gap-5">
+      {/* Left Column: Course Weekly Timetable Builder (7 cols) */}
+      <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 space-y-5 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span className="text-[11px] font-sans text-blue-600 font-semibold uppercase tracking-wider">
+              WEEKLY LECTURE TIMETABLE // AUTO-REMINDERS
+            </span>
+            <h3 className="text-base font-bold text-slate-900 mt-0.5">
+              {courseID} Weekly Schedule Setup
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Configure the day(s) of the week and time for this course. If the lecture holds twice a week, select <strong>Twice a Week</strong> or add multiple slots.
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleSetFrequencyPreset(1)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                slots.length === 1
+                  ? "bg-blue-500 text-white border-blue-500 shadow-xs"
+                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+              }`}
+            >
+              Once / Week
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetFrequencyPreset(2)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition ${
+                slots.length === 2
+                  ? "bg-blue-500 text-white border-blue-500 shadow-xs"
+                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+              }`}
+            >
+              Twice / Week
+            </button>
+          </div>
+        </div>
+
+        {/* Automatic Reminder Banner */}
+        <div className="rounded-xl bg-obsidian-950 text-white p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-400 shrink-0">
+              <Bell className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[11px] font-sans uppercase tracking-wider text-blue-400 font-bold">
+                AUTOMATIC LECTURE REMINDERS ACTIVE
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5">
+                Push notifications are automatically sent to you and enrolled mobile users before each scheduled class:
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="px-2.5 py-1 rounded-md bg-blue-500/20 border border-blue-400/30 text-[11px] font-sans font-bold text-blue-300">
+              2 HRS
+            </span>
+            <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-[11px] font-sans font-bold text-emerald-300">
+              1 HR
+            </span>
+            <span className="px-2.5 py-1 rounded-md bg-amber-500/20 border border-amber-400/30 text-[11px] font-sans font-bold text-amber-300">
+              30 MINS
+            </span>
+          </div>
+        </div>
+
+        <form onSubmit={handleSaveTimetable} className="space-y-4">
+          <div className="space-y-3">
+            {slots.map((slot, index) => (
+              <div
+                key={slot.id || index}
+                className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/90 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-sans font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                    Lecture Slot #{index + 1}
+                  </span>
+                  {slots.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSlot(index)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div className="sm:col-span-1">
+                    <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">
+                      Day of Week
+                    </label>
+                    <select
+                      value={slot.day || "Monday"}
+                      onChange={(e) =>
+                        handleSlotChange(index, "day", e.target.value)
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 outline-none focus:border-blue-500"
+                    >
+                      {DAYS_OF_WEEK.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">
+                      Start Time
+                    </label>
+                    <input
+                      type="time"
+                      required
+                      value={slot.start_time || "09:00"}
+                      onChange={(e) =>
+                        handleSlotChange(index, "start_time", e.target.value)
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">
+                      End Time
+                    </label>
+                    <input
+                      type="time"
+                      value={slot.end_time || ""}
+                      onChange={(e) =>
+                        handleSlotChange(index, "end_time", e.target.value)
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">
+                      Venue / Hall
+                    </label>
+                    <input
+                      type="text"
+                      value={slot.venue || ""}
+                      onChange={(e) =>
+                        handleSlotChange(index, "venue", e.target.value)
+                      }
+                      placeholder="e.g. LT 1 / ETF Hall"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleAddSlot}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-dashed border-blue-400 bg-blue-50/50 hover:bg-blue-50 text-blue-700 text-xs font-semibold transition"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Another Weekly Lecture Slot
+            </button>
+
+            <label className="inline-flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={notifyOnSave}
+                onChange={(e) => setNotifyOnSave(e.target.checked)}
+                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span>Push timetable update to mobile users on save</span>
+            </label>
+          </div>
+
+          <div className="pt-2 border-t border-slate-100 flex justify-end">
+            <button
+              type="submit"
+              disabled={savingTimetable}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[42px] rounded-xl bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              {savingTimetable ? "Saving Schedule..." : "Save Course Timetable"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Right Column: Instant Lecture Update Push Notification to Mobile Users (5 cols) */}
+      <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 space-y-4 shadow-2xs flex flex-col justify-between">
+        <div className="space-y-4">
+          <div className="border-b border-slate-100 pb-4">
+            <span className="text-[11px] font-sans text-emerald-600 font-semibold uppercase tracking-wider">
+              MOBILE PUSH BROADCAST // COURSEPASS
+            </span>
+            <h3 className="text-base font-bold text-slate-900 mt-0.5">
+              Push Lecture Update to Mobile Users
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Send an immediate push notification to all enrolled students on the CoursePass mobile app about venue changes, time reschedules, or class starting now.
+            </p>
+          </div>
+
+          <form onSubmit={handleSendPushUpdate} className="space-y-3.5">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Update Category
+              </label>
+              <select
+                value={updateType}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setUpdateType(val);
+                  if (val === "venue_change" && !pushTitle) {
+                    setPushTitle(`📍 ${courseID} Venue Change`);
+                  } else if (val === "rescheduled" && !pushTitle) {
+                    setPushTitle(`⏰ ${courseID} Lecture Rescheduled`);
+                  } else if (val === "starting_soon" && !pushTitle) {
+                    setPushTitle(`🔔 ${courseID} Lecture Starting Now`);
+                  } else if (val === "cancelled" && !pushTitle) {
+                    setPushTitle(`⚠️ ${courseID} Lecture Cancelled`);
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500"
+              >
+                <option value="lecture_update">General Lecture Update</option>
+                <option value="venue_change">Venue / Lecture Hall Change</option>
+                <option value="rescheduled">Time Rescheduled</option>
+                <option value="starting_soon">Lecture Starting Soon / Live</option>
+                <option value="cancelled">Lecture Cancelled / Postponed</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Notification Headline
+              </label>
+              <input
+                type="text"
+                value={pushTitle}
+                onChange={(e) => setPushTitle(e.target.value)}
+                placeholder={`📢 ${courseID || "Course"} Lecture Update`}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-xs outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold uppercase text-slate-600 mb-1">
+                  Updated Time (Optional)
+                </label>
+                <input
+                  type="time"
+                  value={pushTime}
+                  onChange={(e) => setPushTime(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3 py-2 text-xs outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold uppercase text-slate-600 mb-1">
+                  Venue (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={pushVenue}
+                  onChange={(e) => setPushVenue(e.target.value)}
+                  placeholder="e.g. ETF Hall"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3 py-2 text-xs outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1">
+                Message to Enrolled Students
+              </label>
+              <textarea
+                rows={4}
+                required
+                value={pushMessage}
+                onChange={(e) => setPushMessage(e.target.value)}
+                placeholder={`e.g. Today's ${courseID || ""} lecture will hold at ETF Hall by 10:00 AM. Please be seated 10 minutes early for biometric attendance.`}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white px-3.5 py-2.5 text-xs outline-none focus:border-blue-500 resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={sendingPush}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[42px] rounded-xl bg-obsidian-950 hover:bg-slate-800 disabled:bg-slate-300 text-white text-xs font-semibold transition shadow-md"
+            >
+              <Send className="w-3.5 h-3.5 text-blue-400" />
+              {sendingPush
+                ? "Pushing to Mobile Users..."
+                : "Push Notification to Mobile Users"}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

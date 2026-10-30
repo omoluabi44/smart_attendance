@@ -127,3 +127,9 @@ logHandler.setFormatter(formatter)
 logger.handlers = []
 logger.addHandler(logHandler)
 logger.setLevel(logging.INFO)
+
+try:
+    from api.v1.utils.lecture_reminder_worker import start_background_reminder_scheduler
+    start_background_reminder_scheduler(app)
+except Exception as _scheduler_err:
+    logger.warning(f"Could not start background reminder scheduler: {_scheduler_err}")

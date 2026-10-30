@@ -8,7 +8,11 @@ def create_celery_app():
         "api.v1",
         broker=redis_url,
         backend=redis_url,
-        include=["api.v1.utils.webhook_dispatcher", "api.v1.utils.attendance_worker"],
+        include=[
+            "api.v1.utils.webhook_dispatcher",
+            "api.v1.utils.attendance_worker",
+            "api.v1.utils.lecture_reminder_worker",
+        ],
     )
 
     celery_app.conf.update(
@@ -18,6 +22,12 @@ def create_celery_app():
         timezone="UTC",
         enable_utc=True,
         broker_connection_retry_on_startup=True,
+        beat_schedule={
+            "dispatch-lecture-reminders-every-minute": {
+                "task": "api.v1.utils.lecture_reminder_worker.run_lecture_reminder_task",
+                "schedule": 60.0,
+            },
+        },
     )
 
     class ContextTask(celery_app.Task):

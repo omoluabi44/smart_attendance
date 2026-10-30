@@ -2,6 +2,7 @@
 """ objects that handle all default RestFul API actions for Users """
 from models.user import User
 from models.profile import Profile
+from models.university import University
 from models import storage
 import random
 from api.v1.views import app_views
@@ -123,24 +124,47 @@ def update_user(user_id):
 
     data = request.get_json()
  
-    ignore = ['id', 'created_at', 'updated_at', 'university','profile','providers','role']
+    ignore = ['id', 'created_at', 'updated_at', 'university','profile','providers','role','department','level','matric_number']
    
     for key, value in data.items():
-        if key not in ignore:
+        if key not in ignore and hasattr(user, key):
             setattr(user, key, value)
   
-   
     # Update nested university fields if present
-    
-    if "university" in data:
+    if "university" in data and isinstance(data["university"], dict):
         university_data = data["university"]
         university = user.university
-        if not university:
-            make_response(jsonify({"error":"university not found"}, 404))
-        for key, value in university_data.items():
-            if key not in ignore:
-                setattr(university, key, value)
-    if "profile" in data:
+        shared_university = (
+            university is not None
+            and ses.query(User).filter_by(universityID=user.universityID).count() > 1
+        )
+        if not university or shared_university:
+            raw_lvl = university_data.get("level")
+            try:
+                parsed_lvl = int(str(raw_lvl).upper().replace("LEVEL", "").replace("L", "").strip()) if raw_lvl is not None else (university.level if university else 100)
+            except (ValueError, TypeError):
+                parsed_lvl = university.level if university else 100
+            university = University(
+                university=str(university_data.get("university") or (university.university if university else "University"))[:128],
+                College=str(university_data.get("College") or (university.College if university else "General"))[:128],
+                department=str(university_data.get("department") or (university.department if university else "N/A"))[:128],
+                level=parsed_lvl,
+            )
+            storage.new(university)
+            storage.save()
+            user.universityID = university.id
+            user.university = university
+        else:
+            for key, value in university_data.items():
+                if key not in ignore and value is not None:
+                    if key == "level":
+                        try:
+                            value = int(str(value).upper().replace("LEVEL", "").replace("L", "").strip())
+                        except (ValueError, TypeError):
+                            continue
+                    setattr(university, key, value)
+
+    if "profile" in data and isinstance(data["profile"], dict):
         profile_data = data["profile"]
         profile = user.profile
         if not profile:
@@ -150,6 +174,49 @@ def update_user(user_id):
         for key, value in profile_data.items():
             if key not in ignore:
                 setattr(profile, key, value)
+        if ("Fname" in profile_data or "Lname" in profile_data) and "name" not in data:
+            full_name = f"{profile.Fname or ''} {profile.Lname or ''}".strip()
+            if full_name:
+                user.name = full_name[:128]
+        if ("matric_number" in profile_data or "matric" in profile_data) and "matric" not in data:
+            new_matric = (profile_data.get("matric_number") or profile_data.get("matric") or "").strip()
+            if new_matric:
+                user.matric = new_matric[:20]
+
+    # Support flat top-level department / level / matric_number updates
+    if ("department" in data or "level" in data) and "university" not in data:
+        dept_val = str(data.get("department") or "").strip()
+        raw_lvl = data.get("level")
+        lvl_val = None
+        if raw_lvl is not None:
+            try:
+                lvl_val = int(str(raw_lvl).upper().replace("LEVEL", "").replace("L", "").strip())
+            except (ValueError, TypeError):
+                lvl_val = None
+        university = user.university
+        shared_university = (
+            university is not None
+            and ses.query(User).filter_by(universityID=user.universityID).count() > 1
+        )
+        if not university or shared_university:
+            university = University(
+                university=university.university if university else "University",
+                College=university.College if university else "General",
+                department=(dept_val or (university.department if university else "N/A"))[:128],
+                level=lvl_val if lvl_val is not None else (university.level if university else 100),
+            )
+            storage.new(university)
+            storage.save()
+            user.universityID = university.id
+            user.university = university
+        else:
+            if dept_val:
+                university.department = dept_val[:128]
+            if lvl_val is not None and lvl_val > 0:
+                university.level = lvl_val
+
+    if "matric_number" in data and "matric" not in data and data.get("matric_number"):
+        user.matric = str(data["matric_number"]).strip()[:20]
 
     # Update streak if present
     if "streak" in data:
@@ -189,8 +256,6 @@ def update_user(user_id):
    
     user.save()
 
-  
-
     return make_response(jsonify({"message":"Update Successful!"}, 200))
 
 @app_views.route('/user/<user_id>', methods=['DELETE'], strict_slashes=False)
@@ -217,8 +282,3 @@ def Balance(user_id):
 
    
     return make_response(jsonify({"balance":user.amount}), 200)
-
-
-  
-
-

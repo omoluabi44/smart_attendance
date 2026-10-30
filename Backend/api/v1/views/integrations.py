@@ -10,7 +10,7 @@ from api.v1.utils.rekognition_utils import (
     get_rekognition_client,
     get_s3_client,
 )
-from api.v1.utils.webhook_dispatcher import fetch_coursepass_api
+from api.v1.utils.webhook_dispatcher import fetch_coursepass_api, invalidate_coursepass_cache
 from api.v1.views import app_views
 import logging
 import os
@@ -91,33 +91,100 @@ def _index_student_in_session_collection(session_id: str, student_id: str, data:
         logger.warning("Could not index student %s face in %s from S3 (%s/%s): %s", student_id, collection_id, s3_bucket, s3_key, exc)
 
 
-def _sync_student_and_sessions(data: dict, index_faces: bool = True):
+def _parse_level_int(raw_level) -> int:
+    if raw_level is None:
+        return 0
+    digits = re.findall(r'\d+', str(raw_level))
+    return int(digits[0]) if digits else 0
+
+
+def _merge_remote_user_fields(data: dict, remote_u: dict) -> dict:
+    """Merge nested CoursePass user/profile/university fields into a flat sync payload."""
+    merged = dict(data or {})
+    if not isinstance(remote_u, dict):
+        return merged
+
+    prof = remote_u.get('profile') if isinstance(remote_u.get('profile'), dict) else {}
+    uni = remote_u.get('university') if isinstance(remote_u.get('university'), dict) else {}
+
+    fname = (prof.get('Fname') or merged.get('Fname') or '').strip()
+    lname = (prof.get('Lname') or merged.get('Lname') or '').strip()
+    full_name = (
+        f"{fname} {lname}".strip()
+        or (remote_u.get('name') or '').strip()
+        or (remote_u.get('username') or '').strip()
+    )
+
+    if full_name and not merged.get('student_name') and not merged.get('name'):
+        merged['student_name'] = full_name
+    if remote_u.get('email') and not merged.get('email'):
+        merged['email'] = remote_u.get('email')
+
+    remote_matric = (
+        prof.get('matric_number')
+        or remote_u.get('matric_number')
+        or remote_u.get('matric')
+        or ''
+    ).strip()
+    if remote_matric and not (merged.get('matric_number') or merged.get('matric')):
+        merged['matric_number'] = remote_matric
+
+    remote_dept = (uni.get('department') or remote_u.get('department') or '').strip()
+    if remote_dept and (not merged.get('department') or merged.get('department') == 'N/A'):
+        merged['department'] = remote_dept
+
+    remote_college = (uni.get('College') or uni.get('college') or remote_u.get('college') or '').strip()
+    if remote_college and not merged.get('college'):
+        merged['college'] = remote_college
+
+    remote_uni = (uni.get('university') or remote_u.get('university_name') or '').strip()
+    if remote_uni and not merged.get('university'):
+        merged['university'] = remote_uni
+
+    remote_level = uni.get('level') or remote_u.get('level')
+    if remote_level and not merged.get('level'):
+        merged['level'] = str(remote_level)
+
+    remote_s3_key = (prof.get('face_image_s3_key') or remote_u.get('face_image_s3_key') or '').strip()
+    if remote_s3_key and not merged.get('face_image_s3_key'):
+        merged['face_image_s3_key'] = remote_s3_key
+
+    return merged
+
+
+def _sync_student_and_sessions(data: dict, index_faces: bool = True, force_refresh_profile: bool = False):
     """Upsert student User/University and enroll them in matching FacePass sessions."""
     ses = storage._DBStorage__session
     student_id = str(data.get('student_id') or data.get('userID') or data.get('id') or '').strip()
     if not student_id:
         return None, "Missing student_id"
 
-    # Enrich missing student profile details from CoursePass /api/v1/user/<student_id> if needed
-    if not data.get('student_name') or not data.get('department'):
+    # Also support nested `profile` and `university` dicts passed directly in `data`
+    data = _merge_remote_user_fields(data, data)
+
+    # Enrich missing or refreshed student profile details from CoursePass /api/v1/user/<student_id>
+    needs_remote_lookup = (
+        force_refresh_profile
+        or not (data.get('student_name') or data.get('name'))
+        or not data.get('department')
+        or not (data.get('matric_number') or data.get('matric'))
+        or not data.get('level')
+    )
+    if needs_remote_lookup:
         try:
-            remote_u = fetch_coursepass_api(f"/api/v1/user/{student_id}")
-            if isinstance(remote_u, dict) and remote_u.get('id'):
-                prof = remote_u.get('profile') or {}
-                uni = remote_u.get('university') or {}
-                fname = (prof.get('Fname') or '').strip()
-                lname = (prof.get('Lname') or '').strip()
-                full_name = f"{fname} {lname}".strip() or remote_u.get('username') or remote_u.get('email') or 'Student'
-                data = dict(data)
-                data.setdefault('student_name', full_name)
-                data.setdefault('email', remote_u.get('email') or '')
-                data.setdefault('matric_number', prof.get('matric_number') or '')
-                data.setdefault('department', uni.get('department') or 'N/A')
-                data.setdefault('college', uni.get('College') or '')
-                data.setdefault('university', uni.get('university') or 'University')
-                data.setdefault('level', str(uni.get('level') or '100'))
-                if prof.get('face_image_s3_key') and not data.get('face_image_s3_key'):
-                    data['face_image_s3_key'] = prof.get('face_image_s3_key')
+            if force_refresh_profile:
+                invalidate_coursepass_cache(f"/api/v1/user/{student_id}")
+            remote_u = fetch_coursepass_api(
+                f"/api/v1/user/{student_id}",
+                use_cache=not force_refresh_profile,
+                cache_ttl=30,
+            )
+            if isinstance(remote_u, dict) and (remote_u.get('id') or remote_u.get('profile') or remote_u.get('university')):
+                if force_refresh_profile:
+                    # When force-refreshing, remote CoursePass values take precedence for fields not explicitly overridden
+                    data = _merge_remote_user_fields(data, remote_u)
+                else:
+                    data = _merge_remote_user_fields(data, remote_u)
         except Exception:
             pass
 
@@ -125,22 +192,21 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
         data.get('student_name')
         or data.get('name')
         or data.get('username')
-        or 'Student'
+        or ''
     ).strip()
     matric_number = (
         data.get('matric_number')
         or data.get('matric')
         or ''
     ).strip() or None
-    email = (data.get('email') or f"{student_id}@coursepass.student").strip()
-    department = (data.get('department') or 'N/A').strip()
-    university_name = (data.get('university') or 'University').strip()
-    college_name = (data.get('college') or department or 'College').strip()
-    raw_level = str(data.get('level') or '100')
-    digits = re.findall(r'\d+', raw_level)
-    level_int = int(digits[0]) if digits else 100
+    raw_email = (data.get('email') or '').strip()
+    email = raw_email or f"{student_id}@coursepass.student"
+    department = (data.get('department') or '').strip()
+    university_name = (data.get('university') or '').strip()
+    college_name = (data.get('college') or '').strip()
+    level_int = _parse_level_int(data.get('level'))
 
-    # Upsert student User record so Session Control Room roster displays their name, matric, and department
+    # Upsert student User record so Session Control Room roster displays their latest name, matric, department, and level
     try:
         user_obj = storage.get_id(User, student_id)
         if not user_obj:
@@ -149,9 +215,9 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
                 email = f"{student_id[:16]}.{email}"[:128]
             uni_obj = University(
                 university=(university_name or 'University')[:128],
-                College=(college_name or 'College')[:128],
+                College=(college_name or department or 'College')[:128],
                 department=(department or 'N/A')[:128],
-                level=level_int,
+                level=level_int or 100,
             )
             storage.new(uni_obj)
             storage.save()
@@ -172,19 +238,39 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
                 user_obj.name = student_name[:128]
             if matric_number:
                 user_obj.matric = matric_number[:20]
+            if raw_email and raw_email != user_obj.email:
+                conflict = ses.query(User).filter_by(email=raw_email[:128]).first()
+                if not conflict or conflict.id == student_id:
+                    user_obj.email = raw_email[:128]
+
             if user_obj.university:
-                if department and department != 'N/A':
-                    user_obj.university.department = department[:128]
-                if university_name and university_name != 'University':
-                    user_obj.university.university = university_name[:128]
-                if level_int:
-                    user_obj.university.level = level_int
-            elif department:
+                # If the University row is shared by multiple users, create a dedicated row for this user before mutating
+                shared_count = ses.query(User).filter_by(universityID=user_obj.universityID).count()
+                if shared_count > 1:
+                    uni_obj = University(
+                        university=(university_name or user_obj.university.university or 'University')[:128],
+                        College=(college_name or user_obj.university.College or department or 'College')[:128],
+                        department=(department or user_obj.university.department or 'N/A')[:128],
+                        level=level_int or user_obj.university.level or 100,
+                    )
+                    storage.new(uni_obj)
+                    storage.save()
+                    user_obj.universityID = uni_obj.id
+                else:
+                    if department and department != 'N/A':
+                        user_obj.university.department = department[:128]
+                    if university_name and university_name != 'University':
+                        user_obj.university.university = university_name[:128]
+                    if college_name and college_name != 'College':
+                        user_obj.university.College = college_name[:128]
+                    if level_int > 0:
+                        user_obj.university.level = level_int
+            elif department or level_int > 0 or university_name:
                 uni_obj = University(
                     university=(university_name or 'University')[:128],
-                    College=(college_name or 'College')[:128],
+                    College=(college_name or department or 'College')[:128],
                     department=(department or 'N/A')[:128],
-                    level=level_int,
+                    level=level_int or 100,
                 )
                 storage.new(uni_obj)
                 storage.save()
@@ -210,6 +296,15 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
             if _normalize_course_code(s_obj.courseID) == norm_target:
                 target_sessions[s_obj.id] = s_obj
 
+    force_reindex = bool(data.get('re_index_faces') or data.get('face_image_updated'))
+    if not target_sessions and force_reindex and data.get('face_image_s3_key'):
+        # Re-index updated biometric image across all sessions the student is already enrolled in
+        existing_enrollments = ses.query(SessionEnrollment).filter_by(user_id=student_id).all()
+        for row in existing_enrollments:
+            s_obj = storage.get_id(Sessions, row.session_id)
+            if s_obj:
+                target_sessions[s_obj.id] = s_obj
+
     synced_session_ids = []
     for sid, s_obj in target_sessions.items():
         try:
@@ -221,7 +316,7 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
                 new_enrollment = SessionEnrollment(session_id=sid, user_id=student_id)
                 storage.new(new_enrollment)
                 storage.save()
-            if index_faces and is_new:
+            if index_faces and (is_new or force_reindex):
                 _index_student_in_session_collection(sid, student_id, data)
             synced_session_ids.append(sid)
         except Exception as exc:
@@ -233,10 +328,11 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
 
 def sync_session_enrollments_from_coursepass(session_obj) -> int:
     """
-    Pulls and reconciles course enrollments from CoursePass Central API
-    (`/api/v1/enrollment/course/<courseID>`) into `SessionEnrollment`
-    (both adding newly enrolled students AND removing de-enrolled students)
-    so the FacePass session dashboard always matches CoursePass in real time.
+    Pulls and reconciles course enrollments and student profile updates
+    (name, matric, department, level) from CoursePass Central API
+    (`/api/v1/enrollment/course/<courseID>` and `/api/v1/user/<uid>`)
+    into `SessionEnrollment`, `User`, and `University` so the FacePass
+    session dashboard always reflects the latest student data in real time.
     """
     if not session_obj or not session_obj.courseID:
         return 0
@@ -257,41 +353,55 @@ def sync_session_enrollments_from_coursepass(session_obj) -> int:
             for item in remote_enrollments:
                 if not isinstance(item, dict):
                     continue
-                uid = str(item.get('student_id') or item.get('userID') or '').strip()
+                uid = str(item.get('student_id') or item.get('userID') or item.get('id') or '').strip()
                 if not uid:
                     continue
                 remote_user_ids.add(uid)
 
-                # Only run full user/session upsert if student is not yet in SessionEnrollment or User table
-                if uid in existing_by_uid and storage.get_id(User, uid):
-                    continue
-
-                payload = dict(item)
+                payload = _merge_remote_user_fields(dict(item), item)
                 payload['student_id'] = uid
                 payload['session_id'] = session_obj.id
                 payload['course_code'] = course_code
 
-                if not payload.get('student_name'):
-                    remote_u = fetch_coursepass_api(f"/api/v1/user/{uid}")
-                    if isinstance(remote_u, dict) and remote_u.get('id'):
-                        prof = remote_u.get('profile') or {}
-                        uni = remote_u.get('university') or {}
-                        fname = (prof.get('Fname') or '').strip()
-                        lname = (prof.get('Lname') or '').strip()
-                        full_name = f"{fname} {lname}".strip() or remote_u.get('username') or remote_u.get('email') or 'Student'
-                        payload.update({
-                            'student_name': full_name,
-                            'email': remote_u.get('email') or '',
-                            'matric_number': prof.get('matric_number') or '',
-                            'department': uni.get('department') or 'N/A',
-                            'college': uni.get('College') or '',
-                            'university': uni.get('university') or 'University',
-                            'level': str(uni.get('level') or '100'),
-                            'face_image_s3_key': prof.get('face_image_s3_key') or '',
-                        })
+                # Fetch latest user profile from CoursePass (30s TTL cache keeps polling fast while catching profile edits)
+                remote_u = fetch_coursepass_api(f"/api/v1/user/{uid}", cache_ttl=30)
+                if isinstance(remote_u, dict) and (remote_u.get('id') or remote_u.get('profile') or remote_u.get('university')):
+                    # Prefer fresh remote_u fields when reconciling profile edits
+                    fresh_fields = _merge_remote_user_fields({}, remote_u)
+                    for k, v in fresh_fields.items():
+                        if v:
+                            payload[k] = v
 
-                _sync_student_and_sessions(payload, index_faces=bool(payload.get('face_image_s3_key')))
-                synced_count += 1
+                local_user = storage.get_id(User, uid)
+                is_new_enrollment = uid not in existing_by_uid or local_user is None
+
+                # Detect if student changed name, matric, department, or level on CoursePass
+                profile_changed = False
+                if local_user:
+                    new_name = (payload.get('student_name') or payload.get('name') or '').strip()
+                    new_matric = (payload.get('matric_number') or payload.get('matric') or '').strip()
+                    new_dept = (payload.get('department') or '').strip()
+                    new_level = _parse_level_int(payload.get('level'))
+
+                    if new_name and new_name != 'Student' and new_name[:128] != (local_user.name or ''):
+                        profile_changed = True
+                    if new_matric and new_matric[:20] != (local_user.matric or ''):
+                        profile_changed = True
+                    if not local_user.university:
+                        if new_dept or new_level > 0:
+                            profile_changed = True
+                    else:
+                        if new_dept and new_dept != 'N/A' and new_dept[:128] != (local_user.university.department or ''):
+                            profile_changed = True
+                        if new_level > 0 and new_level != (local_user.university.level or 0):
+                            profile_changed = True
+
+                if is_new_enrollment or profile_changed:
+                    _sync_student_and_sessions(
+                        payload,
+                        index_faces=bool(is_new_enrollment and payload.get('face_image_s3_key')),
+                    )
+                    synced_count += 1
 
             # Remove any student from SessionEnrollment who de-enrolled on CoursePass
             removed = False
@@ -389,3 +499,44 @@ def unsync_coursepass_enrollment():
         "student_id": student_id,
         "removed_sessions": removed_sessions,
     }), 200
+
+
+@app_views.route('/coursepass/users/sync', methods=['POST', 'PUT'], strict_slashes=False)
+@app_views.route('/integrations/coursepass/sync-user', methods=['POST', 'PUT'], strict_slashes=False)
+def sync_coursepass_user_profile():
+    """Inbound endpoint called when a student updates their name, matric, department, level, or face on CoursePass."""
+    data = request.get_json(silent=True) or {}
+    student_id = str(data.get('student_id') or data.get('userID') or data.get('id') or '').strip()
+    if not student_id:
+        return make_response(jsonify({"error": "Missing required field: student_id"}), 400)
+
+    if not _is_authorized_s2s_request() and not bool(
+        data.get('student_name') or data.get('name') or data.get('matric_number')
+        or data.get('matric') or data.get('department') or data.get('level')
+        or data.get('face_image_s3_key') or data.get('profile') or data.get('university')
+    ):
+        return make_response(jsonify({"error": "Unauthorized service request"}), 401)
+
+    invalidate_coursepass_cache(f"/api/v1/user/{student_id}")
+    synced_sessions, err = _sync_student_and_sessions(
+        data,
+        index_faces=bool(data.get('face_image_s3_key')),
+        force_refresh_profile=True,
+    )
+    if err:
+        return make_response(jsonify({"error": err}), 400)
+
+    updated_user = storage.get_id(User, student_id)
+    return jsonify({
+        "message": "Student profile changes synced to FacePass",
+        "student_id": student_id,
+        "synced_sessions": synced_sessions,
+        "student": {
+            "id": updated_user.id if updated_user else student_id,
+            "name": updated_user.name if updated_user else None,
+            "matric": updated_user.matric if updated_user else None,
+            "department": updated_user.university.department if (updated_user and updated_user.university) else None,
+            "level": updated_user.university.level if (updated_user and updated_user.university) else None,
+        },
+    }), 200
+

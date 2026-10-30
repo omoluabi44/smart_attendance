@@ -153,6 +153,7 @@ export const facepassApi = apiSlice.injectEndpoints({
         courseID: string;
         session_name: string;
         total_expected_classes: number;
+        timetable?: any[];
       }) => ({
         url: "lecturer/session",
         method: "POST",
@@ -176,6 +177,7 @@ export const facepassApi = apiSlice.injectEndpoints({
         sessionId: string;
         total_expected_classes?: number;
         session_name?: string;
+        timetable?: any[];
       }) => ({
         url: `lecturer/sessions/${sessionId}`,
         method: "PUT",
@@ -253,7 +255,7 @@ export const facepassApi = apiSlice.injectEndpoints({
       ],
     }),
 
-        getImageAttendanceStatus: builder.query<
+    getImageAttendanceStatus: builder.query<
       any,
       { sessionId: string; jobId: string }
     >({
@@ -374,6 +376,53 @@ export const facepassApi = apiSlice.injectEndpoints({
       query: ({ sessionId, quizId }) =>
         `lecturer/sessions/${sessionId}/quizzes/${quizId}/analytics`,
     }),
+
+    // ════════════════════════════════════════════════════════════════════════
+    // COURSE TIMETABLE & LECTURE UPDATE PUSH NOTIFICATIONS
+    // ════════════════════════════════════════════════════════════════════════
+    getSessionTimetable: builder.query<any, string>({
+      query: (sessionId) => `lecturer/sessions/${sessionId}/timetable`,
+      providesTags: (result, error, sessionId) => [
+        { type: "SessionTimetable", id: sessionId },
+      ],
+    }),
+
+    saveSessionTimetable: builder.mutation({
+      query: ({
+        sessionId,
+        ...body
+      }: {
+        sessionId: string;
+        timetable: any[];
+        notify_mobile?: boolean;
+      }) => ({
+        url: `lecturer/sessions/${sessionId}/timetable`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { sessionId }) => [
+        { type: "SessionTimetable", id: sessionId },
+        { type: "SessionDetail", id: sessionId },
+        "LecturerSessions",
+      ],
+    }),
+
+    pushLectureNotification: builder.mutation({
+      query: ({
+        sessionId,
+        ...body
+      }: {
+        sessionId: string;
+        title?: string;
+        message: string;
+        update_type?: string;
+        slot?: any;
+      }) => ({
+        url: `lecturer/sessions/${sessionId}/notify`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
   overrideExisting: true,
 });
@@ -410,4 +459,7 @@ export const {
   useGetSessionQuizzesQuery,
   useCreateSessionQuizMutation,
   useGetQuizAnalyticsQuery,
+  useGetSessionTimetableQuery,
+  useSaveSessionTimetableMutation,
+  usePushLectureNotificationMutation,
 } = facepassApi;

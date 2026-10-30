@@ -66,6 +66,28 @@ export const facepassApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["LecturerSessions", "AdminSessions"],
     }),
+    getSessionTimetable: builder.query({
+      query: (sessionId) => `lecturer/sessions/${sessionId}/timetable`,
+      providesTags: (result, error, id) => [{ type: "SessionDashboard", id }],
+    }),
+    saveSessionTimetable: builder.mutation({
+      query: ({ sessionId, ...body }) => ({
+        url: `lecturer/sessions/${sessionId}/timetable`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { sessionId }) => [
+        "LecturerSessions",
+        { type: "SessionDashboard", id: sessionId },
+      ],
+    }),
+    pushLectureNotification: builder.mutation({
+      query: ({ sessionId, ...body }) => ({
+        url: `lecturer/sessions/${sessionId}/notify`,
+        method: "POST",
+        body,
+      }),
+    }),
     manualOverride: builder.mutation({
       query: ({ sessionId, logId, ...body }) => ({
         url: `lecturer/sessions/${sessionId}/attendance-log/${logId}`,
@@ -246,6 +268,9 @@ export const {
   useAddCoLecturerMutation,
   useGetCoLecturersQuery,
   useUpdateSessionMutation,
+  useGetSessionTimetableQuery,
+  useSaveSessionTimetableMutation,
+  usePushLectureNotificationMutation,
   useManualOverrideMutation,
   // Attendance
   useUploadAttendanceVideoMutation,

@@ -36,6 +36,8 @@ import {
   Eye,
   Link2,
   Check,
+  Calendar,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -47,6 +49,7 @@ import StudentAuditDrawer from "@/app/ui/lecturer/StudentAuditDrawer";
 import {
   CourseMaterialsPanel,
   QuizzesAndGradesPanel,
+  TimetableAndNotificationsPanel,
 } from "@/app/ui/lecturer/SessionResourcesTabs";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -298,12 +301,14 @@ export default function SessionControlRoom() {
     const q = searchQuery.trim().toLowerCase();
     return studentsList.filter((s) => {
       const dept = s.department || "N/A";
+      const levelStr = s.level ? `${s.level}l` : "";
       const matchesDept = filterDept === "All" || dept === filterDept;
       const matchesQuery =
         !q ||
         (s.name && s.name.toLowerCase().includes(q)) ||
         (s.matric && s.matric.toLowerCase().includes(q)) ||
-        dept.toLowerCase().includes(q);
+        dept.toLowerCase().includes(q) ||
+        levelStr.includes(q);
       return matchesDept && matchesQuery;
     });
   }, [studentsList, searchQuery, filterDept]);
@@ -480,6 +485,11 @@ export default function SessionControlRoom() {
       label: "Quizzes & Grades",
       icon: Award,
     },
+    {
+      key: "timetable",
+      label: `Timetable & Alerts (${(session.timetable || []).length})`,
+      icon: Calendar,
+    },
   ];
 
   return (
@@ -555,6 +565,19 @@ export default function SessionControlRoom() {
                     <span>Copy CoursePass Link</span>
                   </>
                 )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab("timetable")}
+                title="Configure weekly lecture timetable & push notifications to enrolled CoursePass students"
+                className={`inline-flex items-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl border text-xs font-semibold transition shrink-0 ${
+                  activeTab === "timetable"
+                    ? "border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                    : "border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100/80 text-indigo-700"
+                }`}
+              >
+                <Bell className="w-3.5 h-3.5" />
+                <span>Timetable &amp; Push Alerts</span>
               </button>
 
               <button
@@ -850,8 +873,13 @@ export default function SessionControlRoom() {
                                   {s.name}
                                 </span>
                               </div>
-                              <div className="text-xs font-sans text-slate-500 mt-0.5">
-                                {s.matric}
+                              <div className="flex items-center gap-2 text-xs font-sans text-slate-500 mt-0.5">
+                                <span>{s.matric}</span>
+                                {s.level && (
+                                  <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                                    {s.level}L
+                                  </span>
+                                )}
                               </div>
                             </div>
                             <span
@@ -959,7 +987,12 @@ export default function SessionControlRoom() {
                                 {s.name}
                               </td>
                               <td className="py-3.5 px-6 font-sans text-slate-600">
-                                {s.matric}
+                                <div>{s.matric}</div>
+                                {s.level && (
+                                  <span className="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                                    {s.level}L
+                                  </span>
+                                )}
                               </td>
                               <td className="py-3.5 px-6 font-sans">
                                 <span className="font-bold text-emerald-600">
@@ -1406,6 +1439,18 @@ export default function SessionControlRoom() {
             accessToken={user.access_token}
           />
         )}
+
+        {/* ── TAB 6: TIMETABLE & LECTURE PUSH NOTIFICATIONS ── */}
+        {activeTab === "timetable" && (
+          <TimetableAndNotificationsPanel
+            sessionId={sessionId}
+            accessToken={user.access_token}
+            courseID={session.courseID}
+            courseName={session.course_name}
+            initialTimetable={session.timetable || []}
+            onTimetableSaved={refetchDashboard}
+          />
+        )}
       </main>
 
       {/* ── Dedicated AI Vision Scanner Modal ── */}
@@ -1477,6 +1522,10 @@ export default function SessionControlRoom() {
           sessionId={sessionId}
           updateSession={updateSession}
           onUpdated={refetchDashboard}
+          onOpenTimetable={() => {
+            setShowSettingsModal(false);
+            setActiveTab("timetable");
+          }}
           onClose={() => setShowSettingsModal(false)}
         />
       )}
@@ -1526,6 +1575,7 @@ function SettingsModal({
   sessionId,
   updateSession,
   onUpdated,
+  onOpenTimetable,
   onClose,
 }) {
   const [totalClasses, setTotalClasses] = useState(
@@ -1581,6 +1631,25 @@ function SettingsModal({
             lectures required.
           </p>
         </div>
+        {onOpenTimetable && (
+          <div className="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-200 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold text-indigo-950">
+                Weekly Timetable &amp; Mobile Push Alerts
+              </p>
+              <p className="text-[11px] text-indigo-700 mt-0.5">
+                Configure 1x/2x weekly lecture slots &amp; 2hr / 1hr / 30min CoursePass reminders.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onOpenTimetable}
+              className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shrink-0 transition"
+            >
+              Open →
+            </button>
+          </div>
+        )}
         <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"

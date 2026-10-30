@@ -8,20 +8,83 @@ from models.lecturer_session import LecturerSession
 from models.session_enrollment import SessionEnrollment
 from models.attendance import Attendance
 from models.attendance_log import AttendanceLog
+from models.notification import Notification
 from models import storage
 from api.v1.views import app_views
 from flask import jsonify, make_response, request, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from api.v1.utils.roles import role_required
-from api.v1.utils.webhook_dispatcher import fetch_coursepass_api, dispatch_course_config_webhook
+from api.v1.utils.webhook_dispatcher import (
+    fetch_coursepass_api,
+    dispatch_course_config_webhook,
+    dispatch_lecture_notification_webhook,
+)
 from api.v1.views.integrations import sync_session_enrollments_from_coursepass
 from datetime import datetime
+import uuid
+import re
 import io
 import pandas as pd
 from openpyxl.styles import Font
 
 
 ses = storage._DBStorage__session
+
+VALID_DAYS_OF_WEEK = [
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+]
+_DAY_LOOKUP = {d.lower(): d for d in VALID_DAYS_OF_WEEK}
+_TIME_REGEX = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
+
+
+def _normalize_timetable_slots(raw_slots):
+    """
+    Validate and normalize a list of weekly lecture timetable slots.
+    Each slot contains:
+      - id: string identifier
+      - day: Monday..Sunday
+      - start_time: HH:MM (24-hour)
+      - end_time: optional HH:MM (24-hour)
+      - venue: optional string
+      - reminders: ['2h', '1h', '30m']
+    """
+    if raw_slots is None:
+        return []
+    if not isinstance(raw_slots, list):
+        raise ValueError("`timetable` must be a list of weekly lecture slots.")
+
+    normalized = []
+    for idx, item in enumerate(raw_slots):
+        if not isinstance(item, dict):
+            raise ValueError(f"Timetable slot #{idx + 1} must be an object.")
+        raw_day = str(item.get("day", "")).strip().lower()
+        day = _DAY_LOOKUP.get(raw_day)
+        if not day:
+            raise ValueError(f"Slot #{idx + 1}: Invalid day '{item.get('day')}'. Must be Monday-Sunday.")
+
+        start_time = str(item.get("start_time") or item.get("time") or "").strip()
+        if not _TIME_REGEX.match(start_time):
+            raise ValueError(f"Slot #{idx + 1}: Invalid start_time '{start_time}'. Use HH:MM (24h format, e.g. 09:00 or 14:30).")
+
+        end_time = str(item.get("end_time") or "").strip()
+        if end_time and not _TIME_REGEX.match(end_time):
+            raise ValueError(f"Slot #{idx + 1}: Invalid end_time '{end_time}'. Use HH:MM (24h format).")
+
+        venue = str(item.get("venue") or "").strip()[:160]
+        slot_id = str(item.get("id") or f"slot-{idx + 1}-{uuid.uuid4().hex[:6]}")
+
+        normalized.append({
+            "id": slot_id,
+            "day": day,
+            "start_time": start_time,
+            "end_time": end_time or None,
+            "venue": venue or None,
+            "reminders": ["2h", "1h", "30m"],
+        })
+
+    day_order = {d: i for i, d in enumerate(VALID_DAYS_OF_WEEK)}
+    normalized.sort(key=lambda s: (day_order.get(s["day"], 99), s["start_time"]))
+    return normalized
 
 
 # ─── Course Creation (lecturer-only) ───────────────────────────────────────────
@@ -149,11 +212,20 @@ def lecturer_create_session():
         )
         course.save()
 
+    # Optional initial timetable slots
+    normalized_timetable = []
+    if "timetable" in data and data["timetable"] is not None:
+        try:
+            normalized_timetable = _normalize_timetable_slots(data["timetable"])
+        except ValueError as err:
+            return make_response(jsonify({"error": str(err)}), 400)
+
     # Create the session
     session_data = {
         "courseID": data["courseID"],
         "session_name": data["session_name"],
-        "total_expected_classes": int(data["total_expected_classes"])
+        "total_expected_classes": int(data["total_expected_classes"]),
+        "timetable": normalized_timetable,
     }
     new_session = Sessions(**session_data)
     new_session.save()
@@ -167,7 +239,8 @@ def lecturer_create_session():
     dispatch_course_config_webhook(
         course.courseID,
         int(data["total_expected_classes"]),
-        data["session_name"]
+        data["session_name"],
+        normalized_timetable,
     )
     try:
         sync_session_enrollments_from_coursepass(new_session)
@@ -284,6 +357,7 @@ def lecturer_sessions():
             "courseID": session_obj.courseID,
             "course_name": course.courseName if course else "N/A",
             "total_expected_classes": session_obj.total_expected_classes,
+            "timetable": session_obj.timetable or [],
             "enrolled_students": enrolled_count,
             "created_at": session_obj.created_at.strftime("%Y-%m-%d %H:%M:%S") if session_obj.created_at else None,
         })
@@ -293,6 +367,7 @@ def lecturer_sessions():
 
 # ─── Session Dashboard (Analytics) ────────────────────────────────────────────
 
+@app_views.route('/lecturer/sessions/<session_id>', methods=["GET"], strict_slashes=False)
 @app_views.route('/lecturer/sessions/<session_id>/dashboard', methods=["GET"], strict_slashes=False)
 @jwt_required()
 @role_required('lecturer', 'admin')
@@ -351,21 +426,34 @@ def session_dashboard(session_id):
             days_missed = 0
         percentage = (effective_attended / total_classes) * 100 if total_classes > 0 else 0
 
-        # Get department from university profile
+        # Get department & level from university profile
         department = "N/A"
-        if user.university and user.university.department:
-            department = user.university.department
+        level = None
+        if user.university:
+            if user.university.department:
+                department = user.university.department
+            if user.university.level:
+                level = user.university.level
 
+        pct_rounded = round(percentage, 2)
+        is_eligible = percentage >= REQUIRED_PERCENTAGE
         student_info = {
             "id": user.id,
             "name": user.name,
+            "email": user.email,
             "matric": user.matric,
             "department": department,
+            "level": level,
             "days_attended": days_attended,
+            "attended_classes": days_attended,
             "days_missed": days_missed,
             "excused": excused,
-            "percentage": round(percentage, 2),
-            "eligible": percentage >= REQUIRED_PERCENTAGE
+            "excused_classes": excused,
+            "total_expected_classes": total_classes,
+            "percentage": pct_rounded,
+            "attendance_percentage": pct_rounded,
+            "eligible": is_eligible,
+            "eligible_75": is_eligible,
         }
         students_data.append(student_info)
         total_percentage += percentage
@@ -400,6 +488,7 @@ def session_dashboard(session_id):
             "courseID": session_obj.courseID,
             "course_name": course.courseName if course else "N/A",
             "total_expected_classes": total_classes,
+            "timetable": session_obj.timetable or [],
         },
         "stats": {
             "total_enrolled": len(all_user_ids),
@@ -495,13 +584,18 @@ def export_date_attendance(session_id, date_str):
         if not user:
             continue
         department = "N/A"
-        if user.university and user.university.department:
-            department = user.university.department
+        level_str = "N/A"
+        if user.university:
+            if user.university.department:
+                department = user.university.department
+            if user.university.level:
+                level_str = f"{user.university.level}L"
         lecturer = storage.get_id(User, log.recorded_by) if log.recorded_by else None
         rows.append({
             "NAME": user.name,
             "MATRIC": user.matric or "N/A",
             "DEPARTMENT": department,
+            "LEVEL": level_str,
             "STATUS": log.status.upper(),
             "TIME": log.date.strftime("%H:%M:%S") if log.date else "N/A",
             "RECORDED BY": lecturer.name if lecturer else "System",
@@ -606,9 +700,19 @@ def export_session_attendance(session_id):
         effective = days_attended + excused
         percentage = (effective / total_classes) * 100 if total_classes > 0 else 0
 
+        department = "N/A"
+        level_str = "N/A"
+        if user.university:
+            if user.university.department:
+                department = user.university.department
+            if user.university.level:
+                level_str = f"{user.university.level}L"
+
         rows.append({
             "NAME": user.name,
             "MATRIC": user.matric or "N/A",
+            "DEPARTMENT": department,
+            "LEVEL": level_str,
             "DAYS ATTENDED": days_attended,
             "EXCUSED": excused,
             "PERCENTAGE": f"{percentage:.2f}%",
@@ -669,13 +773,205 @@ def update_session(session_id):
         if key in allowed_fields:
             setattr(session_obj, key, value)
 
+    if 'timetable' in data:
+        try:
+            session_obj.timetable = _normalize_timetable_slots(data['timetable'])
+        except ValueError as err:
+            return make_response(jsonify({"error": str(err)}), 400)
+
     session_obj.save()
     dispatch_course_config_webhook(
         session_obj.courseID,
         int(session_obj.total_expected_classes or 13),
-        session_obj.session_name
+        session_obj.session_name,
+        session_obj.timetable or [],
     )
     return make_response(jsonify({"message": "Session updated", "session": session_obj.to_dict()}), 200)
+
+
+# ─── Course Timetable & Lecture Update Push Notifications ─────────────────────
+
+@app_views.route('/lecturer/sessions/<session_id>/timetable', methods=["GET", "PUT", "POST"], strict_slashes=False)
+@jwt_required()
+@role_required('lecturer', 'admin')
+def session_timetable(session_id):
+    """
+    GET: Return the configured weekly lecture timetable for this session.
+    PUT/POST: Configure the weekly lecture timetable (supports 1, 2, or more weekly slots).
+    Body:
+      {
+        "timetable": [
+          { "day": "Monday", "start_time": "09:00", "end_time": "11:00", "venue": "LT 1" },
+          { "day": "Thursday", "start_time": "14:00", "end_time": "16:00", "venue": "Room 204" }
+        ],
+        "notify_students": true
+      }
+    """
+    session_obj = storage.get_id(Sessions, session_id)
+    if not session_obj:
+        return make_response(jsonify({"error": "Session not found"}), 404)
+
+    course = ses.query(Courses).filter_by(courseID=session_obj.courseID).first()
+    course_name = course.courseName if course else session_obj.courseID
+
+    if request.method == "GET":
+        return make_response(jsonify({
+            "session_id": session_obj.id,
+            "courseID": session_obj.courseID,
+            "course_name": course_name,
+            "timetable": session_obj.timetable or [],
+            "auto_reminders": ["2 hours before", "1 hour before", "30 minutes before"],
+        }), 200)
+
+    data = request.get_json()
+    if not data:
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+
+    raw_slots = data.get("timetable") if "timetable" in data else data.get("slots", [])
+    try:
+        normalized_slots = _normalize_timetable_slots(raw_slots)
+    except ValueError as err:
+        return make_response(jsonify({"error": str(err)}), 400)
+
+    session_obj.timetable = normalized_slots
+    session_obj.save()
+
+    # Sync timetable to CoursePass
+    dispatch_course_config_webhook(
+        session_obj.courseID,
+        int(session_obj.total_expected_classes or 13),
+        session_obj.session_name,
+        normalized_slots,
+    )
+
+    notify_flag = data.get("notify_students", data.get("notify_mobile", True))
+    notify_students = bool(notify_flag)
+    if notify_students and normalized_slots:
+        try:
+            sync_session_enrollments_from_coursepass(session_obj)
+        except Exception:
+            pass
+        enrollments = ses.query(SessionEnrollment).filter_by(session_id=session_id).all()
+        enrolled_student_ids = [str(e.user_id) for e in enrollments if e.user_id]
+
+        lecturer_id = get_jwt_identity()
+        lecturer = storage.get_id(User, lecturer_id)
+        lecturer_name = lecturer.name if lecturer else "Course Lecturer"
+        schedule_summary = ", ".join(
+            f"{s['day']} at {s['start_time']}" + (f" ({s['venue']})" if s.get("venue") else "")
+            for s in normalized_slots
+        )
+        title = f"📅 {session_obj.courseID} Timetable Updated"
+        msg = f"{course_name} ({session_obj.courseID}) weekly lecture schedule: {schedule_summary}. Automatic reminders will be sent 2hrs, 1hr, and 30mins before class."
+        for enrollment in enrollments:
+            notif = Notification(
+                user_id=enrollment.user_id,
+                title=title[:255],
+                message=msg,
+                notification_type="timetable_update",
+                related_session_id=session_id,
+            )
+            notif.save()
+
+        dispatch_lecture_notification_webhook(
+            course_id=session_obj.courseID,
+            session_id=session_obj.id,
+            title=title,
+            message=msg,
+            notification_type="timetable_update",
+            lecturer_name=lecturer_name,
+            course_name=course_name,
+            enrolled_student_ids=enrolled_student_ids,
+        )
+
+    return make_response(jsonify({
+        "message": "Course timetable saved and synced to mobile users.",
+        "session_id": session_obj.id,
+        "courseID": session_obj.courseID,
+        "timetable": normalized_slots,
+        "auto_reminders": ["2h", "1h", "30m"],
+    }), 200)
+
+
+@app_views.route('/lecturer/sessions/<session_id>/notify', methods=["POST"], strict_slashes=False)
+@jwt_required()
+@role_required('lecturer', 'admin')
+def push_lecture_update_notification(session_id):
+    """
+    Allow lecturer to push an immediate notification about a lecture update
+    (e.g., venue change, time reschedule, class starting now, cancellation, or custom notice)
+    to all enrolled mobile users on CoursePass & FacePass.
+    Body:
+      {
+        "title": "Lecture Venue Changed",
+        "message": "Today's CSC301 lecture has been moved to ETF Hall at 10:00 AM.",
+        "update_type": "lecture_update" | "venue_change" | "rescheduled" | "cancelled" | "starting_soon",
+        "slot": { "day": "Monday", "start_time": "10:00", "venue": "ETF Hall" }
+      }
+    """
+    session_obj = storage.get_id(Sessions, session_id)
+    if not session_obj:
+        return make_response(jsonify({"error": "Session not found"}), 404)
+
+    data = request.get_json()
+    if not data:
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+
+    message = str(data.get("message") or "").strip()
+    if not message:
+        return make_response(jsonify({"error": "Notification message is required"}), 400)
+
+    course = ses.query(Courses).filter_by(courseID=session_obj.courseID).first()
+    course_name = course.courseName if course else session_obj.courseID
+    lecturer_id = get_jwt_identity()
+    lecturer = storage.get_id(User, lecturer_id)
+    lecturer_name = lecturer.name if lecturer else "Course Lecturer"
+
+    update_type = str(data.get("update_type") or "lecture_update").strip()
+    default_title = f"📢 {session_obj.courseID} Lecture Update"
+    title = str(data.get("title") or default_title).strip()
+    slot = data.get("slot") if isinstance(data.get("slot"), dict) else {}
+
+    # Reconcile latest enrollments from CoursePass before dispatching notifications
+    try:
+        sync_session_enrollments_from_coursepass(session_obj)
+    except Exception:
+        pass
+
+    # Create local in-app notifications for enrolled students on FacePass
+    enrollments = ses.query(SessionEnrollment).filter_by(session_id=session_id).all()
+    enrolled_student_ids = [str(e.user_id) for e in enrollments if e.user_id]
+    for enrollment in enrollments:
+        notif = Notification(
+            user_id=enrollment.user_id,
+            title=title[:255],
+            message=message,
+            notification_type="lecture_update",
+            related_session_id=session_id,
+        )
+        notif.save()
+
+    # Dispatch push notification webhook to CoursePass enrolled mobile users
+    dispatch_lecture_notification_webhook(
+        course_id=session_obj.courseID,
+        session_id=session_obj.id,
+        title=title,
+        message=message,
+        notification_type=update_type,
+        slot=slot,
+        lecturer_name=lecturer_name,
+        course_name=course_name,
+        enrolled_student_ids=enrolled_student_ids,
+    )
+
+    return make_response(jsonify({
+        "message": "Lecture update push notification sent to mobile users.",
+        "courseID": session_obj.courseID,
+        "title": title,
+        "body": message,
+        "update_type": update_type,
+        "recipients_local": len(enrollments),
+    }), 200)
 
 
 # _recalculate_attendance_summary is imported from attendance.py
@@ -689,14 +985,54 @@ from models.quiz import Quiz, QuizResult
 @jwt_required()
 def export_csv(session_id):
     session_obj = storage.get_id(Sessions, session_id)
-    if not session_obj: return make_response(jsonify({"error": "Session not found"}), 404)
-    # Generate CSV logic (Mocked for brevity)
+    if not session_obj:
+        return make_response(jsonify({"error": "Session not found"}), 404)
+
+    try:
+        sync_session_enrollments_from_coursepass(session_obj)
+    except Exception:
+        pass
+
+    total_classes = session_obj.total_expected_classes or 13
+    enrollments = ses.query(SessionEnrollment).filter_by(session_id=session_id).all()
+    enrolled_ids = set(e.user_id for e in enrollments)
+    logged_ids = set(
+        uid for (uid,) in ses.query(AttendanceLog.user_id).filter_by(session_id=session_id).distinct().all()
+    )
+
     si = StringIO()
     cw = csv.writer(si)
-    cw.writerow(['Matric', 'Name', 'Total Classes', 'Attended', 'Missed', 'Percentage', 'Eligibility'])
-    # Populate with grouped_users...
+    cw.writerow(['Matric', 'Name', 'Department', 'Level', 'Total Classes', 'Attended', 'Excused', 'Missed', 'Percentage', 'Eligibility'])
+    for uid in (enrolled_ids | logged_ids):
+        user = storage.get_id(User, uid)
+        if not user:
+            continue
+        days_attended = ses.query(AttendanceLog).filter_by(
+            session_id=session_id, user_id=uid, status='present'
+        ).count()
+        excused = ses.query(AttendanceLog).filter_by(
+            session_id=session_id, user_id=uid, status='excused'
+        ).count()
+        effective = days_attended + excused
+        missed = max(0, total_classes - effective)
+        pct = round((effective / total_classes) * 100, 2) if total_classes > 0 else 0
+        dept = user.university.department if (user.university and user.university.department) else "N/A"
+        lvl = f"{user.university.level}L" if (user.university and user.university.level) else "N/A"
+        cw.writerow([
+            user.matric or 'N/A',
+            user.name or 'Student',
+            dept,
+            lvl,
+            total_classes,
+            days_attended,
+            excused,
+            missed,
+            f"{pct}%",
+            'Eligible' if pct >= 75 else 'Ineligible',
+        ])
+
     output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    output.headers["Content-Disposition"] = f"attachment; filename=Attendance_{session_obj.courseID}.csv"
     output.headers["Content-type"] = "text/csv"
     return output
 

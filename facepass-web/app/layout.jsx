@@ -39,6 +39,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`scroll-smooth ${roboto.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className={`${roboto.className} ${roboto.variable} font-sans antialiased bg-[#FAFAFA] text-slate-900 selection:bg-blue-500/20 selection:text-blue-900 overflow-x-hidden`}
       >

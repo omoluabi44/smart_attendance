@@ -3,7 +3,7 @@ import models
 from models.base_model import BaseModel, Base
 from os import getenv
 import sqlalchemy
-from sqlalchemy import Column, String, ForeignKey,JSON,Integer
+from sqlalchemy import Column, String, ForeignKey, JSON, Integer
 from sqlalchemy.orm import relationship
 
 
@@ -11,20 +11,14 @@ class Sessions(BaseModel, Base):
     __tablename__ = 'session_year'
     courseID = Column(String(60), ForeignKey('courses.courseID', ondelete='CASCADE'), nullable=False)
     session_name = Column(String(530), nullable=False)
-    total_expected_classes =  Column(Integer, default=13, nullable=False)
-    
+    total_expected_classes = Column(Integer, default=13, nullable=False)
+    timetable = Column(JSON, nullable=True)
+
     course = relationship("Courses", back_populates="sessions")
     attendance = relationship("Attendance", back_populates="sessions")
     lecturers = relationship("LecturerSession", back_populates="session", cascade="all, delete-orphan")
     attendance_logs = relationship("AttendanceLog", back_populates="session", cascade="all, delete-orphan")
     enrolled_students = relationship("SessionEnrollment", back_populates="session", cascade="all, delete-orphan")
-   
-    
-  
-    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-    
-   
