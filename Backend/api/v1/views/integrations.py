@@ -216,11 +216,12 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
             existing = ses.query(SessionEnrollment).filter_by(
                 session_id=sid, user_id=student_id
             ).first()
-            if not existing:
+            is_new = existing is None
+            if is_new:
                 new_enrollment = SessionEnrollment(session_id=sid, user_id=student_id)
                 storage.new(new_enrollment)
                 storage.save()
-            if index_faces:
+            if index_faces and is_new:
                 _index_student_in_session_collection(sid, student_id, data)
             synced_session_ids.append(sid)
         except Exception as exc:
@@ -232,67 +233,37 @@ def _sync_student_and_sessions(data: dict, index_faces: bool = True):
 
 def sync_session_enrollments_from_coursepass(session_obj) -> int:
     """
-    Pulls and reconciles course enrollments from local `enrollments` table AND
-    CoursePass Central API (`/api/v1/enrollment/course/<courseID>`) into `SessionEnrollment`
-    so any student enrolled on CoursePass immediately shows up on the FacePass session dashboard.
+    Pulls and reconciles course enrollments from CoursePass Central API
+    (`/api/v1/enrollment/course/<courseID>`) into `SessionEnrollment`
+    (both adding newly enrolled students AND removing de-enrolled students)
+    so the FacePass session dashboard always matches CoursePass in real time.
     """
     if not session_obj or not session_obj.courseID:
         return 0
 
+    import urllib.parse
     ses = storage._DBStorage__session
     course_code = str(session_obj.courseID).strip()
-    norm_code = _normalize_course_code(course_code)
+    encoded_code = urllib.parse.quote(course_code)
     synced_count = 0
 
-    # 1. Reconcile any local `Enrollment` rows matching this course code
     try:
-        local_enrollments = ses.query(Enrollment).all()
-        for le in local_enrollments:
-            if _normalize_course_code(le.courseID) == norm_code and le.userID:
-                existing_se = ses.query(SessionEnrollment).filter_by(
-                    session_id=session_obj.id, user_id=le.userID
-                ).first()
-                if not existing_se:
-                    user_exists = storage.get_id(User, le.userID)
-                    if not user_exists:
-                        remote_u = fetch_coursepass_api(f"/api/v1/user/{le.userID}")
-                        if isinstance(remote_u, dict) and remote_u.get('id'):
-                            prof = remote_u.get('profile') or {}
-                            uni = remote_u.get('university') or {}
-                            fname = (prof.get('Fname') or '').strip()
-                            lname = (prof.get('Lname') or '').strip()
-                            full_name = f"{fname} {lname}".strip() or remote_u.get('username') or remote_u.get('email') or 'Student'
-                            _sync_student_and_sessions({
-                                'student_id': str(remote_u.get('id')),
-                                'student_name': full_name,
-                                'email': remote_u.get('email') or '',
-                                'matric_number': prof.get('matric_number') or '',
-                                'department': uni.get('department') or 'N/A',
-                                'college': uni.get('College') or '',
-                                'university': uni.get('university') or 'University',
-                                'level': str(uni.get('level') or '100'),
-                                'face_image_s3_key': prof.get('face_image_s3_key') or '',
-                                'session_id': session_obj.id,
-                                'course_code': course_code,
-                            }, index_faces=False)
-                            synced_count += 1
-                            continue
-                    storage.new(SessionEnrollment(session_id=session_obj.id, user_id=le.userID))
-                    storage.save()
-                    synced_count += 1
-    except Exception as exc:
-        logger.warning("Local enrollment reconciliation warning for %s: %s", course_code, exc)
-        storage.rollback()
-
-    # 2. Pull live course enrollments from CoursePass Central API
-    try:
-        remote_enrollments = fetch_coursepass_api(f"/api/v1/enrollment/course/{course_code}", use_cache=False)
+        remote_enrollments = fetch_coursepass_api(f"/api/v1/enrollment/course/{encoded_code}", use_cache=False)
         if isinstance(remote_enrollments, list):
+            remote_user_ids = set()
+            existing_rows = ses.query(SessionEnrollment).filter_by(session_id=session_obj.id).all()
+            existing_by_uid = {row.user_id: row for row in existing_rows}
+
             for item in remote_enrollments:
                 if not isinstance(item, dict):
                     continue
                 uid = str(item.get('student_id') or item.get('userID') or '').strip()
                 if not uid:
+                    continue
+                remote_user_ids.add(uid)
+
+                # Only run full user/session upsert if student is not yet in SessionEnrollment or User table
+                if uid in existing_by_uid and storage.get_id(User, uid):
                     continue
 
                 payload = dict(item)
@@ -300,7 +271,6 @@ def sync_session_enrollments_from_coursepass(session_obj) -> int:
                 payload['session_id'] = session_obj.id
                 payload['course_code'] = course_code
 
-                # If student identity details weren't embedded in enrollment response, fetch from /api/v1/user/<uid>
                 if not payload.get('student_name'):
                     remote_u = fetch_coursepass_api(f"/api/v1/user/{uid}")
                     if isinstance(remote_u, dict) and remote_u.get('id'):
@@ -322,8 +292,18 @@ def sync_session_enrollments_from_coursepass(session_obj) -> int:
 
                 _sync_student_and_sessions(payload, index_faces=bool(payload.get('face_image_s3_key')))
                 synced_count += 1
+
+            # Remove any student from SessionEnrollment who de-enrolled on CoursePass
+            removed = False
+            for uid, row in existing_by_uid.items():
+                if uid not in remote_user_ids:
+                    ses.delete(row)
+                    removed = True
+            if removed:
+                storage.save()
     except Exception as exc:
-        logger.warning("Remote CoursePass enrollment pull failed for %s: %s", course_code, exc)
+        logger.warning("Remote CoursePass enrollment reconciliation failed for %s: %s", course_code, exc)
+        storage.rollback()
 
     return synced_count
 
@@ -371,4 +351,41 @@ def sync_coursepass_enrollment():
         "message": "Student enrollment and biometrics synced to FacePass",
         "student_id": data.get('student_id') or data.get('userID'),
         "synced_sessions": synced_sessions,
+    }), 200
+
+
+@app_views.route('/coursepass/enrollments/unsync', methods=['POST'], strict_slashes=False)
+def unsync_coursepass_enrollment():
+    """Inbound endpoint called when a student de-enrolls from a course on CoursePass."""
+    data = request.get_json(silent=True) or {}
+    student_id = str(data.get('student_id') or data.get('userID') or '').strip()
+    course_code = str(data.get('course_code') or data.get('courseID') or '').strip()
+    session_id = str(data.get('session_id') or '').strip()
+
+    if not student_id:
+        return make_response(jsonify({"error": "Missing required field: student_id"}), 400)
+
+    ses = storage._DBStorage__session
+    target_session_ids = set()
+    if session_id:
+        target_session_ids.add(session_id)
+    if course_code:
+        norm_target = _normalize_course_code(course_code)
+        for s_obj in ses.query(Sessions).all():
+            if _normalize_course_code(s_obj.courseID) == norm_target:
+                target_session_ids.add(s_obj.id)
+
+    removed_sessions = []
+    for sid in target_session_ids:
+        rows = ses.query(SessionEnrollment).filter_by(session_id=sid, user_id=student_id).all()
+        for r in rows:
+            ses.delete(r)
+            removed_sessions.append(sid)
+    if removed_sessions:
+        storage.save()
+
+    return jsonify({
+        "message": "Student de-enrollment synced to FacePass",
+        "student_id": student_id,
+        "removed_sessions": removed_sessions,
     }), 200
