@@ -67,7 +67,11 @@ export default function SessionControlRoom() {
     data: dashboard,
     isLoading,
     refetch: refetchDashboard,
-  } = useGetSessionDashboardQuery(sessionId);
+  } = useGetSessionDashboardQuery(sessionId, {
+    pollingInterval: 10000,
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+  });
   const { data: historyData, refetch: refetchHistory } =
     useGetSessionHistoryQuery(sessionId);
   const [manualOverride] = useManualOverrideMutation();

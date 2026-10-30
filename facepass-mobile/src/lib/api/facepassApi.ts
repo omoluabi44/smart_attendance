@@ -253,6 +253,14 @@ export const facepassApi = apiSlice.injectEndpoints({
       ],
     }),
 
+        getImageAttendanceStatus: builder.query<
+      any,
+      { sessionId: string; jobId: string }
+    >({
+      query: ({ sessionId, jobId }) =>
+        `lecturer/sessions/${sessionId}/attendance/image-status/${jobId}`,
+    }),
+
     getVideoAttendanceStatus: builder.query<
       any,
       { sessionId: string; jobId: string }
@@ -393,6 +401,7 @@ export const {
   useProcessImageAttendanceMutation,
   useProcessVideoAttendanceMutation,
   useLazyGetVideoAttendanceStatusQuery,
+  useLazyGetImageAttendanceStatusQuery,
   useOverrideAttendanceLogMutation,
   useGetStudentAuditQuery,
   useGetSessionMaterialsQuery,

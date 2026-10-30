@@ -32,7 +32,7 @@ def get_base_url():
     return base
 
 
-def fetch_coursepass_api(path: str, params: dict = None):
+def fetch_coursepass_api(path: str, params: dict = None, use_cache: bool = True):
     """
     Fetch data from CoursePass Central API (e.g., '/api/v1/universities', '/api/v1/courses').
     Tries configured COURSEPASS_API_BASE_URL and https://api.coursepass.app first, then localhost fallback.
@@ -41,7 +41,7 @@ def fetch_coursepass_api(path: str, params: dict = None):
     cache_key = f"{path}?{json.dumps(params or {}, sort_keys=True)}"
     now = time.time()
     cached = _COURSEPASS_CACHE.get(cache_key)
-    if cached and (now - cached["ts"] < _CACHE_TTL_SECONDS):
+    if use_cache and cached and (now - cached["ts"] < _CACHE_TTL_SECONDS):
         return cached["data"]
 
     candidates = []

@@ -16,6 +16,8 @@ from api.v1.utils.rekognition_utils import (
     get_s3_client,
 )
 from api.v1.utils.webhook_dispatcher import dispatch_attendance_webhook
+from api.v1.celery import celery
+from api.v1.utils.attendance_worker import process_attendance_image_task
 from models import storage
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request, send_file
@@ -43,7 +45,7 @@ ses = storage._DBStorage__session
 
 @app_views.route('/lecturer/sessions/<session_id>/attendance/presigned-url', methods=['GET'], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer')
+@role_required('lecturer', 'admin')
 def generate_presigned_url(session_id):
     """Generate a presigned URL to upload video/image directly to S3."""
     session_obj = storage.get_id(Sessions, session_id)
@@ -58,10 +60,11 @@ def generate_presigned_url(session_id):
 
     # Validate lecturer is assigned
     lecturer_id = get_jwt_identity()
+    user_obj = storage.get_id(User, lecturer_id)
     is_assigned = ses.query(LecturerSession).filter_by(
         session_id=session_id, lecturer_id=lecturer_id
     ).first()
-    if not is_assigned:
+    if not is_assigned and (not user_obj or user_obj.role != 'admin'):
         return make_response(jsonify({"error": "You are not assigned to this session"}), 403)
 
     ext = os.path.splitext(file_name)[1]
@@ -97,7 +100,7 @@ def generate_presigned_url(session_id):
 @app_views.route('/lecturer/sessions/<session_id>/attendance/video',
                  methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer')
+@role_required('lecturer', 'admin')
 def upload_attendance_video(session_id):
     """
     Process a video for face-based attendance already uploaded to S3.
@@ -110,10 +113,11 @@ def upload_attendance_video(session_id):
 
     # Verify lecturer is assigned to this session
     lecturer_id = get_jwt_identity()
+    user_obj = storage.get_id(User, lecturer_id)
     is_assigned = ses.query(LecturerSession).filter_by(
         session_id=session_id, lecturer_id=lecturer_id
     ).first()
-    if not is_assigned:
+    if not is_assigned and (not user_obj or user_obj.role != 'admin'):
         return make_response(jsonify({"error": "You are not assigned to this session"}), 403)
 
     data = request.get_json()
@@ -150,7 +154,7 @@ def upload_attendance_video(session_id):
 @app_views.route('/lecturer/sessions/<session_id>/attendance/video-status/<job_id>',
                  methods=['GET'], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer')
+@role_required('lecturer', 'admin')
 def check_video_attendance_status(session_id, job_id):
     """
     Poll the status of a video attendance job.
@@ -219,6 +223,10 @@ def check_video_attendance_status(session_id, job_id):
                 "skipped_students": record_result["skipped_users"],
                 "unknown_faces": unknown_count,
                 "data": recognized_students,
+                "marked_present_count": record_result["recognized_count"],
+                "already_marked_today_count": record_result["skipped_count"],
+                "unmatched_faces_count": unknown_count,
+                "present_students": recognized_students
             }), 200)
 
         else:
@@ -236,7 +244,7 @@ def check_video_attendance_status(session_id, job_id):
 @app_views.route('/lecturer/sessions/<session_id>/attendance/image',
                  methods=['POST'], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer')
+@role_required('lecturer', 'admin')
 def take_attendance_image(session_id):
     """
     Process a group photo (uploaded to S3) to take attendance via face recognition.
@@ -247,12 +255,11 @@ def take_attendance_image(session_id):
         return make_response(jsonify({"error": "Session not found"}), 404)
 
     lecturer_id = get_jwt_identity()
-
-    # Verify lecturer is assigned
+    user_obj = storage.get_id(User, lecturer_id)
     is_assigned = ses.query(LecturerSession).filter_by(
         session_id=session_id, lecturer_id=lecturer_id
     ).first()
-    if not is_assigned:
+    if not is_assigned and (not user_obj or user_obj.role != 'admin'):
         return make_response(jsonify({"error": "You are not assigned to this session"}), 403)
 
     data = request.get_json()
@@ -262,97 +269,13 @@ def take_attendance_image(session_id):
     s3_key = data['s3_key']
 
     try:
-        # Fetch image bytes from S3
-        s3_object = s3_client.get_object(Bucket=BUCKET_NAME, Key=s3_key)
-        image_bytes = s3_object['Body'].read()
-
-        # Detect all faces in the image
-        detection_response = rekognition.detect_faces(
-            Image={'Bytes': image_bytes},
-            Attributes=['DEFAULT']
-        )
-
-        img = Image.open(io.BytesIO(image_bytes))
-        width, height = img.size
-
-        all_results = []
-        best_matches = {}
-        MIN_FACE_PIXELS = 55
-        qualifying_faces_count = 0
-        low_resolution_faces_count = 0
-
-        for faceDetail in detection_response['FaceDetails']:
-            box = faceDetail['BoundingBox']
-            left = width * box['Left']
-            top = height * box['Top']
-            face_w = width * box['Width']
-            face_h = height * box['Height']
-            right = left + face_w
-            bottom = top + face_h
-
-            if round(face_w) < MIN_FACE_PIXELS or round(face_h) < MIN_FACE_PIXELS:
-                low_resolution_faces_count += 1
-            else:
-                qualifying_faces_count += 1
-
-            face_crop = img.crop((left, top, right, bottom))
-
-            stream = io.BytesIO()
-            face_crop.save(stream, format="JPEG")
-            crop_bytes = stream.getvalue()
-
-            try:
-                collection_id = ensure_session_collection(session_id)
-                search_response = rekognition.search_users_by_image(
-                    CollectionId=collection_id,
-                    Image={'Bytes': crop_bytes},
-                    MaxUsers=1,
-                    UserMatchThreshold=85
-                )
-            except rekognition.exceptions.InvalidParameterException:
-                continue
-
-            matches = search_response.get('UserMatches', [])
-            if matches:
-                user_id = matches[0]['User'].get('UserId')
-                confidence = matches[0].get('Similarity', 0)
-                if user_id and (user_id not in best_matches or confidence > best_matches[user_id]):
-                    best_matches[user_id] = confidence
-
-        # Build deduplicated results
-        unique_results = [
-            {"user_id": uid, "confidence": conf}
-            for uid, conf in best_matches.items()
-        ]
-
-        # Record attendance
-        record_result = update_student_record(unique_results, session_id=session_id, lecturer_id=lecturer_id)
-
-        # Intruder alert logic (compare against qualifying >= 55x55px faces so low-res background faces don't trigger false alerts)
-        total_faces = len(detection_response['FaceDetails'])
-        recognized_count = len(unique_results)
-        effective_faces_for_alert = qualifying_faces_count if qualifying_faces_count > 0 else total_faces
-        unregistered_alert = effective_faces_for_alert > recognized_count
-
-        # Build response
-        recognized_students = get_user(unique_results, session_id=session_id)
-        
-        # Dispatch webhook to CoursePass
-        present_ids = [res['user_id'] for res in unique_results]
-        date_str = datetime.utcnow().strftime('%Y-%m-%d')
-        dispatch_attendance_webhook(session_id, session_obj.courseID, date_str, present_ids, [])
+        # Enqueue background task
+        task = process_attendance_image_task.delay(session_id, lecturer_id, s3_key)
 
         return make_response(jsonify({
-            "status": "complete",
-            "total_faces_detected": len(detection_response['FaceDetails']),
-            "qualifying_faces_count": qualifying_faces_count,
-            "low_resolution_faces_count": low_resolution_faces_count,
-            "unique_faces_recognized": len(unique_results),
-            "new_records": record_result["recognized_count"],
-            "skipped_already_recorded": record_result["skipped_count"],
-            "skipped_students": record_result["skipped_users"],
-            "unregistered_alert": unregistered_alert,
-            "data": recognized_students,
+            "message": "Image uploaded and attendance processing started in background",
+            "job_id": task.id,
+            "s3_key": s3_key,
         }), 200)
 
     except Exception as e:
@@ -363,7 +286,7 @@ def take_attendance_image(session_id):
 
 @app_views.route('/attendance', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer')
+@role_required('lecturer', 'admin')
 def post_attendance():
     """Create a manual attendance record for a student in a session."""
     data = request.get_json()
@@ -561,7 +484,7 @@ def verify_face():
 
 @app_views.route('/export-attendance', methods=["POST"], strict_slashes=False)
 @jwt_required()
-@role_required('lecturer')
+@role_required('lecturer', 'admin')
 def export_attendance():
     """Export attendance data to Excel."""
     data = request.get_json()
@@ -847,3 +770,41 @@ def export_attendance_to_excel(grouped_users, session_info=None):
         download_name=f"Attendance_Report_{datetime.now().strftime('%Y%m%d')}.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+@app_views.route('/lecturer/sessions/<session_id>/attendance/image-status/<job_id>',
+                 methods=['GET'], strict_slashes=False)
+@jwt_required()
+@role_required('lecturer', 'admin')
+def check_image_attendance_status(session_id, job_id):
+    """
+    Poll the status of an image attendance job.
+    """
+    session_obj = storage.get_id(Sessions, session_id)
+    if not session_obj:
+        return make_response(jsonify({"error": "Session not found"}), 404)
+
+    try:
+        task = celery.AsyncResult(job_id)
+        if task.state == 'PENDING' or task.state == 'STARTED' or task.state == 'RETRY':
+            return make_response(jsonify({"status": "processing"}), 200)
+        elif task.state == 'SUCCESS':
+            result = task.result
+            
+            # Need to get user details to append to data (recognized_students)
+            # We already have the unique_results logic in the task, but wait, 
+            # task doesn't return 'data'. Let's do it here or in task.
+            # It's better here because it doesn't need to be serialized in celery backend.
+            # But the task didn't return unique_results explicitly. Wait, task returns marked_present_count etc.
+            # For UI compatibility we can just return task.result and if the UI needs the roster update it will call refetch().
+            # Wait, video-status endpoint returns "data": recognized_students.
+            # Let's just return what the task returns. The UI will refetch roster anyway.
+            return make_response(jsonify(result), 200)
+        elif task.state == 'FAILURE':
+            return make_response(jsonify({
+                "status": "failed",
+                "message": str(task.info)
+            }), 200)
+        else:
+            return make_response(jsonify({"status": "processing"}), 200)
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)

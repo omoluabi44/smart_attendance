@@ -8,7 +8,7 @@ def create_celery_app():
         "api.v1",
         broker=redis_url,
         backend=redis_url,
-        include=["api.v1.utils.webhook_dispatcher"],
+        include=["api.v1.utils.webhook_dispatcher", "api.v1.utils.attendance_worker"],
     )
 
     celery_app.conf.update(

@@ -14,6 +14,7 @@ from flask import jsonify, make_response, request, send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from api.v1.utils.roles import role_required
 from api.v1.utils.webhook_dispatcher import fetch_coursepass_api, dispatch_course_config_webhook
+from api.v1.views.integrations import sync_session_enrollments_from_coursepass
 from datetime import datetime
 import io
 import pandas as pd
@@ -168,6 +169,10 @@ def lecturer_create_session():
         int(data["total_expected_classes"]),
         data["session_name"]
     )
+    try:
+        sync_session_enrollments_from_coursepass(new_session)
+    except Exception:
+        pass
 
     return make_response(jsonify({
         "message": "Session created successfully",
@@ -265,6 +270,11 @@ def lecturer_sessions():
         if not session_obj:
             continue
 
+        try:
+            sync_session_enrollments_from_coursepass(session_obj)
+        except Exception:
+            pass
+
         enrolled_count = ses.query(SessionEnrollment).filter_by(session_id=session_obj.id).count()
         course = ses.query(Courses).filter_by(courseID=session_obj.courseID).first()
 
@@ -295,6 +305,11 @@ def session_dashboard(session_id):
     session_obj = storage.get_id(Sessions, session_id)
     if not session_obj:
         return make_response(jsonify({"error": "Session not found"}), 404)
+
+    try:
+        sync_session_enrollments_from_coursepass(session_obj)
+    except Exception:
+        pass
 
     total_classes = session_obj.total_expected_classes or 13
     REQUIRED_PERCENTAGE = 75
